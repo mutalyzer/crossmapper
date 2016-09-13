@@ -8,6 +8,48 @@ from __future__ import division, unicode_literals
 from future.builtins import str
 
 
+def _plus(a, b):
+    """
+    Return a + b unless a is smaller than zero and the result is larger than
+    zero, in that case it returns a + b + 1.
+
+    In effect the number 0 is skipped while adding.
+    """
+    r = a + b
+
+    if a <= 0 and r >= 0:
+        return r + 1
+    return r
+
+
+def _minus(a, b):
+    """
+    Return a - b unless a is larger than zero and the result is smaller than
+    zero, in that case it returns (a - b) - 1.
+
+    In effect the number 0 is skipped while subtracting.
+    """
+    r = a - b
+
+    if a >= 0 and r <= 0:
+        return r - 1
+    return r
+
+
+def _minusr(a, b):
+    """
+    Return a - b unless a is larger than zero and b is smaller than zero, in
+    that case it returns (a - b) - 1.
+
+    In effect the number 0 is skipped while subtracting.
+    """
+    r = a - b
+
+    if a > 0 and b < 0:
+        return r - 1
+    return r
+
+
 class Crossmap():
     """
     Convert from I{g.} to I{c.} or I{n.} notation or vice versa.
@@ -36,57 +78,6 @@ class Crossmap():
 
         if not self._stop:
             self._stop = self._trans_end
-
-    def _plus(self, a, b):
-        """
-        This method returns a + b unless a is smaller than zero and the
-        result is larger than zero, in that case it returns a + b + 1.
-        In effect the number 0 is skipped while adding.
-
-        :arg int a: First argument of the addition
-        :arg int b: Second argument of the addition
-
-        :returns int: a + b or a + b + 1
-        """
-        r = a + b
-
-        if a <= 0 and r >= 0:
-            return r + 1
-        return r
-
-    def _minus(self, a, b):
-        """
-        This method returns a - b unless a is larger than zero and the
-        result is smaller than zero, in that case it returns (a - b) - 1.
-        In effect the number 0 is skipped while subtracting.
-
-        :arg int a: First argument of the subtraction
-        :arg int b: Second argument of the subtraction
-
-        :returns int: a - b or (a - b) - 1
-        """
-        r = a - b
-
-        if a >= 0 and r <= 0:
-            return r - 1
-        return r
-
-    def _minusr(self, a, b):
-        """
-        This method returns a - b unless a is larger than zero and b is
-        smaller than zero, in that case it returns (a - b) - 1.
-        In effect the number 0 is skipped while subtracting.
-
-        :arg int a: First argument of the subtraction
-        :arg int b: Second argument of the subtraction
-
-        :returns int: a - b or (a - b) - 1
-        """
-        r = a - b
-
-        if a > 0 and b < 0:
-            return r - 1
-        return r
 
     def _crossmap_splice_sites(self):
         """
@@ -137,7 +128,7 @@ class Crossmap():
                                                              # boundary.
 
             while d * i > d * y:                      # Go back to exon 1.
-                c_pos = self._minus(c_pos, d *
+                c_pos = _minus(c_pos, d *
                        (self.rna[i] - self.rna[i - d] + d))
                 i -= d * 2
 
@@ -145,9 +136,9 @@ class Crossmap():
         while d * i < d * (y - c) + rna_length:
             self._crossmapping[i + c] = c_pos
             if i % 2:                       # We are skipping an intron.
-                c_pos = self._plus(c_pos, 1) # Only add 1 (mind the 0).
+                c_pos = _plus(c_pos, 1) # Only add 1 (mind the 0).
             else: # We are skipping an exon, so add the length.
-                c_pos = self._plus(c_pos, self.rna[i + 1] - self.rna[i])
+                c_pos = _plus(c_pos, self.rna[i + 1] - self.rna[i])
 
             # Set _stop when we find CDS stop.
             if self.cds and not self._stop and \
@@ -210,7 +201,7 @@ class Crossmap():
                             d * (a - self.rna[i + c]))
             else:                # We're checking the exon positions.
                 if self.rna[i] <= a and a <= self.rna[i + 1]:
-                    return (self._plus(self._crossmapping[i + c],
+                    return (_plus(self._crossmapping[i + c],
                                         d * (a - self.rna[i + c])), 0)
 
     def x2g(self, a, b):
@@ -252,7 +243,7 @@ class Crossmap():
             if d * self._crossmapping[i] <= d * a and \
                d * a <= d * self._crossmapping[i + 1]:
                 ret = self.rna[i + c] - d * \
-                      self._minusr(self._crossmapping[i + c], a)
+                      _minusr(self._crossmapping[i + c], a)
         ret += d * b # Add the intron count.
 
         if a < 0 and self._crossmapping[d - c] == 1: # Patch for CDS start on
@@ -343,7 +334,7 @@ class Crossmap():
         :returns str: The position in HGVS notation
         """
         if t[0] >= self._trans_end or t[0] <= self._trans_start:
-            return str(self.int2main(self._minus(t[0], -t[1])))
+            return str(self.int2main(_minus(t[0], -t[1])))
         return str(self.int2main(t[0])) + str(self.int2offset(t, fuzzy))
 
     def g2c(self, a, fuzzy=False):
