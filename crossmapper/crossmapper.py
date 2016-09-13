@@ -15,11 +15,9 @@ def _plus(a, b):
 
     In effect the number 0 is skipped while adding.
     """
-    r = a + b
-
     if a <= 0 and r >= 0:
-        return r + 1
-    return r
+        return a + b + 1
+    return a + b
 
 
 def _minus(a, b):
@@ -29,11 +27,9 @@ def _minus(a, b):
 
     In effect the number 0 is skipped while subtracting.
     """
-    r = a - b
-
     if a >= 0 and r <= 0:
-        return r - 1
-    return r
+        return a - b - 1
+    return a - b
 
 
 def _minusr(a, b):
@@ -43,11 +39,9 @@ def _minusr(a, b):
 
     In effect the number 0 is skipped while subtracting.
     """
-    r = a - b
-
     if a > 0 and b < 0:
-        return r - 1
-    return r
+        return a - b - 1
+    return a - b
 
 
 class Crossmap():
