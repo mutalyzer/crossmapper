@@ -136,8 +136,8 @@ class Crossmap():
                 c_pos = _plus(c_pos, self.rna[i + 1] - self.rna[i])
 
             # Set _stop when we find CDS stop.
-            if self.cds and not self._stop and \
-               d * self.rna[i - c + 1] >= d * self.cds[x]:
+            if (self.cds and not self._stop and 
+                    d * self.rna[i - c + 1] >= d * self.cds[x]):
                 self._stop = c_pos - (d * (self.rna[i - c + 1] - self.cds[x]))
             i += d
 
@@ -184,27 +184,31 @@ class Crossmap():
 
         if d * a > d * self.rna[self._rna_length - y - 1]:
             # After the last exon.
-            return (self._crossmapping[self._rna_length - y - 1],
-                    d * (a - self.rna[self._rna_length - y - 1]))
+            return (
+                self._crossmapping[self._rna_length - y - 1],
+                d * (a - self.rna[self._rna_length - y - 1]))
 
         for i in xrange(self._rna_length):
-            # A "normal" position.
+            # A normal position.
             if i % 2:
-                # We're checking the intron positions.
+                # We are checking the intron positions.
                 if self.rna[i] < a and a < self.rna[i + 1]:
                     # Intron.
                     if d * (a - self.rna[i]) > d * (self.rna[i + 1] - a):
                         # The position was closer to the next exon.
-                        return (self._crossmapping[i + 1 - c],
-                                -d * (self.rna[i + 1 - c] - a))
+                        return (
+                            self._crossmapping[i + 1 - c],
+                            -d * (self.rna[i + 1 - c] - a))
                     # The position was closer to the previous exon.
-                    return (self._crossmapping[i + c],
-                            d * (a - self.rna[i + c]))
+                    return (
+                        self._crossmapping[i + c],
+                        d * (a - self.rna[i + c]))
             else:
                 # We're checking the exon positions.
                 if self.rna[i] <= a and a <= self.rna[i + 1]:
-                    return (_plus(self._crossmapping[i + c],
-                                        d * (a - self.rna[i + c])), 0)
+                    return (
+                        _plus(self._crossmapping[i + c],
+                        d * (a - self.rna[i + c])), 0)
 
     def x2g(self, a, b):
         """
@@ -238,14 +242,14 @@ class Crossmap():
         ret = self.rna[0] - d * (self._crossmapping[0] - a)
         if d * a > d * self._crossmapping[self._rna_length - 1]:
             # It is after the last exon.
-            ret = self.rna[self._rna_length - 1] + \
-                  d * (a - self._crossmapping[self._rna_length - 1])
+            ret = (self.rna[self._rna_length - 1] + d * (a -
+                self._crossmapping[self._rna_length - 1]))
         for i in range(0, self._rna_length, 2):
             # Is it in an exon?
-            if d * self._crossmapping[i] <= d * a and \
-               d * a <= d * self._crossmapping[i + 1]:
-                ret = self.rna[i + c] - d * \
-                      _minusr(self._crossmapping[i + c], a)
+            if (d * self._crossmapping[i] <= d * a and
+                    d * a <= d * self._crossmapping[i + 1]):
+                ret = (self.rna[i + c] - d *
+                    _minusr(self._crossmapping[i + c], a))
         ret += d * b # Add the intron count.
 
         # Patch for CDS start on first nucleotide of exon 1.
