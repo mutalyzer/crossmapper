@@ -64,7 +64,8 @@ class Crossmap():
             (1: forward, E{-}1: reverse).
         """
         self._stop = None
-        self._crossmapping = len(rna) * [None]
+        self._rna_length = len(rna)
+        self._crossmapping = self._rna_length * [None]
         self.rna = list(rna)
         self.cds = list(cds)
         self.orientation = orientation
@@ -110,12 +111,11 @@ class Crossmap():
         downstream RNA splice sites. This is denoted by _stop + the distance to
         the stop codon, as an alternative to the *-notation.
         """
-        rna_length = len(self.rna)
         c_pos = 1             # One unless we both have mRNA and CDS.
         d = self.orientation
         c = (d - 1) // -2     # c, x and y are used to unify forward and
         x = (-d - 1) // -2    # reverse complement.
-        y = c * (rna_length - 1)
+        y = c * (self._rna_length - 1)
 
         if self.cds:
             # We both have mRNA and CDS, so we have to search for CDS start.
@@ -131,7 +131,7 @@ class Crossmap():
                 i -= d * 2
 
         i = y - c
-        while d * i < d * (y - c) + rna_length:
+        while d * i < d * (y - c) + self._rna_length:
             self._crossmapping[i + c] = c_pos
             if i % 2:                  
                 # We are skipping an intron, so only add 1 (mind the 0).
@@ -178,20 +178,19 @@ class Crossmap():
         :returns str: The I{c.} or I{n.} notation of position a.
         """
         # TODO update documentation.
-        rna_length = len(self.rna)
         d = self.orientation
         c = (d - 1) // -2     # c and y are used to unify forward and reverse
-        y = c * (rna_length - 1) # complement.
+        y = c * (self._rna_length - 1) # complement.
 
         if d * a < d * self.rna[y]:
             # A position before the first exon.
             return ((self._crossmapping[y]), -d * (self.rna[y] - a))
-        if d * a > d * self.rna[rna_length - y - 1]:
+        if d * a > d * self.rna[self._rna_length - y - 1]:
             # After the last exon.
-            return (self._crossmapping[rna_length - y - 1],
-                    d * (a - self.rna[rna_length - y - 1]))
+            return (self._crossmapping[self._rna_length - y - 1],
+                    d * (a - self.rna[self._rna_length - y - 1]))
 
-        for i in xrange(rna_length):
+        for i in xrange(self._rna_length):
             # A "normal" position.
             if i % 2:
             # We're checking the intron positions.
@@ -236,15 +235,14 @@ class Crossmap():
         """
         d = self.orientation
         c = (-d - 1) // -2 # Used to unify forward and reverse complement.
-        rna_length = len(self.rna)
 
         # Assume a position before exon 1.
         ret = self.rna[0] - d * (self._crossmapping[0] - a)
-        if d * a > d * self._crossmapping[rna_length - 1]:
+        if d * a > d * self._crossmapping[self._rna_length - 1]:
             # It is after the last exon.
-            ret = self.rna[rna_length - 1] + \
-                  d * (a - self._crossmapping[rna_length - 1])
-        for i in range(0, rna_length, 2):
+            ret = self.rna[self._rna_length - 1] + \
+                  d * (a - self._crossmapping[self._rna_length - 1])
+        for i in range(0, self._rna_length, 2):
             # Is it in an exon?
             if d * self._crossmapping[i] <= d * a and \
                d * a <= d * self._crossmapping[i + 1]:
