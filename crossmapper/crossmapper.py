@@ -105,10 +105,11 @@ class Crossmap():
         downstream RNA splice sites. This is denoted by _stop + the distance to
         the stop codon, as an alternative to the *-notation.
         """
-        c_pos = 1             # One unless we both have mRNA and CDS.
+        c_pos = 1 # One unless we both have mRNA and CDS.
         d = self.orientation
-        c = (d - 1) // -2     # c, x and y are used to unify forward and
-        x = (-d - 1) // -2    # reverse complement.
+        # c, x and y are used to unify forward and reverse complement.
+        c = (d - 1) // -2
+        x = (-d - 1) // -2
         y = c * (self._rna_length - 1)
 
         if self.cds:
@@ -173,12 +174,14 @@ class Crossmap():
         """
         # TODO update documentation.
         d = self.orientation
-        c = (d - 1) // -2     # c and y are used to unify forward and reverse
-        y = c * (self._rna_length - 1) # complement.
+        # c and y are used to unify forward and reverse complement.
+        c = (d - 1) // -2
+        y = c * (self._rna_length - 1)
 
         if d * a < d * self.rna[y]:
             # A position before the first exon.
             return ((self._crossmapping[y]), -d * (self.rna[y] - a))
+
         if d * a > d * self.rna[self._rna_length - y - 1]:
             # After the last exon.
             return (self._crossmapping[self._rna_length - y - 1],
@@ -187,8 +190,9 @@ class Crossmap():
         for i in xrange(self._rna_length):
             # A "normal" position.
             if i % 2:
-            # We're checking the intron positions.
-                if self.rna[i] < a and a < self.rna[i + 1]: # Intron.
+                # We're checking the intron positions.
+                if self.rna[i] < a and a < self.rna[i + 1]:
+                    # Intron.
                     if d * (a - self.rna[i]) > d * (self.rna[i + 1] - a):
                         # The position was closer to the next exon.
                         return (self._crossmapping[i + 1 - c],
@@ -197,7 +201,7 @@ class Crossmap():
                     return (self._crossmapping[i + c],
                             d * (a - self.rna[i + c]))
             else:
-            # We're checking the exon positions.
+                # We're checking the exon positions.
                 if self.rna[i] <= a and a <= self.rna[i + 1]:
                     return (_plus(self._crossmapping[i + c],
                                         d * (a - self.rna[i + c])), 0)
@@ -302,8 +306,7 @@ class Crossmap():
                 # It is upstream of the first exon.
                 return "-u" + str(-t[1])
             return str(t[1])
-        # No offset was given.
-        return ''
+        return '' # No offset was given.
 
     def offset2int(self, s):
         """
@@ -316,8 +319,7 @@ class Crossmap():
         :returns int: The offset as an integer.
         """
         if not s:
-            # No offset given.
-            return 0
+            return 0 # No offset given.
         if s == '?':
             # Here we ignore an uncertainty.
             return 0 # FIXME: this may have to be different.
