@@ -1,0 +1,6 @@
+*.swp
+.cache
+/build
+/dist/
+/crossmapper.egg-info
+tests/__pycache__
