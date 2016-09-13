@@ -60,8 +60,8 @@ class Crossmap():
         self._stop = None
         self._rna_length = len(rna)
         self._crossmapping = self._rna_length * [None]
-        self.rna = list(rna)
-        self.cds = list(cds)
+        self.rna = rna
+        self.cds = cds
         self.orientation = orientation
 
         self._crossmap_splice_sites()
