@@ -160,8 +160,8 @@ class Crossmap():
             - Get the I{n.} notation of a I{g.} position i. The input is in
               forward notation.
 
-        Crossmap(rna, cds, -1);
-        g2x(i);
+        Crossmap(rna, cds, -1)
+        g2x(i)
             - Get the I{c.} notation of a I{g.} position i. The input is in
               reverse notation.
 
@@ -204,7 +204,7 @@ class Crossmap():
                         self._crossmapping[i + c],
                         d * (a - self.rna[i + c]))
             else:
-                # We're checking the exon positions.
+                # We are checking the exon positions.
                 if self.rna[i] <= a and a <= self.rna[i + 1]:
                     return (
                         _plus(self._crossmapping[i + c],
@@ -225,8 +225,8 @@ class Crossmap():
             - Get the I{g.} notation of a I{n.} position i. The input is in
               forward notation.
 
-        Crossmap(rna, cds, -1);
-        x2g(i, j);
+        Crossmap(rna, cds, -1)
+        x2g(i, j)
             - Get the I{g.} notation of a I{c.} position i with offset j. The
               input is in reverse notation.
 
