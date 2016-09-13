@@ -17,7 +17,7 @@ def test_splice_sites():
            103528, 119465, 119537, 144687, 144810, 148418, 149215]
     cds = [27925, 74736]
     cm = Crossmap(rna, cds, 1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [-304, -181, -180, 15, 16, 117, 118, 205, 206, 325, 326, 398,
              399, 522, 523, 1320])
 
@@ -31,7 +31,7 @@ def test_splice_sites_reverse():
            76535, 92453, 92554, 123276, 123470, 146090, 146213]
     cds = [76479, 123290]
     cm = Crossmap(rna, cds, -1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [1320, 523, 522, 399, 398, 326, 325, 206, 205, 118, 117, 16,
              15, -180, -181, -304])
 
@@ -171,7 +171,7 @@ def test_splice_sites_noncoding():
     rna = [5002, 5125, 27745, 27939, 58661, 58762, 74680, 74767, 103409,
            103528, 119465, 119537, 144687, 144810, 148418, 149215]
     cm = Crossmap(rna, [], 1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [1, 124, 125, 319, 320, 421, 422, 509, 510, 629, 630, 702,
              703, 826, 827, 1624])
 
@@ -184,7 +184,7 @@ def test_splice_sites_noncoding_reverse():
     rna = [2000, 2797, 6405, 6528, 31678, 31750, 47687, 47806, 76448,
            76535, 92453, 92554, 123276, 123470, 146090, 146213]
     cm = Crossmap(rna, [], -1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [1624, 827, 826, 703, 702, 630, 629, 510, 509, 422, 421, 320,
              319, 125, 124, 1])
 
@@ -260,7 +260,7 @@ def test_cds_one_exon():
     rna = [1, 80, 81, 3719]
     cds = [162, 2123]
     cm = Crossmap(rna, cds, 1)
-    assert cm._Crossmap__crossmapping == [-161, -82, -81, 3558]
+    assert cm._crossmapping == [-161, -82, -81, 3558]
     assert cm.x2g(1, 0) == 162
     assert cm.tuple2string(cm.g2x(2123)) == '1962'
     assert cm.tuple2string(cm.g2x(2124)) == '*1'
@@ -275,7 +275,7 @@ def test_cds_start_on_splice_site():
            23894775, 23894899, 23898506, 23899304]
     cds = [23777833, 23898680]
     cm = Crossmap(rna, cds, 1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [-156, -1, 1, 196, 197, 299, 300, 388, 389, 509, 510, 583,
              584, 708, 709, 1507])
     assert cm.x2g(1, 0) == 23777833
@@ -296,7 +296,7 @@ def test_cds_start_on_splice_site_reverse():
            23898506, 23899304]
     cds = [23755214, 23778028]
     cm = Crossmap(rna, cds, -1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [196, 1, -1, -103, -104, -192, -193, -313, -314, -387, -388,
              -512, -513, -1311])
 
@@ -310,7 +310,7 @@ def test_cds_start_on_splice_site_other():
            23894775, 23894899, 23898506, 23899304]
     cds = [23755214, 23898680]
     cm = Crossmap(rna, cds, 1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [-155, 1, 2, 197, 198, 300, 301, 389, 390, 510, 511, 584, 585,
              709, 710, 1508])
 
@@ -325,7 +325,7 @@ def test_cds_start_on_splice_site_other_reverse():
            23898506, 23899304]
     cds = [23755214, 23808749]
     cm = Crossmap(rna, cds, -1)
-    assert (cm._Crossmap__crossmapping ==
+    assert (cm._crossmapping ==
             [197, 2, 1, -102, -103, -191, -192, -312, -313, -386, -387,
              -511, -512, -1310])
 
@@ -363,7 +363,7 @@ def test_cds_is_exon():
     rna = [27745, 27939, 58661, 58762, 74680, 74767]
     cds = [58661, 58762]
     cm = Crossmap(rna, cds, 1)
-    assert cm._Crossmap__crossmapping == [-195, -1, 1, 102, 103, 190]
+    assert cm._crossmapping == [-195, -1, 1, 102, 103, 190]
 
 
 def test_cds_is_exon_reverse():
@@ -373,4 +373,4 @@ def test_cds_is_exon_reverse():
     rna = [27745, 27939, 58661, 58762, 74680, 74767]
     cds = [58661, 58762]
     cm = Crossmap(rna, cds, -1)
-    assert cm._Crossmap__crossmapping == [297, 103, 102, 1, -1, -88]
+    assert cm._crossmapping == [297, 103, 102, 1, -1, -88]
