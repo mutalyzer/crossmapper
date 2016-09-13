@@ -58,11 +58,10 @@ class Crossmap():
         """
         Initialise the class and do the cross mapping of the splice sites.
 
-        :arg list rna: The list of RNA splice sites
-        :arg list cds: CDS start and stop (if present, may be empty)
+        :arg list rna: The list of RNA splice sites.
+        :arg list cds: CDS start and stop (if present, may be empty).
         :arg int orientation: The orientation of the transcript
-            - 1 = forward
-            - E{-}1 = reverse
+            (1: forward, E{-}1: reverse).
         """
         self._stop = None
         self._crossmapping = len(rna) * [None]
@@ -81,16 +80,16 @@ class Crossmap():
 
     def _crossmap_splice_sites(self):
         """
-        This method calculates either:
+        Calculate either:
             1. The I{c.} notation of the CDS start and stop, including splice
                sites.
             2. The I{c.} notation of the RNA splice sites.
             3. The I{n.} notation of the RNA splice sites.
 
-        For option 1 only provide an list with CDS splice sites.
-        For option 2 provide an list with RNA splice sites and one with
-        the CDS start and stop.
-        For option 3 only provide an list with RNA splice sites.
+        For option 1, only provide an list with CDS splice sites.
+        For option 2, provide an list with RNA splice sites and one with
+            the CDS start and stop.
+        For option 3, only provide an list with RNA splice sites.
 
         Examples:
 
@@ -99,8 +98,8 @@ class Crossmap():
               forward notation.
 
         Crossmap(cds, [], 1)
-            - Get the I{c.} notation of the CDS start and stop, and the internal
-              splice sites. The input is in forward notation.
+            - Get the I{c.} notation of the CDS start and stop, and the
+              internal splice sites. The input is in forward notation.
 
         Crossmap(rna, cds, -1)
             - Get the I{c.} notation of the RNA splice sites. The input is in
@@ -108,36 +107,37 @@ class Crossmap():
 
 
         The output is straightforward, except for the I{c.} notation of the
-        downstream RNA splice sites. This is denoted by _stop + the
-        distance to the stop codon, as an alternative to the *-notation.
+        downstream RNA splice sites. This is denoted by _stop + the distance to
+        the stop codon, as an alternative to the *-notation.
         """
         rna_length = len(self.rna)
-        c_pos = 1 # This value stays one unless we both have mRNA and CDS.
+        c_pos = 1             # One unless we both have mRNA and CDS.
         d = self.orientation
-        c = (d - 1) // -2   # c, x and y are used to unify forward and
-        x = (-d - 1) // -2  # reverse complement.
+        c = (d - 1) // -2     # c, x and y are used to unify forward and
+        x = (-d - 1) // -2    # reverse complement.
         y = c * (rna_length - 1)
 
-        if self.cds: # If we both have mRNA and CDS, we have to search for
-                     # CDS start.
+        if self.cds:
+            # We both have mRNA and CDS, so we have to search for CDS start.
             i = y - c
-            # Find CDS start.
             while d * (self.rna[i] - ((i + 1) % 2)) < d * self.cds[c] + c:
                 i += d
-            c_pos = d * (self.rna[i] - self.cds[c] + (d * 2)) # Get the right
-                                                             # boundary.
+            # Get the right boundary.
+            c_pos = d * (self.rna[i] - self.cds[c] + (d * 2))
 
-            while d * i > d * y:                      # Go back to exon 1.
-                c_pos = _minus(c_pos, d *
-                       (self.rna[i] - self.rna[i - d] + d))
+            # Go back to exon 1.
+            while d * i > d * y:
+                c_pos = _minus(c_pos, d * (self.rna[i] - self.rna[i - d] + d))
                 i -= d * 2
 
         i = y - c
         while d * i < d * (y - c) + rna_length:
             self._crossmapping[i + c] = c_pos
-            if i % 2:                       # We are skipping an intron.
-                c_pos = _plus(c_pos, 1) # Only add 1 (mind the 0).
-            else: # We are skipping an exon, so add the length.
+            if i % 2:                  
+                # We are skipping an intron, so only add 1 (mind the 0).
+                c_pos = _plus(c_pos, 1)
+            else:
+                # We are skipping an exon, so add the length.
                 c_pos = _plus(c_pos, self.rna[i + 1] - self.rna[i])
 
             # Set _stop when we find CDS stop.
@@ -152,30 +152,30 @@ class Crossmap():
             1. The I{n.} notation from a I{g.} notation.
             2. The I{c.} notation from a I{g.} notation.
 
-        For option 1 only provide an array with mRNA splice sites and one
-        with the I{c.} notation of the splice sites.
-        For option 2 provide an array with mRNA splice sites, one with the
-        I{c.} notation of the splice sites and an array with the CDS start and
-        stop.
+        For option 1, only provide an array with mRNA splice sites and one with
+            the I{c.} notation of the splice sites.
+        For option 2, provide an array with mRNA splice sites, one with the
+            I{c.} notation of the splice sites and an array with the CDS start
+            and stop.
 
         Examples:
 
         Crossmap(rna, [], 1)
         g2x(i)
-            - Get the I{n.} notation of a I{g.} position i. The input is in forward
-            notation.
+            - Get the I{n.} notation of a I{g.} position i. The input is in
+              forward notation.
 
         Crossmap(rna, cds, -1);
         g2x(i);
-            - Get the I{c.} notation of a I{g.} position i. The input is in reverse
-              notation.
+            - Get the I{c.} notation of a I{g.} position i. The input is in
+              reverse notation.
 
         The output is fully compatible with the HVGS nomenclature as defined
         on 01-07-2009.
 
-        :arg int a: The genomic position that must be translated
+        :arg int a: The genomic position that must be translated.
 
-        :returns str: The I{c.} or I{n.} notation of position a
+        :returns str: The I{c.} or I{n.} notation of position a.
         """
         # TODO update documentation.
         rna_length = len(self.rna)
@@ -183,14 +183,18 @@ class Crossmap():
         c = (d - 1) // -2     # c and y are used to unify forward and reverse
         y = c * (rna_length - 1) # complement.
 
-        if d * a < d * self.rna[y]: # A position before the first exon.
+        if d * a < d * self.rna[y]:
+            # A position before the first exon.
             return ((self._crossmapping[y]), -d * (self.rna[y] - a))
-        if d * a > d * self.rna[rna_length - y - 1]: # After the last exon.
+        if d * a > d * self.rna[rna_length - y - 1]:
+            # After the last exon.
             return (self._crossmapping[rna_length - y - 1],
                     d * (a - self.rna[rna_length - y - 1]))
 
-        for i in xrange(rna_length): # A "normal" position.
-            if i % 2:            # We're checking the intron positions.
+        for i in xrange(rna_length):
+            # A "normal" position.
+            if i % 2:
+            # We're checking the intron positions.
                 if self.rna[i] < a and a < self.rna[i + 1]: # Intron.
                     if d * (a - self.rna[i]) > d * (self.rna[i + 1] - a):
                         # The position was closer to the next exon.
@@ -199,7 +203,8 @@ class Crossmap():
                     # The position was closer to the previous exon.
                     return (self._crossmapping[i + c],
                             d * (a - self.rna[i + c]))
-            else:                # We're checking the exon positions.
+            else:
+            # We're checking the exon positions.
                 if self.rna[i] <= a and a <= self.rna[i + 1]:
                     return (_plus(self._crossmapping[i + c],
                                         d * (a - self.rna[i + c])), 0)
@@ -216,18 +221,18 @@ class Crossmap():
 
         Crossmap(rna, [], 1)
         x2g(i)
-            - Get the I{g.} notation of a I{n.} position i. The input is in forward
-            notation.
+            - Get the I{g.} notation of a I{n.} position i. The input is in
+              forward notation.
 
         Crossmap(rna, cds, -1);
         x2g(i, j);
-            - Get the I{g.} notation of a I{c.} position i with offset j. The input
-            is in reverse notation.
+            - Get the I{g.} notation of a I{c.} position i with offset j. The
+              input is in reverse notation.
 
-        :arg int a: The I{n.} or I{c.} position to be translated
-        :arg int b: The offset of position a
+        :arg int a: The I{n.} or I{c.} position to be translated.
+        :arg int b: The offset of position a.
 
-        :returns int: A I{g.} position
+        :returns int: A I{g.} position.
         """
         d = self.orientation
         c = (-d - 1) // -2 # Used to unify forward and reverse complement.
@@ -239,25 +244,27 @@ class Crossmap():
             # It is after the last exon.
             ret = self.rna[rna_length - 1] + \
                   d * (a - self._crossmapping[rna_length - 1])
-        for i in range(0, rna_length, 2): # Is it in an exon?
+        for i in range(0, rna_length, 2):
+            # Is it in an exon?
             if d * self._crossmapping[i] <= d * a and \
                d * a <= d * self._crossmapping[i + 1]:
                 ret = self.rna[i + c] - d * \
                       _minusr(self._crossmapping[i + c], a)
         ret += d * b # Add the intron count.
 
-        if a < 0 and self._crossmapping[d - c] == 1: # Patch for CDS start on
-            ret += d                                  # first nucleotide of exon 1.
+        # Patch for CDS start on first nucleotide of exon 1.
+        if a < 0 and self._crossmapping[d - c] == 1:
+            ret += d
 
         return ret
 
     def int2main(self, a):
         """
-        This method converts the _stop notation to the '*' notation.
+        Convert the _stop notation to the '*' notation.
 
-        :arg int a: An integer in _stop notation
+        :arg int a: An integer in _stop notation.
 
-        :returns str: The converted notation (may be unaltered)
+        :returns str: The converted notation (may be unaltered).
         """
         if a > self._stop:
             return '*' + str(a - self._stop)
@@ -265,11 +272,11 @@ class Crossmap():
 
     def main2int(self, s):
         """
-        This method converts the '*' notation to the _stop notation.
+        Convert the '*' notation to the _stop notation.
 
-        :arg str s: A string in '*' notation
+        :arg str s: A string in '*' notation.
 
-        :returns int: The converted notation (may be unaltered)
+        :returns int: The converted notation (may be unaltered).
         """
         if s[0] == '*':
             return self._stop + int(s[1:])
@@ -281,23 +288,30 @@ class Crossmap():
         and `u' or `d' to the offset when appropriate. The main value is
         not returned.
 
-        :arg tuple t: A tuple of integers: (main, offset) in _stop notation
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e. offset is
+        :arg tuple t: A tuple of integers: (main, offset) in _stop notation.
+        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
             unknown).
 
-        :returns str: The offset in HGVS notation
+        :returns str: The offset in HGVS notation.
         """
-        if t[1] > 0:                      # The exon boundary is downstream.
-            if fuzzy: return '+?'
-            if t[0] >= self._trans_end:  # It is downstream of the last exon.
+        if t[1] > 0:
+            # The exon boundary is downstream.
+            if fuzzy:
+                return '+?'
+            if t[0] >= self._trans_end:
+                # It is downstream of the last exon.
                 return "+d" + str(t[1])
             return '+' + str(t[1])
-        if t[1] < 0:                       # The exon boundary is uptream.
-            if fuzzy: return '-?'
-            if t[0] <= self._trans_start: # It is upstream of the first exon.
+        if t[1] < 0:
+            # The exon boundary is uptream.
+            if fuzzy:
+                return '-?'
+            if t[0] <= self._trans_start:
+                # It is upstream of the first exon.
                 return "-u" + str(-t[1])
             return str(t[1])
-        return ''                           # No offset was given.
+        # No offset was given.
+        return ''
 
     def offset2int(self, s):
         """
@@ -305,33 +319,39 @@ class Crossmap():
         `+', `u' and `d' when present. It also converts a `?' to something
         sensible.
 
-        :arg str s: An offset in HGVS notation
+        :arg str s: An offset in HGVS notation.
 
-        :returns int: The offset as an integer
+        :returns int: The offset as an integer.
         """
-        if not s:     # No offset given.
+        if not s:
+            # No offset given.
             return 0
-        if s == '?':  # Here we ignore an uncertainty.
-            return 0  # FIXME, this may have to be different.
-        if s[1] == 'u' or s[1] == 'd':  # Remove `u' or `d'.
-            if s[0] == '-':             # But save the `-'.
+        if s == '?':
+            # Here we ignore an uncertainty.
+            return 0 # FIXME: this may have to be different.
+        if s[1] == 'u' or s[1] == 'd':
+            # Remove `u' or `d'.
+            if s[0] == '-':
+                # But save the `-'.
                 return -int(s[2:])
             return int(s[2:])
-        if s[1:] == '?':  # Here we ignore an unvertainty in the intron.
-            return 0      # FIXME, this may have to be different.
+        if s[1:] == '?':
+            # Here we ignore an uncertainty in the intron.
+            return 0 # FIXME: this may have to be different.
         if s[0] == '-':
-            return -int(s[1:])          # Save the `-' here too.
+            # Save the `-' here too.
+            return -int(s[1:])
         return int(s[1:])
 
     def tuple2string(self, t, fuzzy=False):
         """
         Convert a tuple (main, offset) in _stop notation to I{c.} notation.
 
-        :arg tuple t: A tuple (main, offset) in _stop notation
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e. offset is
+        :arg tuple t: A tuple (main, offset) in _stop notation.
+        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
             unknown).
 
-        :returns str: The position in HGVS notation
+        :returns str: The position in HGVS notation.
         """
         if t[0] >= self._trans_end or t[0] <= self._trans_start:
             return str(self.int2main(_minus(t[0], -t[1])))
@@ -342,11 +362,11 @@ class Crossmap():
         Uses both g2x() and tuple2string() to translate a genomic position
         to _stop notation to I{c.} notation.
 
-        :arg int a: The genomic position that must be translated
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e. offset is
+        :arg int a: The genomic position that must be translated.
+        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
             unknown).
 
-        :returns str: The position in HGVS notation
+        :returns str: The position in HGVS notation.
         """
         return self.tuple2string(self.g2x(a), fuzzy)
 
@@ -354,7 +374,7 @@ class Crossmap():
         """
         Return transcription start, transcription end and CDS stop.
 
-        :returns tuple: (trans_start, trans_stop, cds_stop)
+        :returns tuple: (trans_start, trans_stop, cds_stop).
         """
         return (self._trans_start, self._trans_end, self._stop)
 
@@ -374,7 +394,7 @@ class Crossmap():
         """
         Returns the number of introns.
 
-        :returns int: number of introns
+        :returns int: number of introns.
         """
         return len(self.rna) // 2 - 1
 
@@ -382,6 +402,6 @@ class Crossmap():
         """
         Returns the number of exons.
 
-        :returns int: number of exons
+        :returns int: number of exons.
         """
         return len(self.rna) // 2
