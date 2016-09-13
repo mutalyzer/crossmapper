@@ -4,7 +4,8 @@ orientated coordinates and vice versa.
 The conversions are done based upon a list of splice sites, the CDS start
 and stop and the orientation of a transcript.
 """
-from __future__ import unicode_literals
+from __future__ import division, unicode_literals
+from future.builtins import str
 
 
 class Crossmap():
@@ -29,7 +30,7 @@ class Crossmap():
 
         self.__crossmap_splice_sites()
 
-        start = (orientation - 1) / 2
+        start = (orientation - 1) // 2
         self.__trans_start = self.__crossmapping[start]
         self.__trans_end = self.__crossmapping[start - self.orientation]
 
@@ -122,8 +123,8 @@ class Crossmap():
         RNAlen = len(self.RNA)
         cPos = 1 # This value stays one unless we both have mRNA and CDS.
         d = self.orientation
-        c = (d - 1) / -2   # c, x and y are used to unify forward and
-        x = (-d - 1) / -2  # reverse complement.
+        c = (d - 1) // -2   # c, x and y are used to unify forward and
+        x = (-d - 1) // -2  # reverse complement.
         y = c * (RNAlen - 1)
 
         if self.CDS: # If we both have mRNA and CDS, we have to search for
@@ -188,7 +189,7 @@ class Crossmap():
         # TODO update documentation.
         RNAlen = len(self.RNA)
         d = self.orientation
-        c = (d - 1) / -2     # c and y are used to unify forward and reverse
+        c = (d - 1) // -2     # c and y are used to unify forward and reverse
         y = c * (RNAlen - 1) # complement.
 
         if d * a < d * self.RNA[y]: # A position before the first exon.
@@ -238,7 +239,7 @@ class Crossmap():
         :returns int: A I{g.} position
         """
         d = self.orientation
-        c = (-d - 1) / -2 # Used to unify forward and reverse complement.
+        c = (-d - 1) // -2 # Used to unify forward and reverse complement.
         RNAlen = len(self.RNA)
 
         # Assume a position before exon 1.
@@ -268,8 +269,8 @@ class Crossmap():
         :returns str: The converted notation (may be unaltered)
         """
         if a > self.__STOP:
-            return '*' + unicode(a - self.__STOP)
-        return unicode(a)
+            return '*' + str(a - self.__STOP)
+        return str(a)
 
     def main2int(self, s):
         """
@@ -298,13 +299,13 @@ class Crossmap():
         if t[1] > 0:                      # The exon boundary is downstream.
             if fuzzy: return '+?'
             if t[0] >= self.__trans_end:  # It is downstream of the last exon.
-                return "+d" + unicode(t[1])
-            return '+' + unicode(t[1])
+                return "+d" + str(t[1])
+            return '+' + str(t[1])
         if t[1] < 0:                       # The exon boundary is uptream.
             if fuzzy: return '-?'
             if t[0] <= self.__trans_start: # It is upstream of the first exon.
-                return "-u" + unicode(-t[1])
-            return unicode(t[1])
+                return "-u" + str(-t[1])
+            return str(t[1])
         return ''                           # No offset was given.
 
     def offset2int(self, s):
@@ -342,8 +343,8 @@ class Crossmap():
         :returns str: The position in HGVS notation
         """
         if t[0] >= self.__trans_end or t[0] <= self.__trans_start:
-            return unicode(self.int2main(self.__minus(t[0], -t[1])))
-        return unicode(self.int2main(t[0])) + unicode(self.int2offset(t, fuzzy))
+            return str(self.int2main(self.__minus(t[0], -t[1])))
+        return str(self.int2main(t[0])) + str(self.int2offset(t, fuzzy))
 
     def g2c(self, a, fuzzy=False):
         """
@@ -384,7 +385,7 @@ class Crossmap():
 
         :returns int: number of introns
         """
-        return len(self.RNA) / 2 - 1
+        return len(self.RNA) // 2 - 1
 
     def numberOfExons(self):
         """
@@ -392,4 +393,4 @@ class Crossmap():
 
         :returns int: number of exons
         """
-        return len(self.RNA) / 2
+        return len(self.RNA) // 2
