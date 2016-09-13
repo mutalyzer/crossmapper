@@ -376,7 +376,7 @@ class Crossmap():
         """
         return (self._trans_start, self._trans_end, self._stop)
 
-    def getSpliceSite(self, number):
+    def get_splice_site(self, number):
         """
         Return the coordinate of a splice site.
 
@@ -388,7 +388,7 @@ class Crossmap():
             return int(self.rna[number])
         return int(self.rna[len(self.rna) - number - 1])
 
-    def numberOfIntrons(self):
+    def number_of_introns(self):
         """
         Returns the number of introns.
 
@@ -396,7 +396,7 @@ class Crossmap():
         """
         return len(self.rna) // 2 - 1
 
-    def numberOfExons(self):
+    def number_of_exons(self):
         """
         Returns the number of exons.
 
