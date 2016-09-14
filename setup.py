@@ -11,7 +11,7 @@ documentation = 'README.md'
 #license = 'MIT License'
 keywords = []
 
-dependencies = []
+dependencies = ['future']
 supported = [(2, 7), (3, 3), (3, 4)]
 classifiers = [
     'Development Status :: 3 - Alpha',
