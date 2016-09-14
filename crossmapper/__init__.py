@@ -16,6 +16,9 @@ __homepage__ = 'https://github.com/mutalyzer/crossmapper'
 
 usage = __doc__.split('\n\n\n')
 
+from . import crossmapper
+
+Crossmap = crossmapper.Crossmap
 
 def doc_split(func):
     return func.__doc__.split('\n\n')[0]
