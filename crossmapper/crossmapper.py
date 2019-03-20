@@ -7,19 +7,22 @@ class Crossmap(object):
         - All positions are zero based.
         - The fields 'start', 'end' and 'type' are mandatory for all features.
         - The field 'inverted' is optional.
+        - The feature of type 'cds' is optional.
         - The 'start' and 'end' positions of the transcript model are
-          consistent with the first and last exon positions and are therefore
-          ignored.
+          consistent with the first and last exon positions (if provided).
         - The 'inverted' attribute is inherited from the transcript model and
           is therefore ignored in all of its features.
 
-        :arg dict transcript_model: Model containing exon and cds positions.
+        :arg dict transcript_model: Model containing exon and CDS positions.
         """
         self._inverted = transcript_model.get('inverted', False)
+        self._locus = (
+            transcript_model['start']['position'],
+            transcript_model['end']['position'])
         self._exons = []
         self._cds = ()
 
-        for feature in transcript_model['features']:
+        for feature in transcript_model.get('features', []):
             if feature['type'] == 'exon':
                 self._exons.append(
                     (feature['start']['position'], feature['end']['position']))
@@ -30,10 +33,12 @@ class Crossmap(object):
         self._to_position = {
             'genomic': self.coordinate_to_genomic,
             'coding': self.coordinate_to_coding,
+            'locus': self.coordinate_to_locus,
             'noncoding': self.coordinate_to_noncoding,
             'protein': self.coordinate_to_protein}
         self._from_position = {
             'genomic': self.genomic_to_coordinate,
+            'locus': self.locus_to_coordinate,
             'coding': self.coding_to_coordinate,
             'noncoding': self.noncoding_to_coordinate}
 
@@ -44,7 +49,7 @@ class Crossmap(object):
 
         :returns dict: Genomic position (g./m./o.).
         """
-        return {'type': 'point', 'position': coordinate['position'] + 1}
+        return {'position': coordinate['position'] + 1}
 
     def genomic_to_coordinate(self, genomic_position):
         """Convert a genomic position (g./m./o.) to a zero based coordinate.
@@ -53,25 +58,39 @@ class Crossmap(object):
 
         :returns dict: Coordinate.
         """
-        return {'type': 'point', 'position': genomic_position['position'] - 1}
+        return {'position': genomic_position['position'] - 1}
 
-    def coordinate_to_coding(self, coordinate):
-        """Convert a zero based coordinate to a coding position (c./r.).
+    def coordinate_to_locus(self, coordinate):
+        """Convert a zero based coordinate to a locus position.
 
         :arg dict coordinate: Zero based coordinate.
 
-        :returns dict: Coding position (c./r.).
+        :returns dict: Locus position.
         """
-        pass
+        if self._inverted:
+            return {
+                'position': self._locus[1] + 1,
+                'offset': {
+                    'position': self._locus[1] - coordinate['position']}}
+        return {
+            'position': self._locus[0] + 1,
+            'offset': {
+                'position': coordinate['position'] - self._locus[0]}}
 
-    def coding_to_coordinate(self, coding_position):
-        """Convert a coding position (c./r.) to a zero based coordinate.
+    def locus_to_coordinate(self, locus_position):
+        """Convert a locus position to a zero based coordinate.
 
-        :arg dict coding_position: Coding position (c./r.).
+        :arg dict locus_position: Locus position.
 
         :returns dict: Coordinate.
         """
-        pass
+        if self._inverted:
+            return {
+                'position': locus_position['position'] -
+                    locus_position['offset']['position'] - 1}
+        return {
+            'position': locus_position['position'] +
+                locus_position['offset']['position'] - 1}
 
     def coordinate_to_noncoding(self, coordinate):
         """Convert a zero based coordinate to a noncoding position (n./r.).
@@ -91,6 +110,24 @@ class Crossmap(object):
         """
         pass
 
+    def coordinate_to_coding(self, coordinate):
+        """Convert a zero based coordinate to a coding position (c./r.).
+
+        :arg dict coordinate: Zero based coordinate.
+
+        :returns dict: Coding position (c./r.).
+        """
+        pass
+
+    def coding_to_coordinate(self, coding_position):
+        """Convert a coding position (c./r.) to a zero based coordinate.
+
+        :arg dict coding_position: Coding position (c./r.).
+
+        :returns dict: Coordinate.
+        """
+        pass
+
     def coordinate_to_protein(self, coordinate):
         """Convert a zero based coordinate to a protein position (p.).
 
@@ -100,72 +137,19 @@ class Crossmap(object):
 
         :returns dict: Protein position (p.).
         """
+        if not self._cds:
+            raise ValueError(
+                "conversion to protein position using a non coding transcript")
         pass
 
     def convert(self, position, from_position, to_position):
         """Convert from any position type to an other.
 
-        :arg dict position: Any position.
+        :arg dict position: Any position type.
         :arg str from_position: Any position name (see _to_coordinate).
         :arg str to_position: Any position name (see _to_position).
 
-        :return dict: Any position.
+        :return dict: Any position type.
         """
         return self._to_position[to_position](
             self._from_position[from_position](position))
-
-
-transcript_model = {
-    'features': [
-        {
-            'start': {
-                'position': 10},
-            'end': {
-                'position': 20},
-            'type': 'exon'},
-        {
-            'start': {
-                'position': 30},
-            'end': {
-                'position': 40},
-            'type': 'exon'},
-        {
-            'start': {
-                'position': 50},
-            'end': {
-                'position': 60},
-            'type': 'exon'},
-        {
-            'start': {
-                'position': 70},
-            'end': {
-                'position': 80},
-            'type': 'exon'},
-        {
-            'start': {
-                'position': 35},
-            'end': {
-                'position': 75},
-            'type': 'cds'}],
-    'start': {
-        'position': 10},
-    'end': {
-        'position': 75},
-    'inverted': True,
-    'type': 'rna'}
-
-location = {
-    'type': 'point',
-    'position': 100,
-    'offset': {
-        'value': 3}}
-
-crossmap = Crossmap(transcript_model)
-print(crossmap._inverted)
-print(crossmap._exons)
-print(crossmap._cds)
-
-print(crossmap.coordinate_to_genomic(location))
-print(crossmap.genomic_to_coordinate(location))
-
-print(crossmap.convert(location, 'genomic', 'genomic'))
