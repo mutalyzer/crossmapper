@@ -1,3 +1,38 @@
+def _coordinate_to_genomic(coordinate):
+    return coordinate + 1
+
+
+def _genomic_to_coordinate(genomic_position):
+    return genomic_position - 1
+
+
+def _coordinate_to_locus(coordinate, locus, inverted=False):
+    if inverted:
+        return _coordinate_to_genomic(locus[1]), locus[1] - coordinate
+    return _coordinate_to_genomic(locus[0]), coordinate - locus[0]
+
+
+def _locus_to_coordinate(locus_position, inverted=False):
+    if inverted:
+        return locus_position[0] - locus_position[1] - 1
+    return locus_position[0] + locus_position[1] - 1
+
+
+def _int_to_dict(i):
+    """Convert an integer to a position dictionary."""
+    return {'type': 'point', 'position': i}
+
+
+def _tuple_to_dict(t):
+    """Convert a tuple to a position dictionary."""
+    d = _int_to_dict(t[0])
+
+    if t[1]:
+        d.update({'offset': {'position': t[1]}})
+
+    return d
+
+
 class Crossmap(object):
     def __init__(self, transcript_model):
         """Initialise the class.
@@ -49,7 +84,7 @@ class Crossmap(object):
 
         :returns int: Genomic position (g./m./o.).
         """
-        return coordinate + 1
+        return _coordinate_to_genomic(coordinate)
 
     def genomic_to_coordinate(self, genomic_position):
         """Convert a genomic position (g./m./o.) to a zero based coordinate.
@@ -58,7 +93,7 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        return genomic_position - 1
+        return _genomic_to_coordinate(genomic_position)
 
     def coordinate_to_locus(self, coordinate):
         """Convert a zero based coordinate to a locus position.
@@ -67,13 +102,7 @@ class Crossmap(object):
 
         :returns tuple: Locus position.
         """
-        if self._inverted:
-            return (
-                self.coordinate_to_genomic(self._locus[1]),
-                self._locus[1] - coordinate)
-        return (
-            self.coordinate_to_genomic(self._locus[0]),
-            coordinate - self._locus[0])
+        return _coordinate_to_locus(coordinate, self._locus, self._inverted)
 
     def locus_to_coordinate(self, locus_position):
         """Convert a locus position to a zero based coordinate.
@@ -82,9 +111,7 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        if self._inverted:
-            return locus_position[0] - locus_position[1] - 1
-        return locus_position[0] + locus_position[1] - 1
+        return _locus_to_coordinate(locus_position, self._inverted)
 
     def coordinate_to_noncoding(self, coordinate):
         """Convert a zero based coordinate to a noncoding position (n./r.).
