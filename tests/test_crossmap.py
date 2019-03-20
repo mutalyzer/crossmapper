@@ -55,54 +55,36 @@ class TestCrossmap(object):
         self._test_position(
             self._crossmap.coordinate_to_genomic,
             self._crossmap.genomic_to_coordinate,
-            {'position': 49}, {'position': 50})
+            49, 50)
 
     def test_locus(self):
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 49}, {
-                'position': 10,
-                'offset': {
-                    'position': 40}})
+            49, (10, 40))
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 4}, {
-                'position': 10,
-                'offset': {
-                    'position': -5}})
+            4, (10, -5))
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 99}, {
-                'position': 10,
-                'offset': {
-                    'position': 90}})
+            99, (10, 90))
 
     def test_locus_inverted(self):
         self._crossmap._inverted = True
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 49}, {
-                'position': 90,
-                'offset': {
-                    'position': 40}})
+            49, (90, 40))
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 4}, {
-                'position': 90,
-                'offset': {
-                    'position': 85}})
+            4, (90, 85))
         self._test_position(
             self._crossmap.coordinate_to_locus,
             self._crossmap.locus_to_coordinate,
-            {'position': 99}, {
-                'position': 90,
-                'offset': {
-                    'position': -10}})
+            99, (90, -10))
 
     def test_noncoding(self):
         pass

@@ -45,86 +45,80 @@ class Crossmap(object):
     def coordinate_to_genomic(self, coordinate):
         """Convert a zero based coordinate to a genomic position (g./m./o.).
 
-        :arg dict coordinate: Zero based coordinate.
+        :arg int coordinate: Zero based coordinate.
 
-        :returns dict: Genomic position (g./m./o.).
+        :returns int: Genomic position (g./m./o.).
         """
-        return {'position': coordinate['position'] + 1}
+        return coordinate + 1
 
     def genomic_to_coordinate(self, genomic_position):
         """Convert a genomic position (g./m./o.) to a zero based coordinate.
 
-        :arg dict genomic_position: Genomic position (g./m./o.).
+        :arg int genomic_position: Genomic position (g./m./o.).
 
-        :returns dict: Coordinate.
+        :returns int: Coordinate.
         """
-        return {'position': genomic_position['position'] - 1}
+        return genomic_position - 1
 
     def coordinate_to_locus(self, coordinate):
         """Convert a zero based coordinate to a locus position.
 
-        :arg dict coordinate: Zero based coordinate.
+        :arg int coordinate: Zero based coordinate.
 
-        :returns dict: Locus position.
+        :returns tuple: Locus position.
         """
         if self._inverted:
-            return {
-                'position': self._locus[1] + 1,
-                'offset': {
-                    'position': self._locus[1] - coordinate['position']}}
-        return {
-            'position': self._locus[0] + 1,
-            'offset': {
-                'position': coordinate['position'] - self._locus[0]}}
+            return (
+                self.coordinate_to_genomic(self._locus[1]),
+                self._locus[1] - coordinate)
+        return (
+            self.coordinate_to_genomic(self._locus[0]),
+            coordinate - self._locus[0])
 
     def locus_to_coordinate(self, locus_position):
         """Convert a locus position to a zero based coordinate.
 
-        :arg dict locus_position: Locus position.
+        :arg tuple locus_position: Locus position.
 
-        :returns dict: Coordinate.
+        :returns int: Coordinate.
         """
         if self._inverted:
-            return {
-                'position': locus_position['position'] -
-                    locus_position['offset']['position'] - 1}
-        return {
-            'position': locus_position['position'] +
-                locus_position['offset']['position'] - 1}
+            return locus_position[0] - locus_position[1] - 1
+        return locus_position[0] + locus_position[1] - 1
 
     def coordinate_to_noncoding(self, coordinate):
         """Convert a zero based coordinate to a noncoding position (n./r.).
 
-        :arg dict coordinate: Zero based coordinate.
+        :arg int coordinate: Zero based coordinate.
 
-        :returns dict: Noncoding position (n./r.).
+        :returns tuple: Noncoding position (n./r.).
         """
         pass
 
     def noncoding_to_coordinate(self, noncoding_position):
         """Convert a noncoding position (n./r.) to a zero based coordinate.
 
-        :arg dict noncoding_position: Noncoding position (n./r.).
+        :arg tuple noncoding_position: Noncoding position (n./r.).
 
-        :returns dict: Coordinate.
+        :returns int: Coordinate.
         """
         pass
 
     def coordinate_to_coding(self, coordinate):
         """Convert a zero based coordinate to a coding position (c./r.).
 
-        :arg dict coordinate: Zero based coordinate.
+        :arg int coordinate: Zero based coordinate.
 
-        :returns dict: Coding position (c./r.).
+        :returns tuple: Coding position (c./r.).
         """
         pass
 
     def coding_to_coordinate(self, coding_position):
         """Convert a coding position (c./r.) to a zero based coordinate.
 
-        :arg dict coding_position: Coding position (c./r.).
+        :arg tuple coding_position: Coding position (c./r.).
 
-        :returns dict: Coordinate.
+        :returns int: Coordinate.
         """
         pass
 
@@ -133,9 +127,9 @@ class Crossmap(object):
 
         Note that the converse of this function does not exist.
 
-        :arg dict coordinate: Zero based coordinate.
+        :arg int coordinate: Zero based coordinate.
 
-        :returns dict: Protein position (p.).
+        :returns tuple: Protein position (p.).
         """
         if not self._cds:
             raise ValueError(
@@ -145,11 +139,11 @@ class Crossmap(object):
     def convert(self, position, from_position, to_position):
         """Convert from any position type to an other.
 
-        :arg dict position: Any position type.
+        :arg tuple position: Any position type.
         :arg str from_position: Any position name (see _to_coordinate).
         :arg str to_position: Any position name (see _to_position).
 
-        :return dict: Any position type.
+        :return tuple: Any position type.
         """
         return self._to_position[to_position](
             self._from_position[from_position](position))
