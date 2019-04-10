@@ -1,90 +1,107 @@
-from crossmapper import Crossmap
+from crossmapper.crossmapper import (
+    _coding_offsets,
+    _coordinate_to_locus,
+    _coordinate_to_noncoding,
+    _locus_to_coordinate,
+    _noncoding_offsets,
+    _noncoding_to_coordinate,
+    )
 
 
-class TestCrossmap(object):
-    def setup(self):
-        self._crossmap = Crossmap({
-            'features': [
-                {
-                    'start': {
-                        'position': 9},
-                    'end': {
-                        'position': 19},
-                    'type': 'exon'},
-                {
-                    'start': {
-                        'position': 29},
-                    'end': {
-                        'position': 49},
-                    'type': 'exon'},
-                {
-                    'start': {
-                        'position': 59},
-                    'end': {
-                        'position': 69},
-                    'type': 'exon'},
-                {
-                    'start': {
-                        'position': 79},
-                    'end': {
-                        'position': 89},
-                    'type': 'exon'},
-                {
-                    'start': {
-                        'position': 39},
-                    'end': {
-                        'position': 84},
-                    'type': 'cds'}],
-            'start': {
-                'position': 9},
-            'end': {
-                'position': 89}})
+_exons = [(5, 8), (14, 20), (30, 35), (40, 46), (70, 72)]
+_cds = (32, 43)
+_offsets_noncoding = [(0, 19), (3, 13), (9, 8), (14, 2), (20, 0)]
+_offsets_coding = [(0, 11), (0, 8), (0, 2), (3, 0), (5, 0)]
 
-    def _test_position(self, f, f_inv, coordinate, position):
-        """Test coordinate to position conversion and its inverse."""
-        assert f(coordinate) == position
-        assert f_inv(position) == coordinate
 
-    def test_variables(self):
-        assert not self._crossmap._inverted
-        assert self._crossmap._locus == (9, 89)
-        assert self._crossmap._exons == [(9, 19), (29, 49), (59, 69), (79, 89)]
-        assert self._crossmap._cds == (39, 84)
+def _test_invariant(f, x, f_i, y, args):
+    assert f(x, *args) == y
+    assert f_i(y, *args) == x
 
-    def test_genomic(self):
-        self._test_position(
-            self._crossmap.coordinate_to_genomic,
-            self._crossmap.genomic_to_coordinate,
-            49, 50)
 
-    def test_locus(self):
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            49, (10, 40))
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            4, (10, -5))
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            99, (10, 90))
+def test_noncoding_offsets():
+    assert _noncoding_offsets(_exons) == _offsets_noncoding
 
-    def test_locus_inverted(self):
-        self._crossmap._inverted = True
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            49, (90, 40))
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            4, (90, 85))
-        self._test_position(
-            self._crossmap.coordinate_to_locus,
-            self._crossmap.locus_to_coordinate,
-            99, (90, -10))
 
-    def test_noncoding(self):
-        pass
+def test_coding_offsets():
+    assert _coding_offsets(_exons, _cds) == _offsets_coding
+
+
+def test_locus():
+    locus = _exons[2]
+
+    _test_invariant(
+        _coordinate_to_locus, 29, _locus_to_coordinate, (1, -1), [locus])
+    _test_invariant(
+        _coordinate_to_locus, 30, _locus_to_coordinate, (1, 0), [locus])
+    _test_invariant(
+        _coordinate_to_locus, 31, _locus_to_coordinate, (2, 0), [locus])
+    _test_invariant(
+        _coordinate_to_locus, 34, _locus_to_coordinate, (5, 0), [locus])
+    _test_invariant(
+        _coordinate_to_locus, 35, _locus_to_coordinate, (6, 0), [locus])
+    _test_invariant(
+        _coordinate_to_locus, 36, _locus_to_coordinate, (6, 1), [locus])
+
+
+def test_locus_inverted():
+    locus = _exons[2]
+
+    _test_invariant(
+        _coordinate_to_locus, 36, _locus_to_coordinate, (1, -1), [locus, True])
+    _test_invariant(
+        _coordinate_to_locus, 35, _locus_to_coordinate, (1, 0), [locus, True])
+    _test_invariant(
+        _coordinate_to_locus, 34, _locus_to_coordinate, (2, 0), [locus, True])
+    _test_invariant(
+        _coordinate_to_locus, 31, _locus_to_coordinate, (5, 0), [locus, True])
+    _test_invariant(
+        _coordinate_to_locus, 30, _locus_to_coordinate, (6, 0), [locus, True])
+    _test_invariant(
+        _coordinate_to_locus, 29, _locus_to_coordinate, (6, 1), [locus, True])
+
+
+def test_noncoding():
+    exon = 2
+
+    _test_invariant(
+        _coordinate_to_noncoding, 29, _noncoding_to_coordinate, (10, -1),
+        [_exons[exon], _offsets_noncoding[exon]])
+    _test_invariant(
+        _coordinate_to_noncoding, 30, _noncoding_to_coordinate, (10, 0),
+        [_exons[exon], _offsets_noncoding[exon]])
+    _test_invariant(
+        _coordinate_to_noncoding, 31, _noncoding_to_coordinate, (11, 0),
+        [_exons[exon], _offsets_noncoding[exon]])
+    _test_invariant(
+        _coordinate_to_noncoding, 34, _noncoding_to_coordinate, (14, 0),
+        [_exons[exon], _offsets_noncoding[exon]])
+    _test_invariant(
+        _coordinate_to_noncoding, 35, _noncoding_to_coordinate, (15, 0),
+        [_exons[exon], _offsets_noncoding[exon]])
+    _test_invariant(
+        _coordinate_to_noncoding, 36, _noncoding_to_coordinate, (15, 1),
+        [_exons[exon], _offsets_noncoding[exon]])
+
+
+def test_noncoding_inverted():
+    exon = 2
+
+    _test_invariant(
+        _coordinate_to_noncoding, 36, _noncoding_to_coordinate, (9, -1),
+        [_exons[exon], _offsets_noncoding[exon], True])
+    _test_invariant(
+        _coordinate_to_noncoding, 35, _noncoding_to_coordinate, (9, 0),
+        [_exons[exon], _offsets_noncoding[exon], True])
+    _test_invariant(
+        _coordinate_to_noncoding, 34, _noncoding_to_coordinate, (10, 0),
+        [_exons[exon], _offsets_noncoding[exon], True])
+    _test_invariant(
+        _coordinate_to_noncoding, 31, _noncoding_to_coordinate, (13, 0),
+        [_exons[exon], _offsets_noncoding[exon], True])
+    _test_invariant(
+        _coordinate_to_noncoding, 30, _noncoding_to_coordinate, (14, 0),
+        [_exons[exon], _offsets_noncoding[exon], True])
+    _test_invariant(
+        _coordinate_to_noncoding, 29, _noncoding_to_coordinate, (14, 1),
+        [_exons[exon], _offsets_noncoding[exon], True])
