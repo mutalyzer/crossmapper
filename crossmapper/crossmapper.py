@@ -34,46 +34,44 @@ def _nearest_exon(coordinate, exons):
     return _nearest_splice_site(coordinate, exons) // 2;
 
 
-def _noncoding_offsets(exons):
-    upstream_length = []
+def _noncoding_offsets(exons, inverted=False):
+    direction = 1
+    if inverted:
+        direction = -1
+
+    lengths = []
     length = 0
-    for exon in exons:
-        upstream_length.append(length)
+    for exon in exons[::direction]:
+        lengths.append(length)
         length += exon[1] - exon[0]
 
-    downstream_length = []
-    length = 0
-    for exon in exons[::-1]:
-        downstream_length.append(length)
-        length += exon[1] - exon[0]
-
-    return list(zip(upstream_length, downstream_length[::-1]))
+    return lengths[::direction]
 
 
-def _coding_offsets(exons, cds):
-    upstream_length = []
-    lengths = 0
-    for exon in exons:
-        if exon[1] >= cds[1]:
-            if exon[0] <= cds[1]:
-                lengths += exon[1] - cds[1]
-            else:
-                lengths += exon[1] - exon[0]
-
-        upstream_length.append(lengths)
-
-    downstream_length = []
-    lengths = 0
-    for exon in exons[::-1]:
-        if exon[0] <= cds[0]:
-            if exon[1] >= cds[0]:
-                lengths += cds[0] - exon[0]
-            else:
-                lengths += exon[1] - exon[0]
-
-        downstream_length.append(lengths)
-
-    return list(zip(upstream_length, downstream_length[::-1]))
+#def _coding_offsets(exons, cds):
+#    upstream_length = []
+#    lengths = 1
+#    for exon in exons:
+#        if exon[1] >= cds[1]:
+#            if exon[0] <= cds[1]:
+#                lengths -= exon[1] - cds[1]
+#            else:
+#                lengths -= exon[1] - exon[0]
+#
+#        upstream_length.append(lengths)
+#
+#    downstream_length = []
+#    lengths = 1
+#    for exon in exons[::-1]:
+#        if exon[0] <= cds[0]:
+#            if exon[1] >= cds[0]:
+#                lengths -= cds[0] - exon[0]
+#            else:
+#                lengths -= exon[1] - exon[0]
+#
+#        downstream_length.append(lengths)
+#
+#    return list(zip(downstream_length[::-1], upstream_length))
 
 
 def _coordinate_to_genomic(coordinate):
@@ -86,39 +84,34 @@ def _genomic_to_coordinate(position):
 
 def _coordinate_to_locus(coordinate, locus, inverted=False):
     if inverted:
-        if coordinate > locus[1]:
-            return 1, locus[1] - coordinate
+        if coordinate >= locus[1]:
+            return 1, locus[1] - coordinate - 1
         if coordinate < locus[0]:
-            return locus[1] - locus[0] + 1, locus[0] - coordinate
-        return locus[1] - coordinate + 1, 0
+            return locus[1] - locus[0], locus[0] - coordinate
+        return locus[1] - coordinate, 0
 
     if coordinate < locus[0]:
         return 1, coordinate - locus[0]
-    if coordinate > locus[1]:
-        return locus[1] - locus[0] + 1, coordinate - locus[1]
+    if coordinate >= locus[1]:
+        return locus[1] - locus[0], coordinate - locus[1] + 1
     return coordinate - locus[0] + 1, 0
 
 
 def _locus_to_coordinate(position, locus, inverted=False):
     if inverted:
-        return locus[1] - position[0] - position[1] + 1
+        return locus[1] - position[0] - position[1]
     return locus[0] + position[0] + position[1] - 1
 
 
 def _coordinate_to_noncoding(coordinate, exon, offset, inverted=False):
     locus = _coordinate_to_locus(coordinate, exon, inverted)
 
-    if inverted:
-        return locus[0] + offset[1], locus[1]
-    return locus[0] + offset[0], locus[1]
+    return locus[0] + offset, locus[1]
 
 
 def _noncoding_to_coordinate(position, exon, offset, inverted=False):
-    locus = _locus_to_coordinate(position, exon, inverted)
-
-    if inverted:
-        return locus - offset[1]
-    return locus - offset[0]
+    return _locus_to_coordinate(
+        (position[0] - offset, position[1]), exon, inverted)
 
 
 # TODO: Position to int or tuple function.
