@@ -12,29 +12,52 @@ Definitions:
   integer relative to an element in a range and the second element is an
   integer offset relative to the first element.
 """
+from bisect import bisect_left
 
 
-def _nearest_boundary(coordinate, exons):
-    """Given a coordinate, find the index of the nearest exon boundary.
+def _nearest_boundary(coordinate, boundaries):
+    """Given a coordinate, find the index of the nearest boundary.
 
-    When a draw occurs, the right boundary is chosen over the left one.
+    On a draw, the left boundary is chosen.
+
+    :arg int coordinate: Coordinate.
+    :arg list boundaries: List of boundaries.
+
+    :returns int: Index of nearest boundary.
+    """
+    insertion_point = bisect_left(boundaries, coordinate)
+
+    if (
+            abs(coordinate - boundaries[insertion_point - 1]) <=
+            abs(boundaries[insertion_point % len(boundaries)] - coordinate)):
+        return insertion_point - 1
+    return insertion_point
+
+
+def _nearest_exon(coordinate, boundaries):
+    return _nearest_boundary(coordinate, boundaries) // 2;
+
+
+# TODO: From position and offset to nearest exon.
+
+
+def _cut(coordinate, exons):
+    """Divide a list of exons, cutting one of the exons in two.
 
     :arg int coordinate: Coordinate.
     :arg list exons: List of exons.
 
-    :returns int: Index of nearest boundary.
+    :returns tuple: {exons} before coordinate, {exons} after coordinate.
     """
-    # NOTE: A binary search would be more efficient.
-    # FIXME: Breaks down for adjacent exons.
-    boundaries = [boundary for exon in exons for boundary in exon]
+    exon = _nearest_exon(coordinate, exons)
 
-    return min(
-        range(len(boundaries)),
-        key=lambda i: abs(boundaries[i] - coordinate - 1))
+    return (
+        exons[:exon] + [(exons[exon][0], coordinate)],
+        [(coordinate, exons[exon][1])] + exons[exon + 1:])
 
 
-def _nearest_exon(coordinate, exons):
-    return _nearest_boundary(coordinate, exons) // 2;
+def _negate(position):
+    return (-position[0], -position[1])
 
 
 def _offsets(exons, inverted=False):
@@ -92,7 +115,7 @@ def _coordinate_to_locus(coordinate, locus, inverted=False):
 def _locus_to_coordinate(position, locus, inverted=False):
     """Convert a position relative to a locus to a coordinate.
 
-    :arg int coordinate: Coordinate.
+    :arg int position: Position.
     :arg tuple locus: Locus.
     :arg bool inverted: Direction of {locus}.
 
@@ -121,7 +144,7 @@ def _coordinate_to_exon(coordinate, exon, offset, inverted=False):
 def _exon_to_coordinate(position, exon, offset, inverted=False):
     """Convert a position relative to an exon to a coordinate.
 
-    :arg int coordinate: Coordinate.
+    :arg int position: Position.
     :arg tuple exon: Exon.
     :arg int offset: Offset of {exon}.
     :arg bool inverted: Direction of {exon}.
@@ -140,127 +163,89 @@ class Crossmap(object):
         self._cds = cds
         self._inverted = inverted
 
-        self._cummulative_exon_lengtht = None # Name them offsets.
-        if (self._exons):
-            self._cummulative_exon_lengtht = _cummulative_exon_lengtht(
-                self._exons)
+        self._boundaries = None
+        self._offsets = None
+        if self._exons:
+            self._boundaries = sum([e[0], e[1] - 1] for e in self._exons, [])
+            self._offsets = _offsets(self._exons)
 
-        self._cummulative_non_cds_lengtht = None
-        if (self._cds):
-            self._cummulative_non_cds_lengtht = _cummulative_non_cds_lengtht(
-                self._exons, self._cds)
+        self._cds_exons = None
+        self._cds_offsets = None
+        if self._cds:
+            utr5, tail = cut(self._cds[0], self._exons)
+            coding, utr3 = cut(self._cds[1], tail)
+            self._cds_exons = (utr5, coding, utr3)
+            self._cds_offsets = (
+                _offsets(utr5, True), _offsets(coding), _offsets(utr3))
 
+    def coordinate_to_genomic(self, coordinate):
+        """Convert a coordinate to a genomic position (g./m./o.).
 
-#class Crossmap_(object):
-#    def __init__(self, transcript_model):
-#        """Initialise the class.
-#
-#        The following assumptions must hold:
-#
-#        - All positions are zero based.
-#        - The fields 'start', 'end' and 'type' are mandatory for all features.
-#        - The field 'inverted' is optional.
-#        - The feature of type 'cds' is optional.
-#        - The 'start' and 'end' positions of the transcript model are
-#          consistent with the first and last exon positions (if provided).
-#        - The 'inverted' attribute is inherited from the transcript model and
-#          is therefore ignored in all of its features.
-#
-#        :arg dict transcript_model: Model containing exon and CDS positions.
-#        """
-#        self._inverted = transcript_model.get('inverted', False)
-#        self._locus = (
-#            transcript_model['start']['position'],
-#            transcript_model['end']['position'])
-#        self._exons = []
-#        self._cds = ()
-#
-#        for feature in transcript_model.get('features', []):
-#            if feature['type'] == 'exon':
-#                self._exons.append(
-#                    (feature['start']['position'], feature['end']['position']))
-#            elif feature['type'] == 'cds':
-#                self._cds = (
-#                    feature['start']['position'], feature['end']['position'])
-#
-#        self._to_position = {
-#            'genomic': self.coordinate_to_genomic,
-#            'coding': self.coordinate_to_coding,
-#            'locus': self.coordinate_to_locus,
-#            'noncoding': self.coordinate_to_noncoding,
-#            'protein': self.coordinate_to_protein}
-#        self._from_position = {
-#            'genomic': self.genomic_to_coordinate,
-#            'locus': self.locus_to_coordinate,
-#            'coding': self.coding_to_coordinate,
-#            'noncoding': self.noncoding_to_coordinate}
-#
-#    def coordinate_to_genomic(self, coordinate):
-#        """Convert a zero based coordinate to a genomic position (g./m./o.).
-#
-#        :arg int coordinate: Zero based coordinate.
-#
-#        :returns int: Genomic position (g./m./o.).
-#        """
-#        return _coordinate_to_genomic(coordinate)
-#
-#    def genomic_to_coordinate(self, position):
-#        """Convert a genomic position (g./m./o.) to a zero based coordinate.
-#
-#        :arg int position: Genomic position (g./m./o.).
-#
-#        :returns int: Coordinate.
-#        """
-#        return _genomic_to_coordinate(position)
-#
-#    def coordinate_to_locus(self, coordinate):
-#        """Convert a zero based coordinate to a locus position.
-#
-#        :arg int coordinate: Zero based coordinate.
-#
-#        :returns tuple: Locus position.
-#        """
-#        return _coordinate_to_locus(coordinate, self._locus, self._inverted)
-#
-#    def locus_to_coordinate(self, position):
-#        """Convert a locus position to a zero based coordinate.
-#
-#        :arg tuple position: Locus position.
-#
-#        :returns int: Coordinate.
-#        """
-#        return _locus_to_coordinate(position, self._locus, self._inverted)
-#
-#    def coordinate_to_noncoding(self, coordinate):
-#        """Convert a zero based coordinate to a noncoding position (n./r.).
-#
-#        :arg int coordinate: Zero based coordinate.
-#
-#        :returns tuple: Noncoding position (n./r.).
-#        """
-#        return _coordinate_to_noncoding(
-#            coordinate, self._exons, self._inverted)
-#
-#    def noncoding_to_coordinate(self, position):
-#        """Convert a noncoding position (n./r.) to a zero based coordinate.
-#
-#        :arg tuple position: Noncoding position (n./r.).
-#
-#        :returns int: Coordinate.
-#        """
-#        return _noncoding_to_coordinate(position, self._exons, self._inverted)
-#
+        :arg int coordinate: Coordinate.
+
+        :returns int: Genomic position.
+        """
+        return _coordinate_to_genomic(coordinate)
+
+    def genomic_to_coordinate(self, position):
+        """Convert a genomic position (g./m./o.) to a coordinate.
+
+        :arg int position: Genomic position.
+
+        :returns int: Coordinate.
+        """
+        return _genomic_to_coordinate(position)
+
+    def coordinate_to_locus(self, coordinate):
+        """Convert a coordinate to a locus position.
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Locus position.
+        """
+        return _coordinate_to_locus(coordinate, self._locus, self._inverted)
+
+    def locus_to_coordinate(self, position):
+        """Convert a locus position to a coordinate.
+
+        :arg tuple position: Locus position.
+
+        :returns int: Coordinate.
+        """
+        return _locus_to_coordinate(position, self._locus, self._inverted)
+
+    def coordinate_to_noncoding(self, coordinate):
+        """Convert a coordinate to a noncoding position (n./r.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Noncoding position.
+        """
+        exon = _nearest_exon(coordinate, self._boundaries)
+
+        return _coordinate_to_exon(
+            coordinate, self._exons[exon], self._offsets[exon], self._inverted)
+
+    #def noncoding_to_coordinate(self, position):
+    #    """Convert a noncoding position (n./r.) to a coordinate.
+
+    #    :arg tuple position: Noncoding position.
+
+    #    :returns int: Coordinate.
+    #    """
+    #    return _exon_to_coordinate(position, self._exons, self._inverted)
+
 #    def coordinate_to_coding(self, coordinate):
-#        """Convert a zero based coordinate to a coding position (c./r.).
+#        """Convert a coordinate to a coding position (c./r.).
 #
-#        :arg int coordinate: Zero based coordinate.
+#        :arg int coordinate: Coordinate.
 #
 #        :returns tuple: Coding position (c./r.).
 #        """
 #        pass
 #
 #    def coding_to_coordinate(self, position):
-#        """Convert a coding position (c./r.) to a zero based coordinate.
+#        """Convert a coding position (c./r.) to a coordinate.
 #
 #        :arg tuple position: Coding position (c./r.).
 #
@@ -269,11 +254,11 @@ class Crossmap(object):
 #        pass
 #
 #    def coordinate_to_protein(self, coordinate):
-#        """Convert a zero based coordinate to a protein position (p.).
+#        """Convert a coordinate to a protein position (p.).
 #
 #        Note that the converse of this function does not exist.
 #
-#        :arg int coordinate: Zero based coordinate.
+#        :arg int coordinate: Coordinate.
 #
 #        :returns tuple: Protein position (p.).
 #        """
