@@ -2,11 +2,8 @@ from crossmapper.crossmapper import (
     Crossmap, Locus, MultiLocus, _offsets)
 
 
-_exons = [(5, 8), (14, 20), (30, 35), (40, 46), (70, 72)]
+_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 _cds = (32, 43)
-
-_offsets_exon = [0, 3, 9, 14, 20]
-_offsets_exon_inverted = [0, 2, 8, 13, 19]
 
 
 def _test_invariant(f, x, f_i, y):
@@ -15,8 +12,8 @@ def _test_invariant(f, x, f_i, y):
 
 
 def test_offsets():
-    assert _offsets(_exons) == _offsets_exon
-    assert _offsets(_exons, True) == _offsets_exon_inverted
+    assert _offsets(_exons) == [0, 3, 9, 14, 18, 20]
+    assert _offsets(_exons, True) == [0, 2, 4, 8, 13, 19]
 
 
 def test_Locus():
@@ -127,11 +124,6 @@ def test_Crossmap_genomic():
 def test_Crossmap_coding():
     crossmap = Crossmap(_exons, _cds)
 
-    #raise ValueError(crossmap._coding[0]._offsets)
-    assert crossmap.coordinate_to_coding(31) == (-1, 0, 0)
-    assert crossmap.coordinate_to_coding(32) == (1, 0, 1)
-    assert crossmap.coordinate_to_coding(43) == (1, 0, 2)
-
     _test_invariant(
         crossmap.coordinate_to_coding, 31,
         crossmap.coding_to_coordinate, (-1, 0, 0))
@@ -140,4 +132,18 @@ def test_Crossmap_coding():
         crossmap.coding_to_coordinate, (1, 0, 1))
     _test_invariant(
         crossmap.coordinate_to_coding, 43,
+        crossmap.coding_to_coordinate, (1, 0, 2))
+
+
+def test_Crossmap_coding_inverted():
+    crossmap = Crossmap(_exons, _cds, True)
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 43,
+        crossmap.coding_to_coordinate, (-1, 0, 0))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 42,
+        crossmap.coding_to_coordinate, (1, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 31,
         crossmap.coding_to_coordinate, (1, 0, 2))
