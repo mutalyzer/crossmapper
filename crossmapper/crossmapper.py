@@ -34,36 +34,35 @@ def _nearest_boundary(coordinate, boundaries):
     return insertion_point
 
 
-def _nearest_locus(coordinate, boundaries):
+def _nearest_location(coordinate, boundaries):
     return _nearest_boundary(coordinate, boundaries) // 2
 
 
-def _cut(coordinate, loci):
-    """Divide a list of loci, cutting one of the loci in two.
+def _cut(coordinate, locations):
+    """Divide a list of locations, cutting one of the locations in two.
 
     :arg int coordinate: Coordinate.
-    :arg list loci: List of loci.
+    :arg list locations: List of locations.
 
-    :returns tuple: {loci} before coordinate, {loci} after coordinate.
+    :returns tuple: {locations} before coordinate, {locations} after coordinate.
     """
-    locus = _nearest_locus(coordinate, loci)
+    boundaries = sum( # TODO: Fix this.
+            [[location[0], location[1] - 1] for location in locations], [])
+
+    location = _nearest_location(coordinate, boundaries)
 
     return (
-        loci[:locus] + [(loci[locus][0], coordinate)],
-        [(coordinate, loci[locus][1])] + loci[locus + 1:])
+        locations[:location] + [(locations[location][0], coordinate)],
+        [(coordinate, locations[location][1])] + locations[location + 1:])
 
 
-#def _negative(position):
-#    return (-position[0], -position[1])
+def _offsets(locations, inverted=False):
+    """For each location, calculate the length of the preceding locations.
 
+    :arg list locations: List of locations.
+    :arg bool inverted: Direction of {locations}.
 
-def _offsets(loci, inverted=False):
-    """For each locus, calculate the length of the preceding loci.
-
-    :arg list loci: List of loci.
-    :arg bool inverted: Direction of {loci}.
-
-    :returns list: List of cumulative locus lengths.
+    :returns list: List of cumulative location lengths.
     """
     direction = 1
     if inverted:
@@ -71,95 +70,21 @@ def _offsets(loci, inverted=False):
 
     length = 0
     lengths = []
-    for locus in loci[::direction]:
+    for location in locations[::direction]:
         lengths.append(length)
-        length += locus[1] - locus[0]
+        length += location[1] - location[0]
 
-    return lengths[::direction]
-
-
-def to_position(coordinate):
-    return coordinate + 1
-
-
-def to_coordinate(position):
-    return position - 1
-
-
-#def _coordinate_to_locus(coordinate, locus, inverted=False):
-#    """Convert a coordinate to a position relative to a locus.
-#
-#    :arg int coordinate: Coordinate.
-#    :arg tuple locus: Locus.
-#    :arg bool inverted: Direction of {locus}.
-#
-#    :returns tuple: Position relative to {locus}.
-#    """
-#    if inverted:
-#        if coordinate >= locus[1]:
-#            return 1, locus[1] - coordinate - 1
-#        if coordinate < locus[0]:
-#            return locus[1] - locus[0], locus[0] - coordinate
-#        return locus[1] - coordinate, 0
-#
-#    if coordinate < locus[0]:
-#        return 1, coordinate - locus[0]
-#    if coordinate >= locus[1]:
-#        return locus[1] - locus[0], coordinate - locus[1] + 1
-#    return coordinate - locus[0] + 1, 0
-
-
-#def _locus_to_coordinate(position, locus, inverted=False):
-#    """Convert a position relative to a locus to a coordinate.
-#
-#    :arg int position: Position.
-#    :arg tuple locus: Locus.
-#    :arg bool inverted: Direction of {locus}.
-#
-#    :returns int: Coordinate.
-#    """
-#    if inverted:
-#        return locus[1] - position[0] - position[1]
-#    return locus[0] + position[0] + position[1] - 1
-
-
-#def _coordinate_to_exon(coordinate, exon, offset, inverted=False):
-#    """Convert a coordinate to a position relative to an exon.
-#
-#    :arg int coordinate: Coordinate.
-#    :arg tuple exon: Exon.
-#    :arg int offset: Offset of {exon}.
-#    :arg bool inverted: Direction of {exon}.
-#
-#    :returns tuple: Position relative to {exon}.
-#    """
-#    locus = _coordinate_to_locus(coordinate, exon, inverted)
-#
-#    return locus[0] + offset, locus[1]
-
-
-#def _exon_to_coordinate(position, exon, offset, inverted=False):
-#    """Convert a position relative to an exon to a coordinate.
-#
-#    :arg int position: Position.
-#    :arg tuple exon: Exon.
-#    :arg int offset: Offset of {exon}.
-#    :arg bool inverted: Direction of {exon}.
-#
-#    :returns int: Coordinate.
-#    """
-#    return _locus_to_coordinate(
-#        (position[0] - offset, position[1]), exon, inverted)
+    return lengths
 
 
 class Locus(object):
-    def __init__(self, locus, inverted=False):
+    def __init__(self, location, inverted=False):
         """Construct a Locus object.
 
-        :arg tuple locus: Locus coordinates.
-        :arg bool inverted: Orientation of {locus}.
+        :arg tuple location: Locus coordinates.
+        :arg bool inverted: Orientation.
         """
-        self._locus = locus
+        self._location = location
         self._inverted = inverted
 
     def to_position(self, coordinate):
@@ -170,21 +95,21 @@ class Locus(object):
         :returns tuple: Position.
         """
         if self._inverted:
-            if coordinate >= self._locus[1]:
-                return 1, self._locus[1] - coordinate - 1
-            if coordinate < self._locus[0]:
+            if coordinate >= self._location[1]:
+                return 1, self._location[1] - coordinate - 1
+            if coordinate < self._location[0]:
                 return (
-                    self._locus[1] - self._locus[0],
-                    self._locus[0] - coordinate)
-            return self._locus[1] - coordinate, 0
+                    self._location[1] - self._location[0],
+                    self._location[0] - coordinate)
+            return self._location[1] - coordinate, 0
 
-        if coordinate < self._locus[0]:
-            return 1, coordinate - self._locus[0]
-        if coordinate >= self._locus[1]:
+        if coordinate < self._location[0]:
+            return 1, coordinate - self._location[0]
+        if coordinate >= self._location[1]:
             return (
-                self._locus[1] - self._locus[0],
-                coordinate - self._locus[1] + 1)
-        return coordinate - self._locus[0] + 1, 0
+                self._location[1] - self._location[0],
+                coordinate - self._location[1] + 1)
+        return coordinate - self._location[0] + 1, 0
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
@@ -194,32 +119,34 @@ class Locus(object):
         :returns int: Coordinate.
         """
         if self._inverted:
-            return self._locus[1] - position[0] - position[1]
-        return self._locus[0] + position[0] + position[1] - 1
+            return self._location[1] - position[0] - position[1]
+        return self._location[0] + position[0] + position[1] - 1
 
 
 class MultiLocus(object):
-    def __init__(self, locus_list, inverted=False, negated=False):
+    def __init__(self, locations, inverted=False, negated=False):
         """Construct a MultiLocus object.
-        :arg list locus_list: List of locus coordinates.
-        :arg bool inverted: Orientation of {locus}.
+        :arg list locations: List of locus coordinates.
+        :arg bool inverted: Orientation.
         :arg bool negated: Change the sign of all positions.
         """
         self._inverted = inverted
         self._negated = negated
 
-        self._loci = [Locus(locus, inverted) for locus in locus_list]
+        self._loci = [Locus(location, inverted) for location in locations]
         self._boundaries = sum(
-            [[locus[0], locus[1] - 1] for locus in locus_list], [])
-
-        self._offsets = _offsets(locus_list, inverted)
-        if inverted:
-            self._offsets = self._offsets[::-1]
+            [[location[0], location[1] - 1] for location in locations], [])
+        self._offsets = _offsets(locations, inverted)
 
     def _sign(self, position):
         if self._negated:
             return -position[0], -position[1]
         return position
+
+    def _direction(self, index):
+        if self._inverted:
+            return len(self._offsets) - index - 1
+        return index
 
     def to_position(self, coordinate):
         """Convert a coordinate to a position.
@@ -228,10 +155,11 @@ class MultiLocus(object):
 
         :returns tuple: Position.
         """
-        index = _nearest_boundary(coordinate, self._boundaries) // 2
-        locus = self._loci[index].to_position(coordinate)
+        index = _nearest_location(coordinate, self._boundaries)
+        location = self._loci[index].to_position(coordinate)
 
-        return self._sign((locus[0] + self._offsets[index], locus[1]))
+        return self._sign(
+            (location[0] + self._offsets[self._direction(index)], location[1]))
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
@@ -246,26 +174,27 @@ class MultiLocus(object):
             len(self._offsets),
             max(0, bisect_left(self._offsets, position_[0]) - 1))
 
-        return self._loci[index].to_coordinate(
+        return self._loci[self._direction(index)].to_coordinate(
             (position_[0] - self._offsets[index], position_[1]))
 
 
 class Crossmap(object):
-    def __init__(self, locus=None, exons=None, cds=None, inverted=False):
-        self._locus = None
-        self._noncoding = None
-        self._coding = None
+    def __init__(self, locations=None, cds=None, inverted=False):
+        """
+        """
+        self._cds = cds
 
-        if locus:
-            self._locus = Locus(locus, inverted)
-        if exons:
-            self._noncoding = MultiLocus(exons, inverted)
+        self._noncoding = None
+        if locations:
+            self._noncoding = MultiLocus(locations, inverted)
+
+        self._coding = None
         if cds:
-            utr5, tail = cut(cds[0], self._exons)
-            coding, utr3 = cut(cds[1], tail)
+            utr5, tail = _cut(cds[0], locations)
+            coding, utr3 = _cut(cds[1], tail)
 
             self._coding = (
-                MultiLocus(utr5, inverted, True),
+                MultiLocus(utr5, not inverted, True),
                 MultiLocus(coding, inverted),
                 MultiLocus(utr3, inverted))
 
@@ -276,7 +205,7 @@ class Crossmap(object):
 
         :returns int: Genomic position.
         """
-        return _coordinate_to_genomic(coordinate)
+        return coordinate + 1
 
     def genomic_to_coordinate(self, position):
         """Convert a genomic position (g./m./o.) to a coordinate.
@@ -285,25 +214,7 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        return _genomic_to_coordinate(position)
-
-    def coordinate_to_locus(self, coordinate):
-        """Convert a coordinate to a locus position.
-
-        :arg int coordinate: Coordinate.
-
-        :returns tuple: Locus position.
-        """
-        return _coordinate_to_locus(coordinate, self._locus, self._inverted)
-
-    def locus_to_coordinate(self, position):
-        """Convert a locus position to a coordinate.
-
-        :arg tuple position: Locus position.
-
-        :returns int: Coordinate.
-        """
-        return _locus_to_coordinate(position, self._locus, self._inverted)
+        return position - 1
 
     def coordinate_to_noncoding(self, coordinate):
         """Convert a coordinate to a noncoding position (n./r.).
@@ -312,38 +223,39 @@ class Crossmap(object):
 
         :returns tuple: Noncoding position.
         """
-        exon = _nearest_locus(coordinate, self._boundaries)
+        return self._noncoding.to_position(coordinate)
 
-        return _coordinate_to_exon(
-            coordinate, self._exons[exon], self._offsets[exon], self._inverted)
+    def noncoding_to_coordinate(self, position):
+        """Convert a noncoding position (n./r.) to a coordinate.
 
-    #def noncoding_to_coordinate(self, position):
-    #    """Convert a noncoding position (n./r.) to a coordinate.
+        :arg tuple position: Noncoding position.
 
-    #    :arg tuple position: Noncoding position.
+        :returns int: Coordinate.
+        """
+        return self._noncoding.to_coordinate(position)
 
-    #    :returns int: Coordinate.
-    #    """
-    #    return _exon_to_coordinate(position, self._exons, self._inverted)
+    def coordinate_to_coding(self, coordinate):
+        """Convert a coordinate to a coding position (c./r.).
 
-#    def coordinate_to_coding(self, coordinate):
-#        """Convert a coordinate to a coding position (c./r.).
-#
-#        :arg int coordinate: Coordinate.
-#
-#        :returns tuple: Coding position (c./r.).
-#        """
-#        pass
-#
-#    def coding_to_coordinate(self, position):
-#        """Convert a coding position (c./r.) to a coordinate.
-#
-#        :arg tuple position: Coding position (c./r.).
-#
-#        :returns int: Coordinate.
-#        """
-#        pass
-#
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Coding position (c./r.).
+        """
+        if coordinate < self._cds[0]:
+            return (*self._coding[0].to_position(coordinate), 0)
+        if coordinate >= self._cds[1]:
+            return (*self._coding[2].to_position(coordinate), 2)
+        return (*self._coding[1].to_position(coordinate), 1)
+
+    def coding_to_coordinate(self, position):
+        """Convert a coding position (c./r.) to a coordinate.
+
+        :arg tuple position: Coding position (c./r.).
+
+        :returns int: Coordinate.
+        """
+        return self._coding[position[2]].to_coordinate(position[:2])
+
 #    def coordinate_to_protein(self, coordinate):
 #        """Convert a coordinate to a protein position (p.).
 #
