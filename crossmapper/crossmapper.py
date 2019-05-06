@@ -18,6 +18,7 @@ from bisect import bisect_left
 def _locations_to_boundaries(locations):
     return sum([[location[0], location[1] - 1] for location in locations], [])
 
+
 def _nearest_boundary(coordinate, boundaries):
     """Given a coordinate, find the index of the nearest boundary.
 
