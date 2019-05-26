@@ -1,411 +1,299 @@
+"""Crossmapper position conversion library.
+
+Definitions:
+
+- Coordinates are zero based, non-negative integers.
+- Locations are zero based right-open non-negative integer intervals,
+  consistent with Python's range() and sequence slicing functions.
+- Loci and exons are locations.
+- An exon list is a list of locations that, when flattened, is an increasing
+  sequence.
+- A position is a 2-tuple of which the first element is a one based non-zero
+  integer relative to an element in a location and the second element is an
+  integer offset relative to the first element.
 """
-Module for conversion from genomic coordinates to coding sequence
-orientated coordinates and vice versa.
-The conversions are done based upon a list of splice sites, the CDS start
-and stop and the orientation of a transcript.
-"""
-from __future__ import division, unicode_literals
-from future.builtins import str
+from bisect import bisect_left
 
 
-def _plus(a, b):
+def _locations_to_boundaries(locations):
+    return sum([[location[0], location[1] - 1] for location in locations], [])
+
+
+def _nearest_boundary(coordinate, boundaries):
+    """Given a coordinate, find the index of the nearest boundary.
+
+    On a draw, the left boundary is chosen.
+
+    :arg int coordinate: Coordinate.
+    :arg list boundaries: List of boundaries.
+
+    :returns int: Index of nearest boundary.
     """
-    Return a + b unless a is smaller than zero and the result is larger than
-    zero, in that case it returns a + b + 1.
+    insertion_point = bisect_left(boundaries, coordinate)
 
-    In effect the number 0 is skipped while adding.
+    if (
+            abs(coordinate - boundaries[insertion_point - 1]) <=
+            abs(boundaries[insertion_point % len(boundaries)] - coordinate)):
+        return insertion_point - 1
+    return insertion_point
+
+
+def _nearest_location(coordinate, boundaries):
+    return _nearest_boundary(coordinate, boundaries) // 2
+
+
+def _cut(coordinate, locations):
+    """Divide a list of locations, cutting one of the locations in two.
+
+    :arg int coordinate: Coordinate.
+    :arg list locations: List of locations.
+
+    :returns tuple: {locations} before coordinate, {locations} after
+        coordinate.
     """
-    r = a + b
+    boundaries = _locations_to_boundaries(locations)
+    index = _nearest_location(coordinate, boundaries)
 
-    if a <= 0 and r >= 0:
-        return r + 1
-    return r
+    return (
+        locations[:index] + [(locations[index][0], coordinate)],
+        [(coordinate, locations[index][1])] + locations[index + 1:])
 
 
-def _minus(a, b):
+def _offsets(locations, inverted=False):
+    """For each location, calculate the length of the preceding locations.
+
+    :arg list locations: List of locations.
+    :arg bool inverted: Direction of {locations}.
+
+    :returns list: List of cumulative location lengths.
     """
-    Return a - b unless a is larger than zero and the result is smaller than
-    zero, in that case it returns (a - b) - 1.
+    lengths = []
 
-    In effect the number 0 is skipped while subtracting.
-    """
-    r = a - b
+    length = 0
+    direction = -1 if inverted else 1
 
-    if a >= 0 and r <= 0:
-        return r - 1
-    return r
+    for location in locations[::direction]:
+        lengths.append(length)
+        length += location[1] - location[0]
 
-
-def _minusr(a, b):
-    """
-    Return a - b unless a is larger than zero and b is smaller than zero, in
-    that case it returns (a - b) - 1.
-
-    In effect the number 0 is skipped while subtracting.
-    """
-    r = a - b
-
-    if a > 0 and b < 0:
-        return r - 1
-    return r
+    return lengths
 
 
-class Crossmap():
-    """
-    Convert from I{g.} to I{c.} or I{n.} notation or vice versa.
-    """
-    def __init__(self, rna, cds, orientation):
+class Locus(object):
+    def __init__(self, location, inverted=False):
+        """Locus object.
+
+        :arg tuple location: Locus location.
+        :arg bool inverted: Orientation.
         """
-        Initialise the class and do the cross mapping of the splice sites.
+        self._location = location
+        self._inverted = inverted
 
-        :arg list rna: The list of RNA splice sites.
-        :arg list cds: CDS start and stop (if present, may be empty).
-        :arg int orientation: The orientation of the transcript
-            (1: forward, E{-}1: reverse).
+    def to_position(self, coordinate):
+        """Convert a coordinate to a position.
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Position.
         """
-        self._stop = None
-        self._rna_length = len(rna)
-        self._crossmapping = self._rna_length * [None]
-        self.rna = rna
-        self.cds = cds
-        self.orientation = orientation
+        if self._inverted:
+            if coordinate >= self._location[1]:
+                return 1, self._location[1] - coordinate - 1
+            if coordinate < self._location[0]:
+                return (
+                    self._location[1] - self._location[0],
+                    self._location[0] - coordinate)
+            return self._location[1] - coordinate, 0
 
-        self._crossmap_splice_sites()
-
-        start = (orientation - 1) // 2
-        self._trans_start = self._crossmapping[start]
-        self._trans_end = self._crossmapping[start - self.orientation]
-
-        if not self._stop:
-            self._stop = self._trans_end
-
-    def _crossmap_splice_sites(self):
-        """
-        Calculate either:
-            1. The I{c.} notation of the CDS start and stop, including splice
-               sites.
-            2. The I{c.} notation of the RNA splice sites.
-            3. The I{n.} notation of the RNA splice sites.
-
-        For option 1, only provide an list with CDS splice sites.
-        For option 2, provide an list with RNA splice sites and one with
-            the CDS start and stop.
-        For option 3, only provide an list with RNA splice sites.
-
-        Examples:
-
-        Crossmap(rna, [], 1)
-            - Get the I{n.} notation of the RNA splice sites. The input is in
-              forward notation.
-
-        Crossmap(cds, [], 1)
-            - Get the I{c.} notation of the CDS start and stop, and the
-              internal splice sites. The input is in forward notation.
-
-        Crossmap(rna, cds, -1)
-            - Get the I{c.} notation of the RNA splice sites. The input is in
-              reverse complement.
-
-
-        The output is straightforward, except for the I{c.} notation of the
-        downstream RNA splice sites. This is denoted by _stop + the distance to
-        the stop codon, as an alternative to the *-notation.
-        """
-        c_pos = 1 # One unless we both have mRNA and CDS.
-        d = self.orientation
-        # c, x and y are used to unify forward and reverse complement.
-        c = (d - 1) // -2
-        x = (-d - 1) // -2
-        y = c * (self._rna_length - 1)
-
-        if self.cds:
-            # We both have mRNA and CDS, so we have to search for CDS start.
-            i = y - c
-            while d * (self.rna[i] - ((i + 1) % 2)) < d * self.cds[c] + c:
-                i += d
-            # Get the right boundary.
-            c_pos = d * (self.rna[i] - self.cds[c] + (d * 2))
-
-            # Go back to exon 1.
-            while d * i > d * y:
-                c_pos = _minus(c_pos, d * (self.rna[i] - self.rna[i - d] + d))
-                i -= d * 2
-
-        i = y - c
-        while d * i < d * (y - c) + self._rna_length:
-            self._crossmapping[i + c] = c_pos
-            if i % 2:                  
-                # We are skipping an intron, so only add 1 (mind the 0).
-                c_pos = _plus(c_pos, 1)
-            else:
-                # We are skipping an exon, so add the length.
-                c_pos = _plus(c_pos, self.rna[i + 1] - self.rna[i])
-
-            # Set _stop when we find CDS stop.
-            if (self.cds and not self._stop and 
-                    d * self.rna[i - c + 1] >= d * self.cds[x]):
-                self._stop = c_pos - (d * (self.rna[i - c + 1] - self.cds[x]))
-            i += d
-
-    def g2x(self, a):
-        """
-        This function calculates either:
-            1. The I{n.} notation from a I{g.} notation.
-            2. The I{c.} notation from a I{g.} notation.
-
-        For option 1, only provide an array with mRNA splice sites and one with
-            the I{c.} notation of the splice sites.
-        For option 2, provide an array with mRNA splice sites, one with the
-            I{c.} notation of the splice sites and an array with the CDS start
-            and stop.
-
-        Examples:
-
-        Crossmap(rna, [], 1)
-        g2x(i)
-            - Get the I{n.} notation of a I{g.} position i. The input is in
-              forward notation.
-
-        Crossmap(rna, cds, -1)
-        g2x(i)
-            - Get the I{c.} notation of a I{g.} position i. The input is in
-              reverse notation.
-
-        The output is fully compatible with the HVGS nomenclature as defined
-        on 01-07-2009.
-
-        :arg int a: The genomic position that must be translated.
-
-        :returns str: The I{c.} or I{n.} notation of position a.
-        """
-        # TODO update documentation.
-        d = self.orientation
-        # c and y are used to unify forward and reverse complement.
-        c = (d - 1) // -2
-        y = c * (self._rna_length - 1)
-
-        if d * a < d * self.rna[y]:
-            # A position before the first exon.
-            return ((self._crossmapping[y]), -d * (self.rna[y] - a))
-
-        if d * a > d * self.rna[self._rna_length - y - 1]:
-            # After the last exon.
+        if coordinate < self._location[0]:
+            return 1, coordinate - self._location[0]
+        if coordinate >= self._location[1]:
             return (
-                self._crossmapping[self._rna_length - y - 1],
-                d * (a - self.rna[self._rna_length - y - 1]))
+                self._location[1] - self._location[0],
+                coordinate - self._location[1] + 1)
+        return coordinate - self._location[0] + 1, 0
 
-        for i in xrange(self._rna_length):
-            # A normal position.
-            if i % 2:
-                # We are checking the intron positions.
-                if self.rna[i] < a and a < self.rna[i + 1]:
-                    # Intron.
-                    if d * (a - self.rna[i]) > d * (self.rna[i + 1] - a):
-                        # The position was closer to the next exon.
-                        return (
-                            self._crossmapping[i + 1 - c],
-                            -d * (self.rna[i + 1 - c] - a))
-                    # The position was closer to the previous exon.
-                    return (
-                        self._crossmapping[i + c],
-                        d * (a - self.rna[i + c]))
-            else:
-                # We are checking the exon positions.
-                if self.rna[i] <= a and a <= self.rna[i + 1]:
-                    return (
-                        _plus(self._crossmapping[i + c],
-                        d * (a - self.rna[i + c])), 0)
+    def to_coordinate(self, position):
+        """Convert a position to a coordinate.
 
-    def x2g(self, a, b):
+        :arg int position: Position.
+
+        :returns int: Coordinate.
         """
-        This function calculates either:
-            1. The I{g.} notation from a I{n.} notation.
-            2. The I{g.} notation from a I{c.} notation.
+        if self._inverted:
+            return self._location[1] - position[0] - position[1]
+        return self._location[0] + position[0] + position[1] - 1
 
-        Whether option 1 or 2 applies depends on the content of mRNAm.
 
-        Examples:
+class MultiLocus(object):
+    def __init__(self, locations, inverted=False, negated=False):
+        """MultiLocus object.
 
-        Crossmap(rna, [], 1)
-        x2g(i)
-            - Get the I{g.} notation of a I{n.} position i. The input is in
-              forward notation.
-
-        Crossmap(rna, cds, -1)
-        x2g(i, j)
-            - Get the I{g.} notation of a I{c.} position i with offset j. The
-              input is in reverse notation.
-
-        :arg int a: The I{n.} or I{c.} position to be translated.
-        :arg int b: The offset of position a.
-
-        :returns int: A I{g.} position.
+        :arg list locations: List of locus locations.
+        :arg bool inverted: Orientation.
+        :arg bool negated: Change the sign of all positions.
         """
-        d = self.orientation
-        c = (-d - 1) // -2 # Used to unify forward and reverse complement.
+        self._inverted = inverted
+        self._negated = negated
 
-        # Assume a position before exon 1.
-        ret = self.rna[0] - d * (self._crossmapping[0] - a)
-        if d * a > d * self._crossmapping[self._rna_length - 1]:
-            # It is after the last exon.
-            ret = (self.rna[self._rna_length - 1] + d * (a -
-                self._crossmapping[self._rna_length - 1]))
-        for i in range(0, self._rna_length, 2):
-            # Is it in an exon?
-            if (d * self._crossmapping[i] <= d * a and
-                    d * a <= d * self._crossmapping[i + 1]):
-                ret = (self.rna[i + c] - d *
-                    _minusr(self._crossmapping[i + c], a))
-        ret += d * b # Add the intron count.
+        self._loci = [Locus(location, inverted) for location in locations]
+        self._boundaries = _locations_to_boundaries(locations)
+        self._offsets = _offsets(locations, inverted)
 
-        # Patch for CDS start on first nucleotide of exon 1.
-        if a < 0 and self._crossmapping[d - c] == 1:
-            ret += d
+    def _sign(self, position):
+        if self._negated:
+            return -position[0], -position[1]
+        return position
 
-        return ret
+    def _direction(self, index):
+        if self._inverted:
+            return len(self._offsets) - index - 1
+        return index
 
-    def int2main(self, a):
+    def to_position(self, coordinate):
+        """Convert a coordinate to a position.
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Position.
         """
-        Convert the _stop notation to the '*' notation.
+        index = _nearest_location(coordinate, self._boundaries)
+        location = self._loci[index].to_position(coordinate)
 
-        :arg int a: An integer in _stop notation.
+        return self._sign(
+            (location[0] + self._offsets[self._direction(index)], location[1]))
 
-        :returns str: The converted notation (may be unaltered).
+    def to_coordinate(self, position):
+        """Convert a position to a coordinate.
+
+        :arg int position: Position.
+
+        :returns int: Coordinate.
         """
-        if a > self._stop:
-            return '*' + str(a - self._stop)
-        return str(a)
+        position_ = self._sign(position)
 
-    def main2int(self, s):
+        index = min(
+            len(self._offsets),
+            max(0, bisect_left(self._offsets, position_[0]) - 1))
+
+        return self._loci[self._direction(index)].to_coordinate(
+            (position_[0] - self._offsets[index], position_[1]))
+
+
+class Crossmap(object):
+    _noncoding_error = 'no locations provided'
+    _coding_error = 'no cds provided'
+
+    def __init__(self, locations=None, cds=None, inverted=False):
         """
-        Convert the '*' notation to the _stop notation.
-
-        :arg str s: A string in '*' notation.
-
-        :returns int: The converted notation (may be unaltered).
+        :arg list locations: List of locus locations.
+        :arg tuple cds: ...
+        :arg bool inverted: Orientation.
         """
-        if s[0] == '*':
-            return self._stop + int(s[1:])
-        return int(s)
+        self._cds = cds
 
-    def int2offset(self, t, fuzzy=False):
+        self._noncoding = None
+        if locations:
+            self._noncoding = MultiLocus(locations, inverted)
+
+        self._coding = None
+        self._parts = (0, 1, 2)
+        if cds:
+            utr5, tail = _cut(cds[0], locations)
+            coding, utr3 = _cut(cds[1], tail)
+
+            if inverted:
+                utr5, utr3 = utr3, utr5
+                self._parts = self._parts[::-1]
+
+            self._coding = (
+                MultiLocus(utr5, not inverted, True),
+                MultiLocus(coding, inverted),
+                MultiLocus(utr3, inverted))
+
+    def _check(self, condition, error):
+        if not condition:
+            raise ValueError(error)
+
+    def coordinate_to_genomic(self, coordinate):
+        """Convert a coordinate to a genomic position (g./m./o.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns int: Genomic position.
         """
-        Convert a tuple of integers to offset-notation. This adds a `+',
-        and `u' or `d' to the offset when appropriate. The main value is
-        not returned.
+        return coordinate + 1
 
-        :arg tuple t: A tuple of integers: (main, offset) in _stop notation.
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
-            unknown).
+    def genomic_to_coordinate(self, position):
+        """Convert a genomic position (g./m./o.) to a coordinate.
 
-        :returns str: The offset in HGVS notation.
+        :arg int position: Genomic position.
+
+        :returns int: Coordinate.
         """
-        if t[1] > 0:
-            # The exon boundary is downstream.
-            if fuzzy:
-                return '+?'
-            if t[0] >= self._trans_end:
-                # It is downstream of the last exon.
-                return "+d" + str(t[1])
-            return '+' + str(t[1])
-        if t[1] < 0:
-            # The exon boundary is uptream.
-            if fuzzy:
-                return '-?'
-            if t[0] <= self._trans_start:
-                # It is upstream of the first exon.
-                return "-u" + str(-t[1])
-            return str(t[1])
-        return '' # No offset was given.
+        return position - 1
 
-    def offset2int(self, s):
+    def coordinate_to_noncoding(self, coordinate):
+        """Convert a coordinate to a noncoding position (n./r.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Noncoding position.
         """
-        Convert an offset in HGVS notation to an integer. This removes
-        `+', `u' and `d' when present. It also converts a `?' to something
-        sensible.
+        self._check(self._noncoding, self._noncoding_error)
 
-        :arg str s: An offset in HGVS notation.
+        return self._noncoding.to_position(coordinate)
 
-        :returns int: The offset as an integer.
+    def noncoding_to_coordinate(self, position):
+        """Convert a noncoding position (n./r.) to a coordinate.
+
+        :arg tuple position: Noncoding position.
+
+        :returns int: Coordinate.
         """
-        if not s:
-            return 0 # No offset given.
-        if s == '?':
-            # Here we ignore an uncertainty.
-            return 0 # FIXME: this may have to be different.
-        if s[1] == 'u' or s[1] == 'd':
-            # Remove `u' or `d'.
-            if s[0] == '-':
-                # But save the `-'.
-                return -int(s[2:])
-            return int(s[2:])
-        if s[1:] == '?':
-            # Here we ignore an uncertainty in the intron.
-            return 0 # FIXME: this may have to be different.
-        if s[0] == '-':
-            # Save the `-' here too.
-            return -int(s[1:])
-        return int(s[1:])
+        self._check(self._noncoding, self._noncoding_error)
 
-    def tuple2string(self, t, fuzzy=False):
+        return self._noncoding.to_coordinate(position)
+
+    def coordinate_to_coding(self, coordinate):
+        """Convert a coordinate to a coding position (c./r.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Coding position (c./r.).
         """
-        Convert a tuple (main, offset) in _stop notation to I{c.} notation.
+        self._check(self._coding, self._coding_error)
 
-        :arg tuple t: A tuple (main, offset) in _stop notation.
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
-            unknown).
+        if coordinate < self._cds[0]:
+            return (
+                *self._coding[self._parts[0]].to_position(coordinate),
+                self._parts[0])
+        if coordinate >= self._cds[1]:
+            return (
+                *self._coding[self._parts[2]].to_position(coordinate),
+                self._parts[2])
+        return (*self._coding[1].to_position(coordinate), 1)
 
-        :returns str: The position in HGVS notation.
+    def coding_to_coordinate(self, position):
+        """Convert a coding position (c./r.) to a coordinate.
+
+        :arg tuple position: Coding position (c./r.).
+
+        :returns int: Coordinate.
         """
-        if t[0] >= self._trans_end or t[0] <= self._trans_start:
-            return str(self.int2main(_minus(t[0], -t[1])))
-        return str(self.int2main(t[0])) + str(self.int2offset(t, fuzzy))
+        self._check(self._coding, self._coding_error)
 
-    def g2c(self, a, fuzzy=False):
+        return self._coding[position[2]].to_coordinate(position[:2])
+
+    def coordinate_to_protein(self, coordinate):
+        """Convert a coordinate to a protein position (p.).
+
+        Note that the converse of this function does not exist.
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Protein position (p.).
         """
-        Uses both g2x() and tuple2string() to translate a genomic position
-        to _stop notation to I{c.} notation.
+        self._check(self._coding, self._coding_error)
 
-        :arg int a: The genomic position that must be translated.
-        :arg bool fuzzy: Denotes that the coordinate is fuzzy (i.e., offset is
-            unknown).
-
-        :returns str: The position in HGVS notation.
-        """
-        return self.tuple2string(self.g2x(a), fuzzy)
-
-    def info(self):
-        """
-        Return transcription start, transcription end and CDS stop.
-
-        :returns tuple: (trans_start, trans_stop, cds_stop).
-        """
-        return (self._trans_start, self._trans_end, self._stop)
-
-    def get_splice_site(self, number):
-        """
-        Return the coordinate of a splice site.
-
-        :arg int number: the number of the RNA splice site counting from
-            transcription start.
-        :returns int: coordinate of the RNA splice site.
-        """
-        if self.orientation == 1:
-            return int(self.rna[number])
-        return int(self.rna[len(self.rna) - number - 1])
-
-    def number_of_introns(self):
-        """
-        Returns the number of introns.
-
-        :returns int: number of introns.
-        """
-        return len(self.rna) // 2 - 1
-
-    def number_of_exons(self):
-        """
-        Returns the number of exons.
-
-        :returns int: number of exons.
-        """
-        return len(self.rna) // 2
+        return self.coordinate_to_coding(coordinate) // 3
