@@ -55,7 +55,7 @@ Please follow the coding style conventions detailed below:
 - For Python: [PEP 8 - Style Guide for Python Code][pep8].
 
 
-[email]: mailto:mutalyzer@lumc.nl
+[email]: mailto:info@mutalyzer.nl
 [issues]: https://github.com/mutalyzer/crossmap/issues/new
 [compare]: https://github.com/mutalyzer/crossmap/compare
 [pull]: https://github.com/mutalyzer/crossmap/pulls
