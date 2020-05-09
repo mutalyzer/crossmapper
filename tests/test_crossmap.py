@@ -1,9 +1,10 @@
 from crossmapper.crossmapper import (
-    Crossmap, Locus, MultiLocus, _offsets)
+    Crossmap, Locus, MultiLocus, _cut, _loc, _nearest_location, _offsets)
 
 
 _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 _cds = (32, 43)
+_adjacent_exons = [(1, 3), (3, 5)]
 
 
 def _test_invariant(f, x, f_i, y):
@@ -11,9 +12,45 @@ def _test_invariant(f, x, f_i, y):
     assert f_i(y) == x
 
 
+def test_cut():
+    assert _cut(_adjacent_exons, 2) == ([(1, 2)], [(2, 3), (3, 5)])
+    assert _cut(_adjacent_exons, 3) == ([(1, 3)], [(3, 5)])
+    assert _cut(_adjacent_exons, 1) == ([], [(1, 3), (3, 5)])
+    assert _cut(_adjacent_exons, 5) == ([(1, 3), (3, 5)], [])
+
+
+def test_loc():
+    assert _loc(1, 2) == [(1, 2)]
+    assert _loc(1, 1) == []
+    assert _loc(2, 1) == []
+
+
 def test_offsets():
     assert _offsets(_exons) == [0, 3, 9, 14, 18, 20]
     assert _offsets(_exons, True) == [0, 2, 4, 8, 13, 19]
+    assert _offsets(_adjacent_exons) == [0, 2]
+    assert _offsets(_adjacent_exons, True) == [0, 2]
+
+
+def test_nearest_location():
+    assert _nearest_location(_exons, 6) == 0
+    assert _nearest_location(_exons, 42) == 3
+    assert _nearest_location(_exons, 71) == 5
+
+    assert _nearest_location(_exons, 0) == 0
+    assert _nearest_location(_exons, 90) == 5
+
+    assert _nearest_location(_exons, 10) == 0
+    assert _nearest_location(_exons, 11) == 1
+    assert _nearest_location(_exons, 10, 1) == 0
+    assert _nearest_location(_exons, 11, 1) == 1
+
+    assert _nearest_location(_exons, 37) == 2
+    assert _nearest_location(_exons, 38) == 3
+    assert _nearest_location(_exons, 37, 1) == 3
+    assert _nearest_location(_exons, 36, 1) == 2
+
+    assert _nearest_location(_adjacent_exons, 3) == 1
 
 
 def test_Locus():
@@ -58,6 +95,14 @@ def test_MultiLocus():
         multi_locus.to_position, 35, multi_locus.to_coordinate, (14, 1))
 
 
+def test_MultiLocus_adjacent_exons():
+    multi_locus = MultiLocus(_adjacent_exons)
+
+    _test_invariant(
+        multi_locus.to_position, 2, multi_locus.to_coordinate, (2, 0))
+    _test_invariant(
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, 0))
+
 def test_MultiLocus_offsets_odd():
     multi_locus = MultiLocus([(1, 3), (6, 8)])
 
@@ -96,17 +141,6 @@ def test_MultiLocus_offsets_even_inverted():
         multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 2))
     _test_invariant(
         multi_locus.to_position, 4, multi_locus.to_coordinate, (3, -2))
-
-
-def test_MultiLocus_adjacent():
-    multi_locus = MultiLocus([(5, 10), (10, 15)])
-
-    _test_invariant(
-        multi_locus.to_position, 9, multi_locus.to_coordinate, (5, 0))
-    _test_invariant(
-        multi_locus.to_position, 10, multi_locus.to_coordinate, (6, 0))
-    _test_invariant(
-        multi_locus.to_position, 11, multi_locus.to_coordinate, (7, 0))
 
 
 def test_MultiLocus_inverted():

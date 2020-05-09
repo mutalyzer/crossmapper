@@ -23,7 +23,7 @@ def _nearest_location(ls, c, p=0):
     :arg int c: Coordinate.
     :arg int p: Preference in case of a draw: 0: left, 1: right.
     """
-    r = len(ls) - 1;
+    r = len(ls) - 1
     l = 0
 
     while l <= r:
@@ -213,11 +213,11 @@ class Crossmap(object):
                 utr5, utr3 = utr3, utr5
                 self._parts = self._parts[::-1]
 
-            cds_locus = MultiLocus(coding, inverted)
+            cds_ml = MultiLocus(coding, inverted)
             self._coding = (
-                MultiLocus(utr5, not inverted, True) if utr5 else cds_locus,
-                cds_locus,
-                MultiLocus(utr3, inverted) if utr3 else cds_locus)
+                MultiLocus(utr5, not inverted, True) if utr5 else cds_ml,
+                cds_ml,
+                MultiLocus(utr3, inverted) if utr3 else cds_ml)
 
     def _check(self, condition, error):
         if not condition:

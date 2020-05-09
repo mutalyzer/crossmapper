@@ -1,6 +1,6 @@
 from pkg_resources import get_distribution
 
-from .crossmapper import Crossmap
+from .crossmapper import Crossmap, Locus, MultiLocus
 
 
 def _get_metadata(name):
