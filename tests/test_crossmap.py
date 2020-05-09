@@ -58,6 +58,57 @@ def test_MultiLocus():
         multi_locus.to_position, 35, multi_locus.to_coordinate, (14, 1))
 
 
+def test_MultiLocus_offsets_odd():
+    multi_locus = MultiLocus([(1, 3), (6, 8)])
+
+    _test_invariant(
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (2, 1))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -1))
+
+
+def test_MultiLocus_offsets_odd_inverted():
+    multi_locus = MultiLocus([(1, 3), (6, 8)], True)
+
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 1))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+    _test_invariant(
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, -1))
+
+
+def test_MultiLocus_offsets_even():
+    multi_locus = MultiLocus([(1, 3), (7, 9)])
+
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -2))
+
+
+def test_MultiLocus_offsets_even_inverted():
+    multi_locus = MultiLocus([(1, 3), (7, 9)], True)
+
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 2))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (3, -2))
+
+
+def test_MultiLocus_adjacent():
+    multi_locus = MultiLocus([(5, 10), (10, 15)])
+
+    _test_invariant(
+        multi_locus.to_position, 9, multi_locus.to_coordinate, (5, 0))
+    _test_invariant(
+        multi_locus.to_position, 10, multi_locus.to_coordinate, (6, 0))
+    _test_invariant(
+        multi_locus.to_position, 11, multi_locus.to_coordinate, (7, 0))
+
+
 def test_MultiLocus_inverted():
     multi_locus = MultiLocus(_exons, True)
 
@@ -134,6 +185,64 @@ def test_Crossmap_coding():
         crossmap.coordinate_to_coding, 43,
         crossmap.coding_to_coordinate, (1, 0, 2))
 
+
+def test_Crossmap_coding_no_utr5():
+    crossmap = Crossmap([(10, 20)], (10, 15))
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 9,
+        crossmap.coding_to_coordinate, (1, -1, 0))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 10,
+        crossmap.coding_to_coordinate, (1, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 11,
+        crossmap.coding_to_coordinate, (2, 0, 1))
+
+def test_Crossmap_coding_small_utr5():
+    crossmap = Crossmap([(10, 20)], (11, 15))
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 9,
+        crossmap.coding_to_coordinate, (-1, -1, 0))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 10,
+        crossmap.coding_to_coordinate, (-1, 0, 0))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 11,
+        crossmap.coding_to_coordinate, (1, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 12,
+        crossmap.coding_to_coordinate, (2, 0, 1))
+
+def test_Crossmap_coding_no_utr3():
+    crossmap = Crossmap([(10, 20)], (15, 20))
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 19,
+        crossmap.coding_to_coordinate, (5, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 20,
+        crossmap.coding_to_coordinate, (5, 1, 2))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 21,
+        crossmap.coding_to_coordinate, (5, 2, 2))
+
+def test_Crossmap_coding_small_utr3():
+    crossmap = Crossmap([(10, 20)], (15, 19))
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 18,
+        crossmap.coding_to_coordinate, (4, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 19,
+        crossmap.coding_to_coordinate, (1, 0, 2))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 20,
+        crossmap.coding_to_coordinate, (1, 1, 2))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 21,
+        crossmap.coding_to_coordinate, (1, 2, 2))
 
 def test_Crossmap_coding_inverted():
     crossmap = Crossmap(_exons, _cds, True)

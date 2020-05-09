@@ -15,55 +15,62 @@ Definitions:
 from bisect import bisect_left
 
 
-def _locations_to_boundaries(locations):
-    return sum([[location[0], location[1] - 1] for location in locations], [])
+def _nearest_location(ls, c, p=0):
+    """Find the location nearest to `c`. In case of a draw, the parameter `p`
+    decides which index is chosen.
 
-
-def _nearest_boundary(coordinate, boundaries):
-    """Given a coordinate, find the index of the nearest boundary.
-
-    On a draw, the left boundary is chosen.
-
-    :arg int coordinate: Coordinate.
-    :arg list boundaries: List of boundaries.
-
-    :returns int: Index of nearest boundary.
+    :arg list ls: List of locations.
+    :arg int c: Coordinate.
+    :arg int p: Preference in case of a draw: 0: left, 1: right.
     """
-    insertion_point = bisect_left(boundaries, coordinate)
+    r = len(ls) - 1;
+    l = 0
 
-    if (
-            abs(coordinate - boundaries[insertion_point - 1]) <=
-            abs(boundaries[insertion_point % len(boundaries)] - coordinate)):
-        return insertion_point - 1
-    return insertion_point
+    while l <= r:
+        i = (l + r) // 2
+
+        if c < ls[i][0]:    # `c` lies before this location.
+            r = i - 1
+        elif c >= ls[i][1]: # `c` lies after this location.
+            l = i + 1
+        else:               # `c` lies in this location.
+            return i
+
+    if c < ls[i][0]: # `c` lies before this location.
+        if i and c - ls[i - 1][1] + p < ls[i][0] - c:
+            return i - 1
+    else:            # `c` lies after this location.
+        if i < len(ls) - 1 and ls[i + 1][0] - c + p < c - ls[i][1]:
+            return i + 1
+
+    return i
 
 
-def _nearest_location(coordinate, boundaries):
-    return _nearest_boundary(coordinate, boundaries) // 2
+def _loc(a, b):
+    """Make a proper location."""
+    if a >= b:
+        return []
+    return [(a, b)]
 
 
-def _cut(coordinate, locations):
+def _cut(ls, c):
     """Divide a list of locations, cutting one of the locations in two.
 
-    :arg int coordinate: Coordinate.
-    :arg list locations: List of locations.
+    :arg int c: Coordinate.
+    :arg list ls: List of locations.
 
-    :returns tuple: {locations} before coordinate, {locations} after
-        coordinate.
+    :returns tuple: locations before `c`, locations after coordinate.
     """
-    boundaries = _locations_to_boundaries(locations)
-    index = _nearest_location(coordinate, boundaries)
+    i = _nearest_location(ls, c)
 
-    return (
-        locations[:index] + [(locations[index][0], coordinate)],
-        [(coordinate, locations[index][1])] + locations[index + 1:])
+    return ls[:i] + _loc(ls[i][0], c), _loc(c, ls[i][1]) + ls[i + 1:]
 
 
-def _offsets(locations, inverted=False):
+def _offsets(ls, inverted=False):
     """For each location, calculate the length of the preceding locations.
 
-    :arg list locations: List of locations.
-    :arg bool inverted: Direction of {locations}.
+    :arg list ls: List of locations.
+    :arg bool inverted: Direction of {ls}.
 
     :returns list: List of cumulative location lengths.
     """
@@ -72,7 +79,7 @@ def _offsets(locations, inverted=False):
     length = 0
     direction = -1 if inverted else 1
 
-    for location in locations[::direction]:
+    for location in ls[::direction]:
         lengths.append(length)
         length += location[1] - location[0]
 
@@ -133,11 +140,11 @@ class MultiLocus(object):
         :arg bool inverted: Orientation.
         :arg bool negated: Change the sign of all positions.
         """
+        self._locations = locations
         self._inverted = inverted
         self._negated = negated
 
         self._loci = [Locus(location, inverted) for location in locations]
-        self._boundaries = _locations_to_boundaries(locations)
         self._offsets = _offsets(locations, inverted)
 
     def _sign(self, position):
@@ -157,7 +164,7 @@ class MultiLocus(object):
 
         :returns tuple: Position.
         """
-        index = _nearest_location(coordinate, self._boundaries)
+        index = _nearest_location(self._locations, coordinate, self._inverted)
         location = self._loci[index].to_position(coordinate)
 
         return self._sign(
@@ -199,17 +206,18 @@ class Crossmap(object):
         self._coding = None
         self._parts = (0, 1, 2)
         if cds:
-            utr5, tail = _cut(cds[0], locations)
-            coding, utr3 = _cut(cds[1], tail)
+            utr5, tail = _cut(locations, cds[0])
+            coding, utr3 = _cut(tail, cds[1])
 
             if inverted:
                 utr5, utr3 = utr3, utr5
                 self._parts = self._parts[::-1]
 
+            cds_locus = MultiLocus(coding, inverted)
             self._coding = (
-                MultiLocus(utr5, not inverted, True),
-                MultiLocus(coding, inverted),
-                MultiLocus(utr3, inverted))
+                MultiLocus(utr5, not inverted, True) if utr5 else cds_locus,
+                cds_locus,
+                MultiLocus(utr3, inverted) if utr3 else cds_locus)
 
     def _check(self, condition, error):
         if not condition:
