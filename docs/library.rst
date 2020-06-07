@@ -80,8 +80,8 @@ represent a noncoding position.
    * - 1
      - Offset.
 
-In our example, the HGVS position **g.36** (coordinate ``35``) is equivalent to
-position **n.14+1**. We can convert between these two as follows.
+In our example, the HGVS position "g.36" (coordinate ``35``) is equivalent to
+position "n.14+1". We can convert between these two as follows.
 
 .. code:: python
 
@@ -91,8 +91,8 @@ position **n.14+1**. We can convert between these two as follows.
     35
 
 For transcripts that reside on the reverse complement strand, the ``inverted``
-parameter should be set to ``True``. In our example, HGVS position **g.36**
-(coordinate ``35``) is now equivalent to position **n.9-1**.
+parameter should be set to ``True``. In our example, HGVS position "g.36"
+(coordinate ``35``) is now equivalent to position "n.9-1".
 
 .. code:: python
 
@@ -130,7 +130,7 @@ be used. These functions use a 3-tuple to represent a coding position.
      - Region.
 
 The region denotes the location of the position with respect to the CDS. This
-is needed in order to work with the HGVS "**-**" and "**\***" positions.
+is needed in order to work with the HGVS "-" and "*" positions.
 
 .. list-table:: Coding position regions.
    :header-rows: 1
@@ -140,16 +140,16 @@ is needed in order to work with the HGVS "**-**" and "**\***" positions.
      - HGVS example
    * - ``0``
      - Upstream of the CDS.
-     - **c.-10**
+     - "c.-10"
    * - ``1``
      - In the CDS.
-     - **c.1**
+     - "c.1"
    * - ``2``
      - Downstream of the CDS.
-     - **c.\*10**
+     - "c.*10"
 
-In our example, the HGVS position **g.32** (coordinate ``31``) is equivalent to
-position **c.-1**. We can convert between these two as follows.
+In our example, the HGVS position "g.32" (coordinate ``31``) is equivalent to
+position "c.-1". We can convert between these two as follows.
 
 .. code:: python
 
@@ -157,6 +157,65 @@ position **c.-1**. We can convert between these two as follows.
     (-1, 0, 0)
     >>> crossmap.coding_to_coordinate((-1, 0, 0))
     31
+
+Additionally, the functions ``coordinate_to_protein()`` and
+``protein_to_coordinate()`` can be used. These functions use a 4-tuple to
+represent a protein position.
+
+.. list-table:: Protein positions.
+   :header-rows: 1
+
+   * - index
+     - description
+   * - 0
+     - Protein position.
+   * - 1
+     - Codon position.
+   * - 2
+     - Offset.
+   * - 3
+     - Region.
+
+In our example the HGVS position "g.42" (coordinate ``41``) corresponds with
+position "p.2". We can convert between these to as follows.
+
+.. code:: python
+
+    >>> crossmap.coordinate_to_protein(41)
+    (2, 1, 0, 1)
+    >>> crossmap.protein_to_coordinate((2, 1, 0, 1))
+    41
+
+Note that the protein position only corresponds with the HGVS "p." notation
+when the offset equals ``0`` and the region equals ``1``.
+
+.. list-table:: Protein positions examples.
+   :header-rows: 1
+
+   * - coordinate
+     - protein position
+     - description
+     - HGVS position
+   * - ``31``
+     - ``(-1, 2, 0, 0)``
+     - Upstream position.
+     - invalid
+   * - ``36``
+     - ``(1, 2, 2, 1)``
+     - Intronic position.
+     - invalid
+   * - ``41``
+     - ``(2, 0, 0, 1)``
+     - Second amino acid, first nucleotide.
+     - "p.2"
+   * - ``41``
+     - ``(2, 1, 0, 1)``
+     - Second amino acid, second nucleotide.
+     - "p.2"
+   * - ``43``
+     - ``(1, 0, 0, 2)``
+     - Downstream position.
+     - invalid
 
 
 Basic classes

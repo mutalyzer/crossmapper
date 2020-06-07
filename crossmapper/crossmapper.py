@@ -296,12 +296,31 @@ class Crossmap(object):
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).
 
-        Note that the converse of this function does not exist.
-
         :arg int coordinate: Coordinate.
 
         :returns tuple: Protein position (p.).
         """
         self._check(self._coding, self._coding_error)
 
-        return self.coordinate_to_coding(coordinate) // 3
+        position = self.coordinate_to_coding(coordinate)
+
+        if not position[2]:
+            return position[0] // 3, position[0] % 3, position[1], 0
+        return (
+            (position[0] + 2) // 3, (position[0] + 2) % 3,
+            position[1], position[2])
+
+    def protein_to_coordinate(self, position):
+        """Convert a protein position (p.) to a coordinate.
+
+        :arg tuple position: Protein position (p.).
+
+        :returns int: Coordinate.
+        """
+        self._check(self._coding, self._coding_error)
+
+        if not position[3]:
+            return self.coding_to_coordinate(
+                (position[0] * 3 + position[1], position[2], position[3]))
+        return self.coding_to_coordinate(
+            (position[0] * 3 - 2 + position[1], position[2], position[3]))

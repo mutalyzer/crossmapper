@@ -80,7 +80,6 @@ def test_MultiLocus():
 
     _test_invariant(
         multi_locus.to_position, 6, multi_locus.to_coordinate, (2, 0))
-
     _test_invariant(
         multi_locus.to_position, 29, multi_locus.to_coordinate, (10, -1))
     _test_invariant(
@@ -102,6 +101,7 @@ def test_MultiLocus_adjacent_exons():
         multi_locus.to_position, 2, multi_locus.to_coordinate, (2, 0))
     _test_invariant(
         multi_locus.to_position, 3, multi_locus.to_coordinate, (3, 0))
+
 
 def test_MultiLocus_offsets_odd():
     multi_locus = MultiLocus([(1, 3), (6, 8)])
@@ -233,6 +233,7 @@ def test_Crossmap_coding_no_utr5():
         crossmap.coordinate_to_coding, 11,
         crossmap.coding_to_coordinate, (2, 0, 1))
 
+
 def test_Crossmap_coding_small_utr5():
     crossmap = Crossmap([(10, 20)], (11, 15))
 
@@ -249,6 +250,7 @@ def test_Crossmap_coding_small_utr5():
         crossmap.coordinate_to_coding, 12,
         crossmap.coding_to_coordinate, (2, 0, 1))
 
+
 def test_Crossmap_coding_no_utr3():
     crossmap = Crossmap([(10, 20)], (15, 20))
 
@@ -261,6 +263,7 @@ def test_Crossmap_coding_no_utr3():
     _test_invariant(
         crossmap.coordinate_to_coding, 21,
         crossmap.coding_to_coordinate, (5, 2, 2))
+
 
 def test_Crossmap_coding_small_utr3():
     crossmap = Crossmap([(10, 20)], (15, 19))
@@ -278,6 +281,7 @@ def test_Crossmap_coding_small_utr3():
         crossmap.coordinate_to_coding, 21,
         crossmap.coding_to_coordinate, (1, 2, 2))
 
+
 def test_Crossmap_coding_inverted():
     crossmap = Crossmap(_exons, _cds, True)
 
@@ -290,3 +294,29 @@ def test_Crossmap_coding_inverted():
     _test_invariant(
         crossmap.coordinate_to_coding, 31,
         crossmap.coding_to_coordinate, (1, 0, 2))
+
+
+def test_Crossmap_protein():
+    crossmap = Crossmap(_exons, _cds)
+
+    _test_invariant(
+        crossmap.coordinate_to_protein, 31,
+        crossmap.protein_to_coordinate, (-1, 2, 0, 0))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 32,
+        crossmap.protein_to_coordinate, (1, 0, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 34,
+        crossmap.protein_to_coordinate, (1, 2, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 36,
+        crossmap.protein_to_coordinate, (1, 2, 2, 1))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 40,
+        crossmap.protein_to_coordinate, (2, 0, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 42,
+        crossmap.protein_to_coordinate, (2, 2, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_protein, 43,
+        crossmap.protein_to_coordinate, (1, 0, 0, 2))
