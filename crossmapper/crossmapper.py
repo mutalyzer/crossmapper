@@ -194,7 +194,7 @@ class Crossmap(object):
     def __init__(self, locations=None, cds=None, inverted=False):
         """
         :arg list locations: List of locus locations.
-        :arg tuple cds: ...
+        :arg tuple cds: Locus location.
         :arg bool inverted: Orientation.
         """
         self._cds = cds
