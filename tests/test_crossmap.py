@@ -301,22 +301,22 @@ def test_Crossmap_protein():
 
     _test_invariant(
         crossmap.coordinate_to_protein, 31,
-        crossmap.protein_to_coordinate, (-1, 2, 0, 0))
+        crossmap.protein_to_coordinate, (-1, 3, 0, 0))
     _test_invariant(
         crossmap.coordinate_to_protein, 32,
-        crossmap.protein_to_coordinate, (1, 0, 0, 1))
+        crossmap.protein_to_coordinate, (1, 1, 0, 1))
     _test_invariant(
         crossmap.coordinate_to_protein, 34,
-        crossmap.protein_to_coordinate, (1, 2, 0, 1))
+        crossmap.protein_to_coordinate, (1, 3, 0, 1))
     _test_invariant(
         crossmap.coordinate_to_protein, 36,
-        crossmap.protein_to_coordinate, (1, 2, 2, 1))
+        crossmap.protein_to_coordinate, (1, 3, 2, 1))
     _test_invariant(
         crossmap.coordinate_to_protein, 40,
-        crossmap.protein_to_coordinate, (2, 0, 0, 1))
+        crossmap.protein_to_coordinate, (2, 1, 0, 1))
     _test_invariant(
         crossmap.coordinate_to_protein, 42,
-        crossmap.protein_to_coordinate, (2, 2, 0, 1))
+        crossmap.protein_to_coordinate, (2, 3, 0, 1))
     _test_invariant(
         crossmap.coordinate_to_protein, 43,
-        crossmap.protein_to_coordinate, (1, 0, 0, 2))
+        crossmap.protein_to_coordinate, (1, 1, 0, 2))

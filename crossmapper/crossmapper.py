@@ -305,9 +305,9 @@ class Crossmap(object):
         position = self.coordinate_to_coding(coordinate)
 
         if not position[2]:
-            return position[0] // 3, position[0] % 3, position[1], 0
+            return position[0] // 3, position[0] % 3 + 1, position[1], 0
         return (
-            (position[0] + 2) // 3, (position[0] + 2) % 3,
+            (position[0] + 2) // 3, (position[0] + 2) % 3 + 1,
             position[1], position[2])
 
     def protein_to_coordinate(self, position):
@@ -321,6 +321,6 @@ class Crossmap(object):
 
         if not position[3]:
             return self.coding_to_coordinate(
-                (position[0] * 3 + position[1], position[2], position[3]))
+                (position[0] * 3 + position[1] - 1, position[2], position[3]))
         return self.coding_to_coordinate(
-            (position[0] * 3 - 2 + position[1], position[2], position[3]))
+            (position[0] * 3 - 3 + position[1], position[2], position[3]))
