@@ -7,4 +7,5 @@
    introduction
    install
    library
+   api
    credits
