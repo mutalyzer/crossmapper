@@ -192,7 +192,8 @@ class Crossmap(object):
     _coding_error = 'no cds provided'
 
     def __init__(self, locations=None, cds=None, inverted=False):
-        """
+        """Crossmap object.
+
         :arg list locations: List of locus locations.
         :arg tuple cds: Locus location.
         :arg bool inverted: Orientation.
