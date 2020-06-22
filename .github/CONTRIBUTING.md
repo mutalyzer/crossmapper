@@ -56,7 +56,7 @@ Please follow the coding style conventions detailed below:
 
 
 [email]: mailto:info@mutalyzer.nl
-[issues]: https://github.com/mutalyzer/crossmap/issues/new
-[compare]: https://github.com/mutalyzer/crossmap/compare
-[pull]: https://github.com/mutalyzer/crossmap/pulls
+[issues]: https://github.com/mutalyzer/crossmapper/issues/new
+[compare]: https://github.com/mutalyzer/crossmapper/compare
+[pull]: https://github.com/mutalyzer/crossmapper/pulls
 [pep8]: https://www.python.org/dev/peps/pep-0008/

@@ -87,9 +87,9 @@ def cut_locations(ls, c):
 
 
 class Locus(object):
+    """Locus object."""
     def __init__(self, location, inverted=False):
-        """Locus object.
-
+        """
         :arg tuple location: Locus location.
         :arg bool inverted: Orientation.
         """
@@ -133,9 +133,9 @@ class Locus(object):
 
 
 class MultiLocus(object):
+    """MultiLocus object."""
     def __init__(self, locations, inverted=False, negated=False):
-        """MultiLocus object.
-
+        """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
         :arg bool negated: Change the sign of all positions.
@@ -188,12 +188,12 @@ class MultiLocus(object):
 
 
 class Crossmap(object):
+    """Crossmap object."""
     _noncoding_error = 'no locations provided'
     _coding_error = 'no cds provided'
 
     def __init__(self, locations=None, cds=None, inverted=False):
-        """Crossmap object.
-
+        """
         :arg list locations: List of locus locations.
         :arg tuple cds: Locus location.
         :arg bool inverted: Orientation.

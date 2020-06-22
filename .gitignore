@@ -1,6 +1,9 @@
+*.pyc
 *.swp
 build/
-crossmapper.egg-info/
-crossmapper/__pycache__/
 dist/
+docs/Makefile
+docs/_build/
+mutalyzer_crossmapper.egg-info/
+mutalyzer_crossmapper/__pycache__/
 tests/__pycache__/

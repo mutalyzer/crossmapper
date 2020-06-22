@@ -5,7 +5,7 @@ The software is distributed via PyPI_, it can be installed with ``pip``:
 
 ::
 
-    pip install crossmap
+    pip install mutalyzer-crossmapper
 
 
 From source
@@ -16,10 +16,10 @@ the following commands.
 
 ::
 
-    git clone https://github.com/mutalyzer/crossmap.git
-    cd crossmap
+    git clone https://github.com/mutalyzer/crossmapper.git
+    cd crossmapper
     pip install .
 
 
-.. _PyPI: https://pypi.org/project/crossmap
-.. _GitHub: https://github.com/mutalyzer/crossmap.git
+.. _PyPI: https://pypi.org/project/mutalyzer-crossmapper
+.. _GitHub: https://github.com/mutalyzer/crossmapper.git

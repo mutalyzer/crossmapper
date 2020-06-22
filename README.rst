@@ -1,26 +1,26 @@
 HGVS position crossmapper
 =========================
 
-.. image:: https://img.shields.io/github/last-commit/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap/graphs/commit-activity
-.. image:: https://travis-ci.org/mutalyzer/crossmap.svg?branch=master
-   :target: https://travis-ci.org/mutalyzer/crossmap
-.. image:: https://readthedocs.org/projects/crossmapper/badge/?version=latest
-   :target: https://crossmapper.readthedocs.io/en/latest
-.. image:: https://img.shields.io/github/release-date/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap/releases
-.. image:: https://img.shields.io/github/release/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap/releases
-.. image:: https://img.shields.io/pypi/v/crossmapper.svg
-   :target: https://pypi.org/project/crossmapper/
-.. image:: https://img.shields.io/github/languages/code-size/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap
-.. image:: https://img.shields.io/github/languages/count/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap
-.. image:: https://img.shields.io/github/languages/top/mutalyzer/crossmap.svg
-   :target: https://github.com/mutalyzer/crossmap
-.. image:: https://img.shields.io/github/license/mutalyzer/crossmap.svg
-   :target: https://raw.githubusercontent.com/mutalyzer/crossmap/master/LICENSE.md
+.. image:: https://img.shields.io/github/last-commit/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper/graphs/commit-activity
+.. image:: https://travis-ci.org/mutalyzer/crossmapper.svg?branch=master
+   :target: https://travis-ci.org/mutalyzer/crossmapper
+.. image:: https://readthedocs.org/projects/mutalyzer-crossmapper/badge/?version=latest
+   :target: https://mutalyzer-crossmapper.readthedocs.io/en/latest
+.. image:: https://img.shields.io/github/release-date/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper/releases
+.. image:: https://img.shields.io/github/release/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper/releases
+.. image:: https://img.shields.io/pypi/v/mutalyzer-crossmapper.svg
+   :target: https://pypi.org/project/mutalyzer-crossmapper/
+.. image:: https://img.shields.io/github/languages/code-size/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper
+.. image:: https://img.shields.io/github/languages/count/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper
+.. image:: https://img.shields.io/github/languages/top/mutalyzer/crossmapper.svg
+   :target: https://github.com/mutalyzer/crossmapper
+.. image:: https://img.shields.io/github/license/mutalyzer/crossmapper.svg
+   :target: https://raw.githubusercontent.com/mutalyzer/crossmapper/master/LICENSE.md
 
 ----
 
@@ -35,4 +35,4 @@ Please see ReadTheDocs_ for the latest documentation.
 
 
 .. _numbering: http://varnomen.hgvs.org/bg-material/numbering/
-.. _ReadTheDocs: https://crossmapper.readthedocs.io
+.. _ReadTheDocs: https://mutalyzer-crossmapper.readthedocs.io

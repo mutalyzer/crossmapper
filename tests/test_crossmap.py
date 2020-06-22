@@ -1,5 +1,6 @@
-from crossmapper.crossmapper import (
-    Crossmap, Locus, MultiLocus, cut_locations, nearest_location, _loc, _offsets)
+from mutalyzer_crossmapper import (
+    Crossmap, Locus, MultiLocus, cut_locations, nearest_location)
+from mutalyzer_crossmapper.crossmapper import _loc, _offsets
 
 
 _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]

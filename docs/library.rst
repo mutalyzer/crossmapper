@@ -13,7 +13,7 @@ should be done via a coordinate.
 
 .. code:: python
 
-    >>> from crossmapper import Crossmap
+    >>> from mutalyzer_crossmapper import Crossmap
 
 The constructor takes several optional parameters, these determine which types
 of conversions can be done.
@@ -232,7 +232,7 @@ locus.
 
 .. code:: python
 
-    >>> from crossmapper import Locus
+    >>> from mutalyzer_crossmapper import Locus
     >>> locus = Locus((10, 20))
 
 This class provides the functions ``to_position()`` and ``to_coordinate()`` for
@@ -256,7 +256,7 @@ loci.
 
 .. code:: python
 
-    >>> from crossmapper import MultiLocus
+    >>> from mutalyzer_crossmapper import MultiLocus
     >>> multilocus = MultiLocus([(10, 20), (40, 50)])
 
 The interface to this class is similar to that of the ``Locus`` class.

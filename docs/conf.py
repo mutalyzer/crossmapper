@@ -1,10 +1,8 @@
-import os
-import subprocess
-import sys
+from subprocess import call
 
-subprocess.call('pip install ..', shell=True)
+call('pip install ..', shell=True)
 
-from crossmapper import _get_metadata
+from mutalyzer_crossmapper import _get_metadata
 
 
 author = _get_metadata('Author')
