@@ -42,20 +42,17 @@ def _offsets(ls, inverted=False):
     return lengths
 
 
-def _threeway(a, b, lt, eq, gt):
+def _rel(a, b):
     """Make a three way choice based on the relative values of `a` and `b`.
 
     :arg any a: A value.
     :arg any b: A value.
-    :arg any lt: Return value when `a` < `b`.
-    :arg any eq: Return value when `a` = `b`.
-    :arg any gt: Return value when `a` > `b`.
     """
     if a < b:
-        return lt
+        return 0
     if a > b:
-        return gt
-    return eq
+        return 2
+    return 1
 
 
 def nearest_location(ls, c, p=0):
@@ -80,11 +77,9 @@ def nearest_location(ls, c, p=0):
             return i
 
     if i and c < ls[i][0]:  # `c` lies before this location.
-        return _threeway(
-            c - ls[i - 1][1] + 1, ls[i][0] - c, i - 1, i - 1 + p, i)
+        return [i - 1, i - 1 + p, i][_rel(c - ls[i - 1][1] + 1, ls[i][0] - c)]
     if i < len(ls) - 1:     # `c` lies after this location.
-        return _threeway(
-            c - ls[i][1] + 1, ls[i + 1][0] - c, i, i + p, i + 1)
+        return [i, i + p, i + 1][_rel(c - ls[i][1] + 1, ls[i + 1][0] - c)]
 
     return i
 
