@@ -42,6 +42,22 @@ def _offsets(ls, inverted=False):
     return lengths
 
 
+def _threeway(a, b, lt, eq, gt):
+    """Make a three way choice based on the relative values of `a` and `b`.
+
+    :arg any a: A value.
+    :arg any b: A value.
+    :arg any lt: Return value when `a` < `b`.
+    :arg any eq: Return value when `a` = `b`.
+    :arg any gt: Return value when `a` > `b`.
+    """
+    if a < b:
+        return lt
+    if a > b:
+        return gt
+    return eq
+
+
 def nearest_location(ls, c, p=0):
     """Find the location nearest to `c`. In case of a draw, the parameter `p`
     decides which index is chosen.
@@ -56,19 +72,19 @@ def nearest_location(ls, c, p=0):
     while l <= r:
         i = (l + r) // 2
 
-        if c < ls[i][0]:    # `c` lies before this location.
+        if c < ls[i][0]:     # `c` lies before this location.
             r = i - 1
-        elif c >= ls[i][1]: # `c` lies after this location.
+        elif c >= ls[i][1]:  # `c` lies after this location.
             l = i + 1
-        else:               # `c` lies in this location.
+        else:                # `c` lies in this location.
             return i
 
-    if c < ls[i][0]: # `c` lies before this location.
-        if i and c - ls[i - 1][1] + p < ls[i][0] - c:
-            return i - 1
-    else:            # `c` lies after this location.
-        if i < len(ls) - 1 and ls[i + 1][0] - c + p < c - ls[i][1]:
-            return i + 1
+    if i and c < ls[i][0]:  # `c` lies before this location.
+        return _threeway(
+            c - ls[i - 1][1] + 1, ls[i][0] - c, i - 1, i - 1 + p, i)
+    if i < len(ls) - 1:     # `c` lies after this location.
+        return _threeway(
+            c - ls[i][1] + 1, ls[i + 1][0] - c, i, i + p, i + 1)
 
     return i
 

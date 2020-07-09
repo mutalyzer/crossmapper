@@ -53,6 +53,15 @@ def test_nearest_location():
 
     assert nearest_location(_adjacent_exons, 3) == 1
 
+    assert nearest_location([(3, 6), (8, 13)], 6) == 0
+    assert nearest_location([(3, 6), (8, 13)], 6, 1) == 0
+
+    assert nearest_location([(3, 6), (8, 13)], 7) == 1
+    assert nearest_location([(3, 6), (8, 13)], 7, 1) == 1
+
+    assert nearest_location([(3, 6), (9, 13)], 7) == 0
+    assert nearest_location([(3, 6), (9, 13)], 7, 1) == 1
+
 
 def test_Locus():
     locus = Locus(_exons[2])
