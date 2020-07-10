@@ -1,6 +1,6 @@
 from mutalyzer_crossmapper import (
     Crossmap, Locus, MultiLocus, cut_locations, nearest_location)
-from mutalyzer_crossmapper.crossmapper import _loc, _offsets
+from mutalyzer_crossmapper.crossmapper import _loc, _offsets, _nearest_boundary
 
 
 _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
@@ -31,6 +31,16 @@ def test_cut_locations():
     assert cut_locations(_adjacent_exons, 3) == ([(1, 3)], [(3, 5)])
     assert cut_locations(_adjacent_exons, 1) == ([], [(1, 3), (3, 5)])
     assert cut_locations(_adjacent_exons, 5) == ([(1, 3), (3, 5)], [])
+
+
+def test_nearest_boundary():
+    assert _nearest_boundary(10, 20, 14, 0) == 0
+    assert _nearest_boundary(10, 20, 14, 1) == 0
+    assert _nearest_boundary(10, 20, 15, 0) == 1
+    assert _nearest_boundary(10, 20, 15, 1) == 1
+
+    assert _nearest_boundary(10, 19, 14, 0) == 0
+    assert _nearest_boundary(10, 19, 14, 1) == 1
 
 
 def test_nearest_location():
