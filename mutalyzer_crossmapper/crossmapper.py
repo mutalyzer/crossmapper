@@ -42,17 +42,25 @@ def _offsets(ls, inverted=False):
     return lengths
 
 
-def _rel(a, b):
-    """Make a three way choice based on the relative values of `a` and `b`.
+def _nearest_boundary(lb, rb, c, p):
+    """Find the boundary nearest to `c`. In case of a draw, the parameter `p`
+    decides which one is chosen.
 
-    :arg any a: A value.
-    :arg any b: A value.
+    :arg int lb: Left boundary.
+    :arg int rb: Right boundary.
+    :arg int c: Coordinate (`lb` <= `c` <= `rb`)).
+    :arg int p: Preference in case of a draw: 0: left, 1: right.
+
+    :returns int: Nearest boundary: 0: left, 1: right.
     """
-    if a < b:
+    dl = c - lb + 1
+    dr = rb - c
+
+    if dl < dr:
         return 0
-    if a > b:
-        return 2
-    return 1
+    if dl > dr:
+        return 1
+    return p
 
 
 def nearest_location(ls, c, p=0):
@@ -62,24 +70,26 @@ def nearest_location(ls, c, p=0):
     :arg list ls: List of locations.
     :arg int c: Coordinate.
     :arg int p: Preference in case of a draw: 0: left, 1: right.
-    """
-    r = len(ls) - 1
-    l = 0
 
-    while l <= r:
-        i = (l + r) // 2
+    :returns int: Nearest location.
+    """
+    rb = len(ls) - 1
+    lb = 0
+
+    while lb <= rb:
+        i = (lb + rb) // 2
 
         if c < ls[i][0]:     # `c` lies before this location.
-            r = i - 1
+            rb = i - 1
         elif c >= ls[i][1]:  # `c` lies after this location.
-            l = i + 1
+            lb = i + 1
         else:                # `c` lies in this location.
             return i
 
     if i and c < ls[i][0]:  # `c` lies before this location.
-        return [i - 1, i - 1 + p, i][_rel(c - ls[i - 1][1] + 1, ls[i][0] - c)]
+        return i - 1 + _nearest_boundary(ls[i - 1][1], ls[i][0], c, p)
     if i < len(ls) - 1:     # `c` lies after this location.
-        return [i, i + p, i + 1][_rel(c - ls[i][1] + 1, ls[i + 1][0] - c)]
+        return i + _nearest_boundary(ls[i][1], ls[i + 1][0], c, p)
 
     return i
 
