@@ -92,6 +92,18 @@ def test_Locus_inverted():
     _test_invariant(locus.to_position, 29, locus.to_coordinate, (5, 1))
 
 
+def test_Locus_degenerate():
+    locus = Locus((10, 20))
+    locus_reverse = Locus((10, 20), True)
+
+    assert locus.to_coordinate((1, -1)) == locus.to_coordinate((-1, 0))
+    assert locus.to_coordinate((10, 1)) == locus.to_coordinate((11, 0))
+    assert (locus_reverse.to_coordinate((1, -1)) ==
+        locus_reverse.to_coordinate((-1, 0)))
+    assert (locus_reverse.to_coordinate((10, 1)) ==
+        locus_reverse.to_coordinate((11, 0)))
+
+
 def test_MultiLocus():
     multi_locus = MultiLocus(_exons)
 
@@ -223,6 +235,20 @@ def test_Crossmap_genomic():
         crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, 99)
 
 
+def test_Crossmap_noncoding_degenerate():
+    crossmap = Crossmap([(10, 20), (30, 40)])
+    crossmap_reverse = Crossmap([(10, 20), (30, 40)], inverted=True)
+
+    assert (crossmap.noncoding_to_coordinate((1, -1)) ==
+        crossmap.noncoding_to_coordinate((-1, 0)))
+    assert (crossmap.noncoding_to_coordinate((20, 1)) ==
+        crossmap.noncoding_to_coordinate((21, 0)))
+    assert (crossmap_reverse.noncoding_to_coordinate((1, -1)) ==
+        crossmap_reverse.noncoding_to_coordinate((-1, 0)))
+    assert (crossmap_reverse.noncoding_to_coordinate((20, 1)) ==
+        crossmap_reverse.noncoding_to_coordinate((21, 0)))
+
+
 def test_Crossmap_coding():
     crossmap = Crossmap(_exons, _cds)
 
@@ -235,6 +261,34 @@ def test_Crossmap_coding():
     _test_invariant(
         crossmap.coordinate_to_coding, 43,
         crossmap.coding_to_coordinate, (1, 0, 2))
+
+
+def test_Crossmap_coding_inverted():
+    crossmap = Crossmap(_exons, _cds, True)
+
+    _test_invariant(
+        crossmap.coordinate_to_coding, 43,
+        crossmap.coding_to_coordinate, (-1, 0, 0))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 42,
+        crossmap.coding_to_coordinate, (1, 0, 1))
+    _test_invariant(
+        crossmap.coordinate_to_coding, 31,
+        crossmap.coding_to_coordinate, (1, 0, 2))
+
+
+def test_Crossmap_coding_degenerate():
+    crossmap = Crossmap([(10, 20), (30, 40)], (15, 35))
+    crossmap_reverse = Crossmap([(10, 20), (30, 40)], (15, 35), inverted=True)
+
+    assert (crossmap.coding_to_coordinate((1, -1, 0)) ==
+        crossmap.coding_to_coordinate((-1, 0, 0)))
+    assert (crossmap.coding_to_coordinate((20, 1, 2)) ==
+        crossmap.coding_to_coordinate((21, 0, 2)))
+    assert (crossmap_reverse.coding_to_coordinate((1, -1, 0)) ==
+        crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
+    assert (crossmap_reverse.coding_to_coordinate((20, 1, 2)) ==
+        crossmap_reverse.coding_to_coordinate((21, 0, 2)))
 
 
 def test_Crossmap_coding_no_utr5():
@@ -299,18 +353,18 @@ def test_Crossmap_coding_small_utr3():
         crossmap.coding_to_coordinate, (1, 2, 2))
 
 
-def test_Crossmap_coding_inverted():
-    crossmap = Crossmap(_exons, _cds, True)
+def test_Crossmap_coding_no_utr_degenerate():
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
+    crossmap_reverse = Crossmap([(10, 20), (30, 40)], (10, 40), inverted=True)
 
-    _test_invariant(
-        crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (-1, 0, 0))
-    _test_invariant(
-        crossmap.coordinate_to_coding, 42,
-        crossmap.coding_to_coordinate, (1, 0, 1))
-    _test_invariant(
-        crossmap.coordinate_to_coding, 31,
-        crossmap.coding_to_coordinate, (1, 0, 2))
+    assert (crossmap.coding_to_coordinate((1, -1, 0)) ==
+        crossmap.coding_to_coordinate((-1, 0, 0)))
+    assert (crossmap.coding_to_coordinate((20, 1, 2)) ==
+        crossmap.coding_to_coordinate((21, 0, 2)))
+    assert (crossmap_reverse.coding_to_coordinate((1, -1, 0)) ==
+        crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
+    assert (crossmap_reverse.coding_to_coordinate((20, 1, 2)) ==
+        crossmap_reverse.coding_to_coordinate((21, 0, 2)))
 
 
 def test_Crossmap_protein():

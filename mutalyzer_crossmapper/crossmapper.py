@@ -149,7 +149,12 @@ class Locus(object):
         :returns int: Coordinate.
         """
         if self._inverted:
+            if position[0] < 1:  # Degenerate.
+                return self._location[1] - position[0] - position[1] - 1
             return self._location[1] - position[0] - position[1]
+
+        if position[0] < 1:      # Degenerate.
+            return self._location[0] + position[0] + position[1]
         return self._location[0] + position[0] + position[1] - 1
 
 
