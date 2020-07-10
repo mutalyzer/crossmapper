@@ -109,9 +109,9 @@ def test_Locus_degenerate():
     assert locus.to_coordinate((1, -1)) == locus.to_coordinate((-1, 0))
     assert locus.to_coordinate((10, 1)) == locus.to_coordinate((11, 0))
     assert (locus_reverse.to_coordinate((1, -1)) ==
-        locus_reverse.to_coordinate((-1, 0)))
+            locus_reverse.to_coordinate((-1, 0)))
     assert (locus_reverse.to_coordinate((10, 1)) ==
-        locus_reverse.to_coordinate((11, 0)))
+            locus_reverse.to_coordinate((11, 0)))
 
 
 def test_MultiLocus():
@@ -250,13 +250,13 @@ def test_Crossmap_noncoding_degenerate():
     crossmap_reverse = Crossmap([(10, 20), (30, 40)], inverted=True)
 
     assert (crossmap.noncoding_to_coordinate((1, -1)) ==
-        crossmap.noncoding_to_coordinate((-1, 0)))
+            crossmap.noncoding_to_coordinate((-1, 0)))
     assert (crossmap.noncoding_to_coordinate((20, 1)) ==
-        crossmap.noncoding_to_coordinate((21, 0)))
+            crossmap.noncoding_to_coordinate((21, 0)))
     assert (crossmap_reverse.noncoding_to_coordinate((1, -1)) ==
-        crossmap_reverse.noncoding_to_coordinate((-1, 0)))
+            crossmap_reverse.noncoding_to_coordinate((-1, 0)))
     assert (crossmap_reverse.noncoding_to_coordinate((20, 1)) ==
-        crossmap_reverse.noncoding_to_coordinate((21, 0)))
+            crossmap_reverse.noncoding_to_coordinate((21, 0)))
 
 
 def test_Crossmap_coding():
@@ -292,13 +292,13 @@ def test_Crossmap_coding_degenerate():
     crossmap_reverse = Crossmap([(10, 20), (30, 40)], (15, 35), inverted=True)
 
     assert (crossmap.coding_to_coordinate((1, -1, 0)) ==
-        crossmap.coding_to_coordinate((-1, 0, 0)))
+            crossmap.coding_to_coordinate((-1, 0, 0)))
     assert (crossmap.coding_to_coordinate((20, 1, 2)) ==
-        crossmap.coding_to_coordinate((21, 0, 2)))
+            crossmap.coding_to_coordinate((21, 0, 2)))
     assert (crossmap_reverse.coding_to_coordinate((1, -1, 0)) ==
-        crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
+            crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
     assert (crossmap_reverse.coding_to_coordinate((20, 1, 2)) ==
-        crossmap_reverse.coding_to_coordinate((21, 0, 2)))
+            crossmap_reverse.coding_to_coordinate((21, 0, 2)))
 
 
 def test_Crossmap_coding_no_utr5():
@@ -368,13 +368,13 @@ def test_Crossmap_coding_no_utr_degenerate():
     crossmap_reverse = Crossmap([(10, 20), (30, 40)], (10, 40), inverted=True)
 
     assert (crossmap.coding_to_coordinate((1, -1, 0)) ==
-        crossmap.coding_to_coordinate((-1, 0, 0)))
+            crossmap.coding_to_coordinate((-1, 0, 0)))
     assert (crossmap.coding_to_coordinate((20, 1, 2)) ==
-        crossmap.coding_to_coordinate((21, 0, 2)))
+            crossmap.coding_to_coordinate((21, 0, 2)))
     assert (crossmap_reverse.coding_to_coordinate((1, -1, 0)) ==
-        crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
+            crossmap_reverse.coding_to_coordinate((-1, 0, 0)))
     assert (crossmap_reverse.coding_to_coordinate((20, 1, 2)) ==
-        crossmap_reverse.coding_to_coordinate((21, 0, 2)))
+            crossmap_reverse.coding_to_coordinate((21, 0, 2)))
 
 
 def test_Crossmap_degenerate_return():
