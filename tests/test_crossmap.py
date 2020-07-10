@@ -43,16 +43,23 @@ def test_nearest_location():
 
     assert nearest_location(_exons, 10) == 0
     assert nearest_location(_exons, 11) == 1
-    assert nearest_location(_exons, 10, 1) == 0
-    assert nearest_location(_exons, 11, 1) == 1
 
     assert nearest_location(_exons, 37) == 2
     assert nearest_location(_exons, 38) == 3
+
+
+def test_nearest_location_force_right():
+    assert nearest_location(_exons, 10, 1) == 0
+    assert nearest_location(_exons, 11, 1) == 1
     assert nearest_location(_exons, 37, 1) == 3
     assert nearest_location(_exons, 36, 1) == 2
 
+
+def test_nearest_location_adjacent():
     assert nearest_location(_adjacent_exons, 3) == 1
 
+
+def test_nearest_location_middle():
     assert nearest_location([(3, 6), (8, 13)], 6) == 0
     assert nearest_location([(3, 6), (8, 13)], 6, 1) == 0
 
