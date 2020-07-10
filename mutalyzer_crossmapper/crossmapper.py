@@ -149,11 +149,11 @@ class Locus(object):
         :returns int: Coordinate.
         """
         if self._inverted:
-            if position[0] < 1:  # Degenerate.
+            if position[0] < 1:  # Degenerate position.
                 return self._location[1] - position[0] - position[1] - 1
             return self._location[1] - position[0] - position[1]
 
-        if position[0] < 1:      # Degenerate.
+        if position[0] < 1:      # Degenerate position.
             return self._location[0] + position[0] + position[1]
         return self._location[0] + position[0] + position[1] - 1
 
@@ -250,6 +250,25 @@ class Crossmap(object):
         if not condition:
             raise ValueError(error)
 
+    def _coordinate_to_coding(self, coordinate):
+        """Convert a coordinate to a coding position (c./r.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Coding position (c./r.).
+        """
+        self._check(self._coding, self._coding_error)
+
+        if coordinate < self._cds[0]:
+            return (
+                *self._coding[self._parts[0]].to_position(coordinate),
+                self._parts[0])
+        if coordinate >= self._cds[1]:
+            return (
+                *self._coding[self._parts[2]].to_position(coordinate),
+                self._parts[2])
+        return (*self._coding[1].to_position(coordinate), 1)
+
     def coordinate_to_genomic(self, coordinate):
         """Convert a coordinate to a genomic position (g./m./o.).
 
@@ -290,24 +309,22 @@ class Crossmap(object):
 
         return self._noncoding.to_coordinate(position)
 
-    def coordinate_to_coding(self, coordinate):
+    def coordinate_to_coding(self, coordinate, degenerate=False):
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
+        :arg bool degenerate: Return a degenerate position.
 
         :returns tuple: Coding position (c./r.).
         """
-        self._check(self._coding, self._coding_error)
+        position = self._coordinate_to_coding(coordinate)
 
-        if coordinate < self._cds[0]:
-            return (
-                *self._coding[self._parts[0]].to_position(coordinate),
-                self._parts[0])
-        if coordinate >= self._cds[1]:
-            return (
-                *self._coding[self._parts[2]].to_position(coordinate),
-                self._parts[2])
-        return (*self._coding[1].to_position(coordinate), 1)
+        if degenerate:
+            if position[0] == 1 and position[1] < 0:
+                return (position[1], 0, position[2])
+            return (position[0] + position[1], 0, position[2])
+
+        return position
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
