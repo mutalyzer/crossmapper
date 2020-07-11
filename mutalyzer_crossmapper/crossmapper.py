@@ -173,6 +173,9 @@ class MultiLocus(object):
         self._loci = [Locus(location, inverted) for location in locations]
         self._offsets = _offsets(locations, inverted)
 
+    def __bool__(self):
+        return bool(self._loci)
+
     def _sign(self, position):
         if self._negated:
             return -position[0], -position[1]
@@ -182,6 +185,24 @@ class MultiLocus(object):
         if self._inverted:
             return len(self._offsets) - index - 1
         return index
+
+    def _region(self, region):
+        if self._inverted:
+            return 2 - region
+        return region
+
+    def region(self, coordinate):
+        """Determine the region in which `coordinate` is located.
+
+        :arg int coordinate: Coordinate.
+
+        :returns int: Region: 0: upstream, 1: inside, 2: downstream.
+        """
+        if coordinate < self._locations[0][0]:
+            return self._region(0)
+        if coordinate >= self._locations[-1][1]:
+            return self._region(2)
+        return 1
 
     def to_position(self, coordinate):
         """Convert a coordinate to a position.
@@ -224,50 +245,26 @@ class Crossmap(object):
         :arg tuple cds: Locus location.
         :arg bool inverted: Orientation.
         """
-        self._cds = cds
-
         self._noncoding = None
         if locations:
             self._noncoding = MultiLocus(locations, inverted)
 
         self._coding = None
-        self._parts = (0, 1, 2)
         if cds:
             utr5, tail = cut_locations(locations, cds[0])
             coding, utr3 = cut_locations(tail, cds[1])
 
             if inverted:
                 utr5, utr3 = utr3, utr5
-                self._parts = self._parts[::-1]
 
-            cds_ml = MultiLocus(coding, inverted)
             self._coding = (
-                MultiLocus(utr5, not inverted, True) if utr5 else cds_ml,
-                cds_ml,
-                MultiLocus(utr3, inverted) if utr3 else cds_ml)
+                MultiLocus(utr5, not inverted, True),
+                MultiLocus(coding, inverted),
+                MultiLocus(utr3, inverted))
 
     def _check(self, condition, error):
         if not condition:
             raise ValueError(error)
-
-    def _coordinate_to_coding(self, coordinate):
-        """Convert a coordinate to a coding position (c./r.).
-
-        :arg int coordinate: Coordinate.
-
-        :returns tuple: Coding position (c./r.).
-        """
-        self._check(self._coding, self._coding_error)
-
-        if coordinate < self._cds[0]:
-            return (
-                *self._coding[self._parts[0]].to_position(coordinate),
-                self._parts[0])
-        if coordinate >= self._cds[1]:
-            return (
-                *self._coding[self._parts[2]].to_position(coordinate),
-                self._parts[2])
-        return (*self._coding[1].to_position(coordinate), 1)
 
     def coordinate_to_genomic(self, coordinate):
         """Convert a coordinate to a genomic position (g./m./o.).
@@ -317,14 +314,27 @@ class Crossmap(object):
 
         :returns tuple: Coding position (c./r.).
         """
-        position = self._coordinate_to_coding(coordinate)
+        self._check(self._coding, self._coding_error)
 
-        if degenerate:
-            if position[0] == 1 and position[1] < 0:
-                return (position[1], 0, position[2])
-            return (position[0] + position[1], 0, position[2])
+        part = self._coding[1].region(coordinate)
 
-        return position
+        selected_part = part
+        if not self._coding[selected_part]:
+            selected_part = 1
+
+        position = self._coding[selected_part].to_position(coordinate)
+
+        # IDEA: Use the fact that a UTR is empty to detect whether a boundary
+        # of the CDS coincides with the boundary of the transcript. If this is
+        # the case, then only c.1 and c.<end of CDS> are exceptional.
+        #if degenerate and selected_part == 1:
+        #    if position[0] == 1 and position[1] < 0:
+        #        return (position[1], 0, part)
+        #    #if position[0] == len(self) and position[1] > 0:
+        #    #    return 'lkajf'
+        #    return (position[0] + position[1], 0, part)
+
+        return (*position, part)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -335,7 +345,9 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        return self._coding[position[2]].to_coordinate(position[:2])
+        if self._coding[position[2]]:
+            return self._coding[position[2]].to_coordinate(position[:2])
+        return self._coding[1].to_coordinate(position[:2])
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).
