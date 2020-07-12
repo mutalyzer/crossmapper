@@ -317,15 +317,16 @@ class Crossmap(object):
         position = self._coding[region].to_position(coordinate)
         selected_region = self._direction(region)
 
-        if degenerate:
-            if (
-                    not self._regions[self._direction(0)] and
-                    selected_region == 1 and position[0] == 1):
-                return (position[1], 0, 0)
-            if (
-                    not self._regions[self._direction(2)] and
-                    selected_region == 1 and position[0] == self._cds_len):
-                return (position[1], 0, 2)
+        if degenerate and not self._regions[1][0] <= coordinate < self._regions[1][1]:
+            if selected_region == 1:
+                # TODO: added `and position[1] < 0`, find test.
+                if not self._regions[self._direction(0)] and position[0] == 1 and position[1] < 0:
+                    return (position[1], 0, 0)
+                # TODO: added `and position[1] > 0`, find test.
+                if (
+                        not self._regions[self._direction(2)] and
+                        position[0] == self._cds_len and position[1] > 0):
+                    return (position[1], 0, 2)
             return (position[0] + position[1], 0, selected_region)
 
         return (*position, selected_region)

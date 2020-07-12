@@ -370,6 +370,13 @@ def test_Crossmap_coding_inverted_degenerate():
         [(8, 2, 1), (10, 0, 1), (1, 1, 2), (2, 0, 2)])
 
 
+def test_Crossmap_coding_intron_degenerate():
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
+
+    assert (crossmap.coordinate_to_coding(25) ==
+            crossmap.coordinate_to_coding(25, True))
+
+
 def test_Crossmap_coding_no_utr5():
     crossmap = Crossmap([(10, 20)], (10, 15))
 
