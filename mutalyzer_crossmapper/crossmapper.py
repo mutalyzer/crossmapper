@@ -241,6 +241,7 @@ class Crossmap(object):
                 MultiLocus(regions[2], False, inverted))
 
             self._regions = [(x[0][0], x[-1][1]) if x else () for x in regions]
+            self._cds_len = self._regions[1][1] - self._regions[1][0]
 
     def _check(self, condition, error):
         if not condition:
@@ -254,10 +255,12 @@ class Crossmap(object):
     def _nearest_region(self, coordinate):
         if coordinate < self._regions[1][0]:
             if self._regions[0]:
-                return nearest_location(self._regions[:2], coordinate)
+                return nearest_location(
+                    self._regions[:2], coordinate, self._inverted)
         if coordinate >= self._regions[1][1]:
             if self._regions[2]:
-                return nearest_location(self._regions[1:], coordinate) + 1
+                return nearest_location(
+                    self._regions[1:], coordinate, self._inverted) + 1
         return 1
 
     def coordinate_to_genomic(self, coordinate):
@@ -310,18 +313,22 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        part = self._nearest_region(coordinate)
-        position = self._coding[part].to_position(coordinate)
+        region = self._nearest_region(coordinate)
+        position = self._coding[region].to_position(coordinate)
+        selected_region = self._direction(region)
 
-        # IDEA: Use the fact that a UTR is empty to detect whether a boundary
-        # of the CDS coincides with the boundary of the transcript. If this is
-        # the case, then only c.1 and c.<end of CDS> are exceptional.
-        #if degenerate and selected_part == 1:
-        #    if position[0] == 1 and position[1] < 0:
-        #        return (position[1], 0, part)
-        #    return (position[0] + position[1], 0, part)
+        if degenerate:
+            if (
+                    not self._regions[self._direction(0)] and
+                    selected_region == 1 and position[0] == 1):
+                return (position[1], 0, 0)
+            if (
+                    not self._regions[self._direction(2)] and
+                    selected_region == 1 and position[0] == self._cds_len):
+                return (position[1], 0, 2)
+            return (position[0] + position[1], 0, selected_region)
 
-        return (*position, self._direction(part))
+        return (*position, selected_region)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -332,9 +339,15 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        part = self._direction(position[2])
+        region = self._direction(position[2])
+        if not self._regions[region]:  # Degenerate position.
+            if position[2] == 0:
+                return self._coding[1].to_coordinate(position[:2])
+            if position[2] == 2:
+                return self._coding[1].to_coordinate(
+                    (self._cds_len + position[0], position[1], 1))
 
-        return self._coding[part].to_coordinate(position[:2])
+        return self._coding[region].to_coordinate(position[:2])
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).
@@ -365,5 +378,6 @@ class Crossmap(object):
         if not position[3]:
             return self.coding_to_coordinate(
                 (position[0] * 3 + position[1] - 1, position[2], position[3]))
+
         return self.coding_to_coordinate(
             (position[0] * 3 - 3 + position[1], position[2], position[3]))
