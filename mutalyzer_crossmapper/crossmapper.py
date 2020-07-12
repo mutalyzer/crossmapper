@@ -241,7 +241,7 @@ class Crossmap(object):
                 MultiLocus(regions[2], False, inverted))
 
             self._regions = [(x[0][0], x[-1][1]) if x else () for x in regions]
-            self._cds_len = self._regions[1][1] - self._regions[1][0]
+            self._cds_len = sum(map(lambda x: x[1] - x[0], regions[1]))
 
     def _check(self, condition, error):
         if not condition:

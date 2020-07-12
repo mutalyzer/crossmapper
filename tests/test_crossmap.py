@@ -465,17 +465,17 @@ def test_Crossmap_coding_inverted_degenerate_return():
 
 
 def test_Crossmap_no_utr_degenerate_return():
-    crossmap = Crossmap([(10, 20)], (10, 20))
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
 
     assert crossmap.coordinate_to_coding(9, True) == (-1, 0, 0)
-    assert crossmap.coordinate_to_coding(20, True) == (1, 0, 2)
+    assert crossmap.coordinate_to_coding(40, True) == (1, 0, 2)
 
 
 def test_Crossmap_no_utr_inverted_degenerate_return():
-    crossmap = Crossmap([(10, 20)], (10, 20), True)
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40), True)
 
     assert crossmap.coordinate_to_coding(9, True) == (1, 0, 2)
-    assert crossmap.coordinate_to_coding(20, True) == (-1, 0, 0)
+    assert crossmap.coordinate_to_coding(40, True) == (-1, 0, 0)
 
 
 def test_Crossmap_protein():
