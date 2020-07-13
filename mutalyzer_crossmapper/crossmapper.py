@@ -176,13 +176,24 @@ class MultiLocus(object):
 
     def _sign(self, position):
         if self._negated:
-            return -position[0], -position[1]
+            return -position[0], -position[1], position[2]
         return position
 
     def _direction(self, index):
         if self._inverted:
             return len(self._offsets) - index - 1
         return index
+
+    def _region(self, coordinate):
+        region = 1
+        if coordinate < self._locations[0][0]:
+            region = 0
+        if coordinate >= self._locations[-1][1]:
+            region = 2
+
+        if self._inverted:
+            return 2 - region
+        return region
 
     def to_position(self, coordinate):
         """Convert a coordinate to a position.
@@ -195,7 +206,8 @@ class MultiLocus(object):
         location = self._loci[index].to_position(coordinate)
 
         return self._sign(
-            (location[0] + self._offsets[self._direction(index)], location[1]))
+            (location[0] + self._offsets[self._direction(index)], location[1],
+             self._region(coordinate)))
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
@@ -318,21 +330,16 @@ class Crossmap(object):
         position = self._coding[region].to_position(coordinate)
         selected_region = self._direction(region)
 
-        if (
-                degenerate and
-                not self._regions[1][0] <= coordinate < self._regions[1][1]):
+        r = self._coding[1].to_position(coordinate)[2]
+        if degenerate and r != 1:
             if selected_region == 1:
-                if (
-                        not self._regions[self._direction(0)] and
-                        position[0] == 1 and position[1] < 0):
+                if r == 0 and position[0] == 1 and position[1] < 0:
                     return (position[1], 0, 0)
-                if (
-                        not self._regions[self._direction(2)] and
-                        position[0] == self._cds_len and position[1] > 0):
+                if r == 2 and position[0] == self._cds_len and position[1] > 0:
                     return (position[1], 0, 2)
             return (position[0] + position[1], 0, selected_region)
 
-        return (*position, selected_region)
+        return (position[0], position[1], selected_region)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -351,7 +358,7 @@ class Crossmap(object):
                 return self._coding[1].to_coordinate(
                     (self._cds_len + position[0], position[1], 1))
 
-        return self._coding[region].to_coordinate(position[:2])
+        return self._coding[region].to_coordinate((*position[:2], 1))
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).

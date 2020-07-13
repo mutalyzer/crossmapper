@@ -129,122 +129,158 @@ def test_MultiLocus():
     multi_locus = MultiLocus(_exons)
 
     _test_invariant(
-        multi_locus.to_position, 6, multi_locus.to_coordinate, (2, 0))
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, (10, -1))
+        multi_locus.to_position, 6, multi_locus.to_coordinate, (2, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, (10, 0))
+        multi_locus.to_position, 29, multi_locus.to_coordinate, (10, -1, 1))
     _test_invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, (11, 0))
+        multi_locus.to_position, 30, multi_locus.to_coordinate, (10, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, (13, 0))
+        multi_locus.to_position, 31, multi_locus.to_coordinate, (11, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, (14, 0))
+        multi_locus.to_position, 33, multi_locus.to_coordinate, (13, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, (14, 1))
+        multi_locus.to_position, 34, multi_locus.to_coordinate, (14, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 35, multi_locus.to_coordinate, (14, 1, 1))
+    _test_invariant(
+        multi_locus.to_position, 72, multi_locus.to_coordinate, (22, 1, 2))
 
 
 def test_MultiLocus_adjacent_exons():
     multi_locus = MultiLocus(_adjacent_exons)
 
     _test_invariant(
-        multi_locus.to_position, 2, multi_locus.to_coordinate, (2, 0))
+        multi_locus.to_position, 0, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, 0))
+        multi_locus.to_position, 2, multi_locus.to_coordinate, (2, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (4, 1, 2))
 
 
 def test_MultiLocus_offsets_odd():
     multi_locus = MultiLocus([(1, 3), (6, 8)])
 
     _test_invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, (2, 1))
+        multi_locus.to_position, 0, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (2, 1, 1))
     _test_invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -1))
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2, 1))
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -1, 1))
+    _test_invariant(
+        multi_locus.to_position, 8, multi_locus.to_coordinate, (4, 1, 2))
 
 
 def test_MultiLocus_offsets_odd_inverted():
     multi_locus = MultiLocus([(1, 3), (6, 8)], True)
 
     _test_invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 1))
+        multi_locus.to_position, 8, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 1, 1))
     _test_invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, -1))
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2, 1))
+    _test_invariant(
+        multi_locus.to_position, 3, multi_locus.to_coordinate, (3, -1, 1))
+    _test_invariant(
+        multi_locus.to_position, 0, multi_locus.to_coordinate, (4, 1, 2))
 
 
 def test_MultiLocus_offsets_even():
     multi_locus = MultiLocus([(1, 3), (7, 9)])
 
     _test_invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2))
+        multi_locus.to_position, 0, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -2))
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (2, 2, 1))
+    _test_invariant(
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (3, -2, 1))
+    _test_invariant(
+        multi_locus.to_position, 9, multi_locus.to_coordinate, (4, 1, 2))
 
 
 def test_MultiLocus_offsets_even_inverted():
     multi_locus = MultiLocus([(1, 3), (7, 9)], True)
 
     _test_invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 2))
+        multi_locus.to_position, 0, multi_locus.to_coordinate, (4, 1, 2))
     _test_invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, (3, -2))
+        multi_locus.to_position, 5, multi_locus.to_coordinate, (2, 2, 1))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (3, -2, 1))
+    _test_invariant(
+        multi_locus.to_position, 9, multi_locus.to_coordinate, (1, -1, 0))
 
 
 def test_MultiLocus_inverted():
     multi_locus = MultiLocus(_exons, True)
 
     _test_invariant(
-        multi_locus.to_position, 70, multi_locus.to_coordinate, (2, 0))
+        multi_locus.to_position, 70, multi_locus.to_coordinate, (2, 0, 1))
 
     _test_invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, (9, -1))
+        multi_locus.to_position, 72, multi_locus.to_coordinate, (1, -1, 0))
     _test_invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, (9, 0))
+        multi_locus.to_position, 35, multi_locus.to_coordinate, (9, -1, 1))
     _test_invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, (10, 0))
+        multi_locus.to_position, 34, multi_locus.to_coordinate, (9, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, (12, 0))
+        multi_locus.to_position, 33, multi_locus.to_coordinate, (10, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, (13, 0))
+        multi_locus.to_position, 31, multi_locus.to_coordinate, (12, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, (13, 1))
+        multi_locus.to_position, 30, multi_locus.to_coordinate, (13, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 29, multi_locus.to_coordinate, (13, 1, 1))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (22, 1, 2))
 
 
 def test_MultiLocus_negated():
     multi_locus = MultiLocus(_exons, False, True)
 
     _test_invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, (-10, 1))
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (-1, 1, 0))
     _test_invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, (-10, 0))
+        multi_locus.to_position, 29, multi_locus.to_coordinate, (-10, 1, 1))
     _test_invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, (-11, 0))
+        multi_locus.to_position, 30, multi_locus.to_coordinate, (-10, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, (-13, 0))
+        multi_locus.to_position, 31, multi_locus.to_coordinate, (-11, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, (-14, 0))
+        multi_locus.to_position, 33, multi_locus.to_coordinate, (-13, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, (-14, -1))
+        multi_locus.to_position, 34, multi_locus.to_coordinate, (-14, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 35, multi_locus.to_coordinate, (-14, -1, 1))
+    _test_invariant(
+        multi_locus.to_position, 72, multi_locus.to_coordinate, (-22, -1, 2))
 
 
 def test_MultiLocus_inverted_negated():
     multi_locus = MultiLocus(_exons, True, True)
 
     _test_invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, (-9, 1))
+        multi_locus.to_position, 72, multi_locus.to_coordinate, (-1, 1, 0))
     _test_invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, (-9, 0))
+        multi_locus.to_position, 35, multi_locus.to_coordinate, (-9, 1, 1))
     _test_invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, (-10, 0))
+        multi_locus.to_position, 34, multi_locus.to_coordinate, (-9, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, (-12, 0))
+        multi_locus.to_position, 33, multi_locus.to_coordinate, (-10, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, (-13, 0))
+        multi_locus.to_position, 31, multi_locus.to_coordinate, (-12, 0, 1))
     _test_invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, (-13, -1))
+        multi_locus.to_position, 30, multi_locus.to_coordinate, (-13, 0, 1))
+    _test_invariant(
+        multi_locus.to_position, 29, multi_locus.to_coordinate, (-13, -1, 1))
+    _test_invariant(
+        multi_locus.to_position, 4, multi_locus.to_coordinate, (-22, -1, 2))
 
 
 def test_Crossmap_genomic():
