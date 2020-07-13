@@ -370,6 +370,15 @@ def test_Crossmap_coding_inverted_degenerate():
         [(8, 2, 1), (10, 0, 1), (1, 1, 2), (2, 0, 2)])
 
 
+def test_Crossmap_coding_degenerate_cds():
+    crossmap = Crossmap([(10, 11)], (10, 11))
+
+    _test_degenerate_equal(
+        crossmap.coding_to_coordinate, [(1, 1, 0), (1, 0, 2)])
+    _test_degenerate_equal(
+        crossmap.coding_to_coordinate, [(1, -1, 0), (-1, 0, 0)])
+
+
 def test_Crossmap_coding_intron_degenerate():
     crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
 
@@ -483,6 +492,13 @@ def test_Crossmap_no_utr_inverted_degenerate_return():
 
     assert crossmap.coordinate_to_coding(9, True) == (1, 0, 2)
     assert crossmap.coordinate_to_coding(40, True) == (-1, 0, 0)
+
+
+def test_Crossmap_coding_degenerate_cds_return():
+    crossmap = Crossmap([(10, 11)], (10, 11))
+
+    assert crossmap.coordinate_to_coding(9, True) == (-1, 0, 0)
+    assert crossmap.coordinate_to_coding(11, True) == (1, 0, 2)
 
 
 def test_Crossmap_protein():
