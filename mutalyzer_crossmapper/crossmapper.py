@@ -160,6 +160,7 @@ class Locus(object):
 
 class MultiLocus(object):
     """MultiLocus object."""
+    # TODO: Add region coordinate, also to Crossmap.
     def __init__(self, locations, inverted=False, negated=False):
         """
         :arg list locations: List of locus locations.
@@ -317,12 +318,14 @@ class Crossmap(object):
         position = self._coding[region].to_position(coordinate)
         selected_region = self._direction(region)
 
-        if degenerate and not self._regions[1][0] <= coordinate < self._regions[1][1]:
+        if (
+                degenerate and
+                not self._regions[1][0] <= coordinate < self._regions[1][1]):
             if selected_region == 1:
-                # TODO: added `and position[1] < 0`, find test.
-                if not self._regions[self._direction(0)] and position[0] == 1 and position[1] < 0:
+                if (
+                        not self._regions[self._direction(0)] and
+                        position[0] == 1 and position[1] < 0):
                     return (position[1], 0, 0)
-                # TODO: added `and position[1] > 0`, find test.
                 if (
                         not self._regions[self._direction(2)] and
                         position[0] == self._cds_len and position[1] > 0):
