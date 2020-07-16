@@ -330,7 +330,7 @@ class Crossmap(object):
         position = self._coding[region].to_position(coordinate)
         selected_region = self._direction(region)
 
-        r = self._coding[1].to_position(coordinate)[2]
+        r = self._noncoding.to_position(coordinate)[2]
         if degenerate and r != 1:
             if selected_region == 1:
                 if r == 0 and position[0] == 1 and position[1] < 0:
@@ -339,7 +339,7 @@ class Crossmap(object):
                     return (position[1], 0, 2)
             return (position[0] + position[1], 0, selected_region)
 
-        return (position[0], position[1], selected_region)
+        return (position[0], position[1], selected_region, r)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
