@@ -14,19 +14,14 @@ Definitions:
 """
 from bisect import bisect_left
 
-
-def _loc(a, b):
-    """Make a proper location."""
-    if a >= b:
-        return []
-    return [(a, b)]
+from .location import cut_locations, nearest_location
 
 
-def _offsets(ls, inverted=False):
+def _offsets(locations, inverted=False):
     """For each location, calculate the length of the preceding locations.
 
-    :arg list ls: List of locations.
-    :arg bool inverted: Direction of {ls}.
+    :arg list locations: List of locations.
+    :arg bool inverted: Direction of {locations}.
 
     :returns list: List of cumulative location lengths.
     """
@@ -35,76 +30,25 @@ def _offsets(ls, inverted=False):
     length = 0
     direction = -1 if inverted else 1
 
-    for location in ls[::direction]:
+    for location in locations[::direction]:
         lengths.append(length)
         length += location[1] - location[0]
 
     return lengths
 
 
-def _nearest_boundary(lb, rb, c, p):
-    """Find the boundary nearest to `c`. In case of a draw, the parameter `p`
-    decides which one is chosen.
-
-    :arg int lb: Left boundary.
-    :arg int rb: Right boundary.
-    :arg int c: Coordinate (`lb` <= `c` <= `rb`)).
-    :arg int p: Preference in case of a draw: 0: left, 1: right.
-
-    :returns int: Nearest boundary: 0: left, 1: right.
-    """
-    dl = c - lb + 1
-    dr = rb - c
-
-    if dl < dr:
-        return 0
-    if dl > dr:
-        return 1
-    return p
-
-
-def nearest_location(ls, c, p=0):
-    """Find the location nearest to `c`. In case of a draw, the parameter `p`
-    decides which index is chosen.
-
-    :arg list ls: List of locations.
-    :arg int c: Coordinate.
-    :arg int p: Preference in case of a draw: 0: left, 1: right.
-
-    :returns int: Nearest location.
-    """
-    rb = len(ls) - 1
-    lb = 0
-
-    while lb <= rb:
-        i = (lb + rb) // 2
-
-        if c < ls[i][0]:     # `c` lies before this location.
-            rb = i - 1
-        elif c >= ls[i][1]:  # `c` lies after this location.
-            lb = i + 1
-        else:                # `c` lies in this location.
-            return i
-
-    if i and c < ls[i][0]:  # `c` lies before this location.
-        return i - 1 + _nearest_boundary(ls[i - 1][1], ls[i][0], c, p)
-    if i < len(ls) - 1:     # `c` lies after this location.
-        return i + _nearest_boundary(ls[i][1], ls[i + 1][0], c, p)
-
-    return i
-
-
-def cut_locations(ls, c):
-    """Divide a list of locations, cutting one of the locations in two.
-
-    :arg int c: Coordinate.
-    :arg list ls: List of locations.
-
-    :returns tuple: locations before `c`, locations after coordinate.
-    """
-    i = nearest_location(ls, c)
-
-    return ls[:i] + _loc(ls[i][0], c), _loc(c, ls[i][1]) + ls[i + 1:]
+#def _region(region, inverted):
+#    # TODO: Remove.
+#    """Orient a region.
+#
+#    :arg int region: Region.
+#    :arg bool inverted: Orientation.
+#
+#    :returns int: Oriented region: 0: upstream, 1: inside, 2: downstream.
+#    """
+#    if inverted:
+#        return 2 - region
+#    return region
 
 
 class Locus(object):
@@ -117,8 +61,8 @@ class Locus(object):
         self._location = location
         self._inverted = inverted
 
-    def to_position(self, coordinate):
-        """Convert a coordinate to a position.
+    def _to_position(self, coordinate):
+        """Convert a coordinate to a proper position.
 
         :arg int coordinate: Coordinate.
 
@@ -141,6 +85,23 @@ class Locus(object):
                 coordinate - self._location[1] + 1)
         return coordinate - self._location[0] + 1, 0
 
+    def to_position(self, coordinate, degenerate=False):
+        """Convert a coordinate to a position.
+
+        :arg int coordinate: Coordinate.
+        :arg bool degenerate: Return a degenerate position.
+
+        :returns tuple: Position.
+        """
+        position = self._to_position(coordinate)
+
+        if degenerate:
+            if position[0] == 1:
+                return position[1], 0
+            return position[0] + position[1], 0
+
+        return position
+
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
 
@@ -160,7 +121,6 @@ class Locus(object):
 
 class MultiLocus(object):
     """MultiLocus object."""
-    # TODO: Add region coordinate, also to Crossmap.
     def __init__(self, locations, inverted=False, negated=False):
         """
         :arg list locations: List of locus locations.
@@ -174,6 +134,10 @@ class MultiLocus(object):
         self._loci = [Locus(location, inverted) for location in locations]
         self._offsets = _offsets(locations, inverted)
 
+        self.orientation = 1
+        if self._inverted != self._negated:
+            self.orientation = -1
+
     def _sign(self, position):
         if self._negated:
             return -position[0], -position[1], position[2]
@@ -184,18 +148,20 @@ class MultiLocus(object):
             return len(self._offsets) - index - 1
         return index
 
-    def _region(self, coordinate):
-        region = 1
+    def outside(self, coordinate):
+        """Calculate the offset relative to this MultiLocus.
+
+        :arg int coordinate: Coordinate.
+
+        :returns int: Negative: upstream, 0: inside, positive: downstream.
+        """
         if coordinate < self._locations[0][0]:
-            region = 0
+            return coordinate - self._locations[0][0]
         if coordinate >= self._locations[-1][1]:
-            region = 2
+            return coordinate - self._locations[-1][1] + 1
+        return 0
 
-        if self._inverted:
-            return 2 - region
-        return region
-
-    def to_position(self, coordinate):
+    def to_position(self, coordinate, degenerate=False):
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
@@ -203,11 +169,14 @@ class MultiLocus(object):
         :returns tuple: Position.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
-        location = self._loci[index].to_position(coordinate)
+        outside = self.orientation * self.outside(coordinate)
+        location = self._loci[index].to_position(
+            coordinate, outside and degenerate)
 
-        return self._sign(
-            (location[0] + self._offsets[self._direction(index)], location[1],
-             self._region(coordinate)))
+        return self._sign((
+            location[0] + self._offsets[self._direction(index)],
+            location[1],
+            outside))
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
@@ -260,21 +229,27 @@ class Crossmap(object):
         if not condition:
             raise ValueError(error)
 
-    def _direction(self, index):
-        if self._inverted:
-            return 2 - index
-        return index
-
     def _nearest_region(self, coordinate):
-        if coordinate < self._regions[1][0]:
-            if self._regions[0]:
-                return nearest_location(
-                    self._regions[:2], coordinate, self._inverted)
-        if coordinate >= self._regions[1][1]:
-            if self._regions[2]:
-                return nearest_location(
-                    self._regions[1:], coordinate, self._inverted) + 1
-        return 1
+        #if self._regions[0] and coordinate < self._regions[1][0]:
+        #    return nearest_location(
+        #        self._regions[:2], coordinate, self._inverted)
+        #if self._regions[2] and coordinate >= self._regions[1][1]:
+        #    return nearest_location(
+        #        self._regions[1:], coordinate, self._inverted) + 1
+        #return 1
+        """
+        :returns int: -1: left, 0: middle, 1: right.
+        """
+        outside = self._coding[1].outside(coordinate)
+
+        if outside < 0 and self._regions[0]:
+            return nearest_location(
+                self._regions[:2], coordinate, self._inverted) - 1
+        if outside > 0 and self._regions[2]:
+            return nearest_location(
+                self._regions[1:], coordinate, self._inverted)
+
+        return 0
 
     def coordinate_to_genomic(self, coordinate):
         """Convert a coordinate to a genomic position (g./m./o.).
@@ -327,19 +302,26 @@ class Crossmap(object):
         self._check(self._coding, self._coding_error)
 
         region = self._nearest_region(coordinate)
-        position = self._coding[region].to_position(coordinate)
-        selected_region = self._direction(region)
+        position = self._coding[region + 1].to_position(coordinate)
+        #selected_region = self._coding[1].orientation * region + 1#_region(region, self._inverted)
 
-        r = self._noncoding.to_position(coordinate)[2]
-        if degenerate and r != 1:
-            if selected_region == 1:
-                if r == 0 and position[0] == 1 and position[1] < 0:
-                    return (position[1], 0, 0)
-                if r == 2 and position[0] == self._cds_len and position[1] > 0:
-                    return (position[1], 0, 2)
-            return (position[0] + position[1], 0, selected_region)
+        #r = self._noncoding.to_position(coordinate)[2]
+        #if degenerate and r != 1:
+        #    if selected_region == 1:
+        #        if r == 0 and position[0] == 1 and position[1] < 0:
+        #            return (position[1], 0, 0)
+        #        if r == 2 and position[0] == self._cds_len and position[1] > 0:
+        #            return (position[1], 0, 2)
+        #    return (position[0] + position[1], 0, selected_region)
 
-        return (position[0], position[1], selected_region, r)
+        outside = self._coding[1].orientation * region
+        if position[2] * outside < 0:
+            return (position[0], position[1], 0, outside)
+        if not outside and position[2] < 0 and self._regions[0]:
+            return (position[0], position[1], 0, outside)
+        if not outside and position[2] > 0 and self._regions[2]:
+            return (position[0], position[1], 0, outside)
+        return (*position, outside)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -350,13 +332,14 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        region = self._direction(position[2])
-        if not self._regions[region]:  # Degenerate position.
-            if position[2] == 0:
-                return self._coding[1].to_coordinate(position[:2])
-            if position[2] == 2:
-                return self._coding[1].to_coordinate(
-                    (self._cds_len + position[0], position[1], 1))
+        region = self._coding[1].orientation * position[3] + 1
+        #region = _region(position[2], self._inverted)
+        #if not self._regions[region]:  # Degenerate position.
+        #    if position[2] == 0:
+        #        return self._coding[1].to_coordinate(position[:2])
+        #    if position[2] == 2:
+        #        return self._coding[1].to_coordinate(
+        #            (self._cds_len + position[0], position[1], 1))
 
         return self._coding[region].to_coordinate((*position[:2], 1))
 
