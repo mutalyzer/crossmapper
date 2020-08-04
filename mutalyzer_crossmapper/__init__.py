@@ -1,7 +1,23 @@
+"""Crossmapper position conversion library.
+
+Definitions:
+
+- Coordinates are zero based, non-negative integers.
+- Locations are zero based right-open non-negative integer intervals,
+  consistent with Python's range() and sequence slicing functions.
+- Loci and exons are locations.
+- An exon list is a list of locations that, when flattened, is an increasing
+  sequence.
+- A position is a 2-tuple of which the first element is a one based non-zero
+  integer relative to an element in a location and the second element is an
+  integer offset relative to the first element.
+"""
 from pkg_resources import get_distribution
 
-from .crossmapper import (
-    Crossmap, Locus, MultiLocus, nearest_location, cut_locations)
+from .crossmapper import Crossmap
+from .location import cut_locations, nearest_location
+from .locus import Locus
+from .multi_locus import MultiLocus
 
 
 def _get_metadata(name):
