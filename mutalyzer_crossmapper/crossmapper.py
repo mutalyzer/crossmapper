@@ -37,20 +37,6 @@ def _offsets(locations, inverted=False):
     return lengths
 
 
-#def _region(region, inverted):
-#    # TODO: Remove.
-#    """Orient a region.
-#
-#    :arg int region: Region.
-#    :arg bool inverted: Orientation.
-#
-#    :returns int: Oriented region: 0: upstream, 1: inside, 2: downstream.
-#    """
-#    if inverted:
-#        return 2 - region
-#    return region
-
-
 class Locus(object):
     """Locus object."""
     def __init__(self, location, inverted=False):
@@ -230,13 +216,6 @@ class Crossmap(object):
             raise ValueError(error)
 
     def _nearest_region(self, coordinate):
-        #if self._regions[0] and coordinate < self._regions[1][0]:
-        #    return nearest_location(
-        #        self._regions[:2], coordinate, self._inverted)
-        #if self._regions[2] and coordinate >= self._regions[1][1]:
-        #    return nearest_location(
-        #        self._regions[1:], coordinate, self._inverted) + 1
-        #return 1
         """
         :returns int: -1: left, 0: middle, 1: right.
         """
@@ -315,12 +294,16 @@ class Crossmap(object):
         #    return (position[0] + position[1], 0, selected_region)
 
         outside = self._coding[1].orientation * region
+
+        # Remove "outside" coordinates between regions.
         if position[2] * outside < 0:
             return (position[0], position[1], 0, outside)
-        if not outside and position[2] < 0 and self._regions[0]:
-            return (position[0], position[1], 0, outside)
-        if not outside and position[2] > 0 and self._regions[2]:
-            return (position[0], position[1], 0, outside)
+        if not outside:
+            if position[2] < 0 and self._regions[0]:
+                return (position[0], position[1], 0, outside)
+            if position[2] > 0 and self._regions[2]:
+                return (position[0], position[1], 0, outside)
+
         return (*position, outside)
 
     def coding_to_coordinate(self, position):
@@ -341,7 +324,7 @@ class Crossmap(object):
         #        return self._coding[1].to_coordinate(
         #            (self._cds_len + position[0], position[1], 1))
 
-        return self._coding[region].to_coordinate((*position[:2], 1))
+        return self._coding[region].to_coordinate((*position[:2], 0))
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).
