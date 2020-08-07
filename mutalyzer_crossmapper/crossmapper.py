@@ -91,6 +91,31 @@ class Crossmap(object):
 
         return self._noncoding.to_coordinate(position)
 
+    def _coordinate_to_coding(self, coordinate, degenerate=False):
+        """Convert a coordinate to a proper coding position (c./r.).
+
+        :arg int coordinate: Coordinate.
+        :arg bool degenerate: Return a degenerate position.
+
+        :returns tuple: Coding position (c./r.).
+        """
+        region = self._nearest_region(coordinate)
+        position = self._coding[region + 1].to_position(coordinate, degenerate)
+
+        outside = self._coding[1].orientation * region
+
+        # Remove "outside" coordinates between regions.
+        if position[2] * outside < 0:
+            return (position[0], position[1], 0, outside)
+        if not outside:
+            _RR = self._coding[1].orientation  # FIXME: Refactor.
+            if position[2] < 0 and self._regions[-1 * _RR + 1]:
+                return (position[0], position[1], 0, outside)
+            if position[2] > 0 and self._regions[_RR + 1]:
+                return (position[0], position[1], 0, outside)
+
+        return (*position, outside)
+
     def coordinate_to_coding(self, coordinate, degenerate=False):
         """Convert a coordinate to a coding position (c./r.).
 
@@ -101,31 +126,14 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        region = self._nearest_region(coordinate)
-        position = self._coding[region + 1].to_position(coordinate)
-        #selected_region = self._coding[1].orientation * region + 1#_region(region, self._inverted)
+        position = self._coordinate_to_coding(coordinate)
+        if degenerate and position[2]:
+            if position[0] * position[1] < 0:
+                return position[0] + position[1] - 1, 0, position[2], position[3]
+            return position[0] + position[1], 0, position[2], position[3]
 
-        #r = self._noncoding.to_position(coordinate)[2]
-        #if degenerate and r != 1:
-        #    if selected_region == 1:
-        #        if r == 0 and position[0] == 1 and position[1] < 0:
-        #            return (position[1], 0, 0)
-        #        if r == 2 and position[0] == self._cds_len and position[1] > 0:
-        #            return (position[1], 0, 2)
-        #    return (position[0] + position[1], 0, selected_region)
+        return position
 
-        outside = self._coding[1].orientation * region
-
-        # Remove "outside" coordinates between regions.
-        if position[2] * outside < 0:
-            return (position[0], position[1], 0, outside)
-        if not outside:
-            if position[2] < 0 and self._regions[0]:
-                return (position[0], position[1], 0, outside)
-            if position[2] > 0 and self._regions[2]:
-                return (position[0], position[1], 0, outside)
-
-        return (*position, outside)
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -137,13 +145,6 @@ class Crossmap(object):
         self._check(self._coding, self._coding_error)
 
         region = self._coding[1].orientation * position[3] + 1
-        #region = _region(position[2], self._inverted)
-        #if not self._regions[region]:  # Degenerate position.
-        #    if position[2] == 0:
-        #        return self._coding[1].to_coordinate(position[:2])
-        #    if position[2] == 2:
-        #        return self._coding[1].to_coordinate(
-        #            (self._cds_len + position[0], position[1], 1))
 
         return self._coding[region].to_coordinate((*position[:2], 0))
 
