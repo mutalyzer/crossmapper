@@ -91,16 +91,15 @@ class Crossmap(object):
 
         return self._noncoding.to_coordinate(position)
 
-    def _coordinate_to_coding(self, coordinate, degenerate=False):
+    def _coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a proper coding position (c./r.).
 
         :arg int coordinate: Coordinate.
-        :arg bool degenerate: Return a degenerate position.
 
         :returns tuple: Coding position (c./r.).
         """
         region = self._nearest_region(coordinate)
-        position = self._coding[region + 1].to_position(coordinate, degenerate)
+        position = self._coding[region + 1].to_position(coordinate)
 
         outside = self._coding[1].orientation * region
 
@@ -145,6 +144,15 @@ class Crossmap(object):
         self._check(self._coding, self._coding_error)
 
         region = self._coding[1].orientation * position[3] + 1
+
+        # Temporary patch.
+        if not self._regions[region]:
+            if position[3] == 1:
+                return self._coding[1].to_coordinate(
+                    (position[0] + self._cds_len, position[1], 0))
+            if position[3] == -1:
+                return self._coding[1].to_coordinate(
+                    (position[0], position[1], 0))
 
         return self._coding[region].to_coordinate((*position[:2], 0))
 
