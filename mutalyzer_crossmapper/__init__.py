@@ -15,7 +15,8 @@ Definitions:
 from pkg_resources import get_distribution
 
 from .crossmapper import Crossmap
-from .location import cut_locations, nearest_location
+#from .location import cut_locations, nearest_location
+from .location import nearest_location
 from .locus import Locus
 from .multi_locus import MultiLocus
 
