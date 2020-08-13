@@ -1,24 +1,5 @@
-#from mutalyzer_crossmapper import cut_locations, nearest_location
 from mutalyzer_crossmapper import nearest_location
-#from mutalyzer_crossmapper.location import _loc, _nearest_boundary
 from mutalyzer_crossmapper.location import _nearest_boundary
-
-
-#def test_loc():
-#    """Proper locations should remain unaltered, others are removed."""
-#    assert _loc(1, 2) == [(1, 2)]
-#    assert _loc(1, 1) == []
-#    assert _loc(2, 1) == []
-
-
-#def test_cut_locations():
-#    """A cut should result in two parts containing proper locations."""
-#    locations = [(1, 3), (3, 5)]
-#
-#    assert cut_locations(locations, 2) == ([(1, 2)], [(2, 3), (3, 5)])
-#    assert cut_locations(locations, 3) == ([(1, 3)], [(3, 5)])
-#    assert cut_locations(locations, 1) == ([], [(1, 3), (3, 5)])
-#    assert cut_locations(locations, 5) == ([(1, 3), (3, 5)], [])
 
 
 def test_nearest_boundary_even():

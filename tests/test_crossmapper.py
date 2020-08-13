@@ -2,7 +2,6 @@ from mutalyzer_crossmapper import Crossmap
 
 from helper import degenerate_equal, invariant
 
-
 _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 _cds = (32, 43)
 

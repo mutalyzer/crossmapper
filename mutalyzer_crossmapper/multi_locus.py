@@ -4,7 +4,7 @@ from .location import nearest_location
 from .locus import Locus
 
 
-def _offsets(locations, inverted=False):
+def _offsets(locations, orientation):
     """For each location, calculate the length of the preceding locations.
 
     :arg list locations: List of locations.
@@ -15,9 +15,8 @@ def _offsets(locations, inverted=False):
     lengths = []
 
     length = 0
-    direction = -1 if inverted else 1
 
-    for location in locations[::direction]:
+    for location in locations[::orientation]:
         lengths.append(length)
         length += location[1] - location[0]
 
@@ -26,7 +25,6 @@ def _offsets(locations, inverted=False):
 
 class MultiLocus(object):
     """MultiLocus object."""
-    #def __init__(self, locations, inverted=False, negated=False):
     def __init__(self, locations, inverted=False):
         """
         :arg list locations: List of locus locations.
@@ -35,20 +33,10 @@ class MultiLocus(object):
         """
         self._locations = locations
         self._inverted = inverted
-        #self._negated = negated
 
         self._loci = [Locus(location, inverted) for location in locations]
-        self._offsets = _offsets(locations, inverted)
-
-        self.orientation = 1
-        #if self._inverted != self._negated:
-        if self._inverted:
-            self.orientation = -1
-
-    #def _sign(self, position):
-    #    if self._negated:
-    #        return -position[0], -position[1], position[2]
-    #    return position
+        self._orientation = -1 if inverted else 1
+        self._offsets = _offsets(locations, self._orientation)
 
     def _direction(self, index):
         if self._inverted:
@@ -76,7 +64,7 @@ class MultiLocus(object):
         :returns tuple: Position.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
-        outside = self.orientation * self.outside(coordinate)
+        outside = self._orientation * self.outside(coordinate)
         location = self._loci[index].to_position(
             coordinate, outside and degenerate)
 
@@ -84,10 +72,6 @@ class MultiLocus(object):
             location[0] + self._offsets[self._direction(index)],
             location[1],
             outside)
-        #return self._sign((
-        #    location[0] + self._offsets[self._direction(index)],
-        #    location[1],
-        #    outside))
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
@@ -96,14 +80,6 @@ class MultiLocus(object):
 
         :returns int: Coordinate.
         """
-        #position_ = self._sign(position)
-
-        #index = min(
-        #    len(self._offsets),
-        #    max(0, bisect_left(self._offsets, position_[0]) - 1))
-
-        #return self._loci[self._direction(index)].to_coordinate(
-        #    (position_[0] - self._offsets[index], position_[1]))
         index = min(
             len(self._offsets),
             max(0, bisect_left(self._offsets, position[0]) - 1))

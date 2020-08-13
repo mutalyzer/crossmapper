@@ -1,10 +1,3 @@
-#def _loc(a, b):
-#    """Make a proper location."""
-#    if a >= b:
-#        return []
-#    return [(a, b)]
-
-
 def _nearest_boundary(lb, rb, c, p):
     """Find the boundary nearest to `c`. In case of a draw, the parameter `p`
     decides which one is chosen.
@@ -55,16 +48,3 @@ def nearest_location(ls, c, p=0):
         return i + _nearest_boundary(ls[i][1], ls[i + 1][0], c, p)
 
     return i
-
-
-#def cut_locations(ls, c):
-#    """Divide a list of locations, cutting one of the locations in two.
-#
-#    :arg int c: Coordinate.
-#    :arg list ls: List of locations.
-#
-#    :returns tuple: locations before `c`, locations after coordinate.
-#    """
-#    i = nearest_location(ls, c)
-#
-#    return ls[:i] + _loc(ls[i][0], c), _loc(c, ls[i][1]) + ls[i + 1:]
