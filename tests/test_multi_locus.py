@@ -166,33 +166,3 @@ def test_MultiLocus_inverted_degenerate():
         multi_locus.to_coordinate, 72, [(0, -1, -1), (-1, 0, -1)])
     degenerate_equal(
         multi_locus.to_coordinate, 4, [(21, 1, 1), (22, 0, 1)])
-
-
-#def test_MultiLocus_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    multi_locus = MultiLocus(_locations)
-#
-#    assert multi_locus.to_position(4, True) == (-1, 0, -1)
-#    assert multi_locus.to_position(72, True) == (23, 0, 1)
-#
-#
-#def test_MultiLocus_inverted_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    multi_locus = MultiLocus(_locations, True)
-#
-#    assert multi_locus.to_position(72, True) == (-1, 0, -1)
-#    assert multi_locus.to_position(4, True) == (23, 0, 1)
-#
-#
-#def test_MultiLocus_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    multi_locus = MultiLocus(_locations)
-#
-#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)
-#
-#
-#def test_MultiLocus_inverted_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    multi_locus = MultiLocus(_locations, True)
-#
-#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)

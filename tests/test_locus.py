@@ -35,25 +35,9 @@ def test_Locus_degenerate():
     degenerate_equal(locus.to_coordinate, 20, [(9, 1), (10, 0)])
 
 
-#def test_Locus_degenerate_return():
-#    """Degenerate position can be retured."""
-#    locus = Locus((10, 20))
-#
-#    assert locus.to_position(9, True) == (-1, 0)
-#    assert locus.to_position(20, True) == (10, 0)
-
-
 def test_Locus_inverted_degenerate():
     """Degenerate positions are silently corrected."""
     locus = Locus((10, 20), True)
 
     degenerate_equal(locus.to_coordinate, 20, [(0, -1), (-1, 0)])
     degenerate_equal(locus.to_coordinate, 9, [(9, 1), (10, 0)])
-
-
-#def test_Locus_inverted_degenerate_return():
-#    """Degenerate position can be retured."""
-#    locus = Locus((10, 20), True)
-#
-#    assert locus.to_position(20, True) == (-1, 0)
-#    assert locus.to_position(9, True) == (11, 0)
