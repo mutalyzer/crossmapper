@@ -1,4 +1,5 @@
-from bisect import bisect_left
+from bisect import bisect_right
+from itertools import accumulate
 
 from .location import nearest_location
 from .locus import Locus
@@ -12,15 +13,17 @@ def _offsets(locations, orientation):
 
     :returns list: List of cumulative location lengths.
     """
-    lengths = []
+    return  [0] + list(accumulate(map(
+        lambda x: x[1] - x[0], locations[::orientation][:-1])))
+    #lengths = []
 
-    length = 0
+    #length = 0
 
-    for location in locations[::orientation]:
-        lengths.append(length)
-        length += location[1] - location[0]
+    #for location in locations[::orientation]:
+    #    lengths.append(length)
+    #    length += location[1] - location[0]
 
-    return lengths
+    #return lengths
 
 
 class MultiLocus(object):
@@ -29,7 +32,6 @@ class MultiLocus(object):
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
-        #:arg bool negated: Change the sign of all positions.
         """
         self._locations = locations
         self._inverted = inverted
@@ -37,6 +39,8 @@ class MultiLocus(object):
         self._loci = [Locus(location, inverted) for location in locations]
         self._orientation = -1 if inverted else 1
         self._offsets = _offsets(locations, self._orientation)
+        #print(self._locations)
+        #print(self._offsets)
 
     def _direction(self, index):
         if self._inverted:
@@ -50,10 +54,10 @@ class MultiLocus(object):
 
         :returns int: Negative: upstream, 0: inside, positive: downstream.
         """
-        if coordinate < self._locations[0][0]:
-            return coordinate - self._locations[0][0]
-        if coordinate >= self._locations[-1][1]:
-            return coordinate - self._locations[-1][1] + 1
+        if coordinate < self._loci[0].boundary[0]:
+            return coordinate - self._loci[0].boundary[0]
+        if coordinate > self._loci[-1].boundary[1]:
+            return coordinate - self._loci[-1].boundary[1]
         return 0
 
     def to_position(self, coordinate, degenerate=False):
@@ -64,9 +68,10 @@ class MultiLocus(object):
         :returns tuple: Position.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
+        #print('tp', index, '\n')
         outside = self._orientation * self.outside(coordinate)
         location = self._loci[index].to_position(
-            coordinate, outside and degenerate)
+            coordinate)#, outside and degenerate)
 
         return (
             location[0] + self._offsets[self._direction(index)],
@@ -80,9 +85,11 @@ class MultiLocus(object):
 
         :returns int: Coordinate.
         """
-        index = min(
-            len(self._offsets),
-            max(0, bisect_left(self._offsets, position[0]) - 1))
+        #index = min(
+        #    len(self._offsets),
+        #    max(0, bisect_left(self._offsets, position[0]) - 1))
+        index = min(len(self._offsets), max(0, bisect_right(self._offsets, position[0]) - 1))
+        print('tc', index)
 
         return self._loci[self._direction(index)].to_coordinate(
             (position[0] - self._offsets[index], position[1]))
