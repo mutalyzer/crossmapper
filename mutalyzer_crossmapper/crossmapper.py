@@ -1,41 +1,8 @@
 from .multi_locus import MultiLocus
 
 
-class Crossmap(object):
-    """Crossmap object."""
-    _noncoding_error = 'no locations provided'
-    _coding_error = 'no cds provided'
-    _position_error = 'invalid position'
-
-    def __init__(self, locations=None, cds=None, inverted=False):
-        """
-        :arg list locations: List of locus locations.
-        :arg tuple cds: Locus location.
-        :arg bool inverted: Orientation.
-        """
-        self._inverted = inverted
-
-        self._noncoding = ()
-        self._coding = ()
-
-        if locations:
-            self._noncoding = MultiLocus(locations, inverted)
-
-            if cds:
-                b0 = self._noncoding.to_position(cds[0])
-                b1 = self._noncoding.to_position(cds[1])
-
-                if self._inverted:
-                    self._coding = (b1[0] + b1[1] + 1, b0[0] + b0[1] + 1)
-                    self._cds_len = (b0[0] + b0[1]) - (b1[0] + b1[1])
-                else:
-                    self._coding = (b0[0] + b0[1], b1[0] + b1[1])
-                    self._cds_len = (b1[0] + b1[1]) - (b0[0] + b0[1])
-
-    def _check(self, condition, error):
-        if not condition:
-            raise ValueError(error)
-
+class Genomic(object):
+    """Genomic crossmap object."""
     def coordinate_to_genomic(self, coordinate):
         """Convert a coordinate to a genomic position (g./m./o.).
 
@@ -54,6 +21,18 @@ class Crossmap(object):
         """
         return position - 1
 
+
+class NonCoding(Genomic):
+    """NonCoding crossmap object."""
+    def __init__(self, locations, inverted=False):
+        """
+        :arg list locations: List of locus locations.
+        :arg bool inverted: Orientation.
+        """
+        self._inverted = inverted
+
+        self._noncoding = MultiLocus(locations, inverted)
+
     def coordinate_to_noncoding(self, coordinate):
         """Convert a coordinate to a noncoding position (n./r.).
 
@@ -61,8 +40,6 @@ class Crossmap(object):
 
         :returns tuple: Noncoding position.
         """
-        self._check(self._noncoding, self._noncoding_error)
-
         pos = self._noncoding.to_position(coordinate)
 
         return pos[0] + 1, pos[1], pos[2]
@@ -74,13 +51,31 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        self._check(self._noncoding, self._noncoding_error)
-        self._check(position[0], self._position_error)
-
         if position[0] > 0:
             return self._noncoding.to_coordinate(
                 (position[0] - 1, position[1]))
         return self._noncoding.to_coordinate(position)
+
+
+class Coding(NonCoding):
+    """Coding crossmap object."""
+    def __init__(self, locations, cds, inverted=False):
+        """
+        :arg list locations: List of locus locations.
+        :arg tuple cds: Locus location.
+        :arg bool inverted: Orientation.
+        """
+        NonCoding.__init__(self, locations, inverted)
+
+        b0 = self._noncoding.to_position(cds[0])
+        b1 = self._noncoding.to_position(cds[1])
+
+        if self._inverted:
+            self._coding = (b1[0] + b1[1] + 1, b0[0] + b0[1] + 1)
+            self._cds_len = (b0[0] + b0[1]) - (b1[0] + b1[1])
+        else:
+            self._coding = (b0[0] + b0[1], b1[0] + b1[1])
+            self._cds_len = (b1[0] + b1[1]) - (b0[0] + b0[1])
 
     def _coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a coding position (c./r.).
@@ -105,8 +100,6 @@ class Crossmap(object):
 
         :returns tuple: Coding position (c./r.).
         """
-        self._check(self._coding, self._coding_error)
-
         pos = self._coordinate_to_coding(coordinate)
 
         if degenerate and pos[3]:
@@ -126,9 +119,6 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        self._check(self._coding, self._coding_error)
-        self._check(position[0], self._position_error)
-
         if position[2] == -1:
             return self._noncoding.to_coordinate(
                 (position[0] + self._coding[0], position[1]))
@@ -145,8 +135,6 @@ class Crossmap(object):
 
         :returns tuple: Protein position (p.).
         """
-        self._check(self._coding, self._coding_error)
-
         pos = self.coordinate_to_coding(coordinate)
 
         if pos[2] == -1:
@@ -160,9 +148,6 @@ class Crossmap(object):
 
         :returns int: Coordinate.
         """
-        self._check(self._coding, self._coding_error)
-        self._check(position[0], self._position_error)
-
         if position[3] == -1:
             return self.coding_to_coordinate(
                 (3 * position[0] + position[1] - 1, *position[2:]))

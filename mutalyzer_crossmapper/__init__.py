@@ -14,7 +14,7 @@ Definitions:
 """
 from pkg_resources import get_distribution
 
-from .crossmapper import Crossmap
+from .crossmapper import Coding, Genomic, NonCoding
 from .location import nearest_location
 from .locus import Locus
 from .multi_locus import MultiLocus
