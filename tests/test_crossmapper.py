@@ -16,52 +16,6 @@ def test_Crossmap_genomic():
         crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, 99)
 
 
-#def test_Locus_degenerate_return():
-#    """Degenerate position can be retured."""
-#    locus = Locus((10, 20))
-#
-#    assert locus.to_position(9, True) == (-1, 0)
-#    assert locus.to_position(20, True) == (10, 0)
-
-
-#def test_Locus_inverted_degenerate_return():
-#    """Degenerate position can be retured."""
-#    locus = Locus((10, 20), True)
-#
-#    assert locus.to_position(20, True) == (-1, 0)
-#    assert locus.to_position(9, True) == (11, 0)
-
-
-#def test_MultiLocus_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    multi_locus = MultiLocus(_locations)
-#
-#    assert multi_locus.to_position(4, True) == (-1, 0, -1)
-#    assert multi_locus.to_position(72, True) == (23, 0, 1)
-#
-#
-#def test_MultiLocus_inverted_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    multi_locus = MultiLocus(_locations, True)
-#
-#    assert multi_locus.to_position(72, True) == (-1, 0, -1)
-#    assert multi_locus.to_position(4, True) == (23, 0, 1)
-#
-#
-#def test_MultiLocus_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    multi_locus = MultiLocus(_locations)
-#
-#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)
-#
-#
-#def test_MultiLocus_inverted_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    multi_locus = MultiLocus(_locations, True)
-#
-#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)
-
-
 def test_Crossmap_noncoding():
     """Forward oriented noncoding transcript."""
     crossmap = Crossmap(_exons)
@@ -358,36 +312,36 @@ def test_Crossmap_inverted_degenerate():
         [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
 
 
-#def test_Crossmap_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    crossmap = Crossmap([(10, 20)], (11, 19))
-#
-#    assert crossmap.coordinate_to_coding(9, True) == (-2, 0, -1, -1)
-#    assert crossmap.coordinate_to_coding(20, True) == (2, 0, 1, 1)
+def test_Crossmap_degenerate_return():
+    """Degenerate upstream and downstream positions may be returned."""
+    crossmap = Crossmap([(10, 20)], (11, 19))
+
+    assert crossmap.coordinate_to_coding(9, True) == (-2, 0, -1, -1)
+    assert crossmap.coordinate_to_coding(20, True) == (2, 0, 1, 1)
 
 
-#def test_Crossmap_inverted_degenerate_return():
-#    """Degenerate upstream and downstream positions may be returned."""
-#    crossmap = Crossmap([(10, 20)], (11, 19), True)
-#
-#    assert crossmap.coordinate_to_coding(20, True) == (-2, 0, -1, -1)
-#    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
+def test_Crossmap_inverted_degenerate_return():
+    """Degenerate upstream and downstream positions may be returned."""
+    crossmap = Crossmap([(10, 20)], (11, 19), True)
+
+    assert crossmap.coordinate_to_coding(20, True) == (-2, 0, -1, -1)
+    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
 
 
-#def test_Crossmap_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
-#
-#    assert (crossmap.coordinate_to_coding(25) ==
-#            crossmap.coordinate_to_coding(25, True))
+def test_Crossmap_degenerate_no_return():
+    """Degenerate internal positions do not exist."""
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
+
+    assert (crossmap.coordinate_to_coding(25) ==
+            crossmap.coordinate_to_coding(25, True))
 
 
-#def test_Crossmap_inverted_degenerate_no_return():
-#    """Degenerate internal positions do not exist."""
-#    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40), True)
-#
-#    assert (crossmap.coordinate_to_coding(25) ==
-#            crossmap.coordinate_to_coding(25, True))
+def test_Crossmap_inverted_degenerate_no_return():
+    """Degenerate internal positions do not exist."""
+    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40), True)
+
+    assert (crossmap.coordinate_to_coding(25) ==
+            crossmap.coordinate_to_coding(25, True))
 
 
 def test_Crossmap_no_utr_degenerate():
@@ -414,20 +368,22 @@ def test_Crossmap_inverted_no_utr_degenerate():
         [(1, 1, 0, 1), (1, 0, 1, 1), (-1, 2, -1, 1)])
 
 
-#def test_Crossmap_no_utr_degenerate_return():
-#    """UTRs may be missing."""
-#    crossmap = Crossmap([(10, 11)], (10, 11))
-#
-#    assert crossmap.coordinate_to_coding(9, True) == (-1, 0, -1, 0)
-#    assert crossmap.coordinate_to_coding(11, True) == (2, 0, 1, 0)
+def test_Crossmap_no_utr_degenerate_return():
+    """UTRs may be missing."""
+    crossmap = Crossmap([(10, 11)], (10, 11))
+
+    assert crossmap.coordinate_to_coding(8, True) == (-2, 0, -1, -2)
+    assert crossmap.coordinate_to_coding(9, True) == (-1, 0, -1, -1)
+    assert crossmap.coordinate_to_coding(11, True) == (2, 0, 1, 1)
+    assert crossmap.coordinate_to_coding(12, True) == (3, 0, 1, 2)
 
 
-#def test_Crossmap_inverted_no_utr_degenerate_return():
-#    """UTRs may be missing."""
-#    crossmap = Crossmap([(10, 11)], (10, 11), True)
-#
-#    assert crossmap.coordinate_to_coding(11, True) == (-1, 0, -1, 0)
-#    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 0)
+def test_Crossmap_inverted_no_utr_degenerate_return():
+    """UTRs may be missing."""
+    crossmap = Crossmap([(10, 11)], (10, 11), True)
+
+    assert crossmap.coordinate_to_coding(11, True) == (-1, 0, -1, -1)
+    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
 
 
 #def test_Crossmap_protein():

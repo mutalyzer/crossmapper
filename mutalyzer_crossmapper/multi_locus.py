@@ -13,7 +13,7 @@ def _offsets(locations, orientation):
 
     :returns list: List of cumulative location lengths.
     """
-    return  [0] + list(accumulate(map(
+    return [0] + list(accumulate(map(
         lambda x: x[1] - x[0], locations[::orientation][:-1])))
 
 

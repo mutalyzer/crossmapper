@@ -5,6 +5,7 @@ class Crossmap(object):
     """Crossmap object."""
     _noncoding_error = 'no locations provided'
     _coding_error = 'no cds provided'
+    _position_error = 'invalid position'
 
     def __init__(self, locations=None, cds=None, inverted=False):
         """
@@ -16,15 +17,18 @@ class Crossmap(object):
 
         self._noncoding = ()
         self._coding = ()
+
         if locations:
             self._noncoding = MultiLocus(locations, inverted)
 
             if cds:
-                self._coding = (
-                    self._noncoding.to_position(cds[0])[0] + self._noncoding.to_position(cds[0])[1],
-                    self._noncoding.to_position(cds[1])[0] + self._noncoding.to_position(cds[1])[1])
+                b0 = self._noncoding.to_position(cds[0])
+                b1 = self._noncoding.to_position(cds[1])
+
                 if self._inverted:
-                    self._coding = self._coding[1] + 1, self._coding[0] + 1
+                    self._coding = (b1[0] + b1[1] + 1, b0[0] + b0[1] + 1)
+                else:
+                    self._coding = (b0[0] + b0[1], b1[0] + b1[1])
 
     def _check(self, condition, error):
         if not condition:
@@ -57,11 +61,11 @@ class Crossmap(object):
         """
         self._check(self._noncoding, self._noncoding_error)
 
-        position = self._noncoding.to_position(coordinate)
+        pos = self._noncoding.to_position(coordinate)
 
-        if position[0] >= 0:
-            return (position[0] + 1, *position[1:])
-        return position
+        if pos[0] >= 0:
+            return pos[0] + 1, pos[1], pos[2]
+        return pos
 
     def noncoding_to_coordinate(self, position):
         """Convert a noncoding position (n./r.) to a coordinate.
@@ -71,11 +75,27 @@ class Crossmap(object):
         :returns int: Coordinate.
         """
         self._check(self._noncoding, self._noncoding_error)
+        self._check(position[0], self._position_error)
 
         if position[0] > 0:
             return self._noncoding.to_coordinate(
                 (position[0] - 1, position[1]))
         return self._noncoding.to_coordinate(position)
+
+    def _coordinate_to_coding(self, coordinate):
+        """Convert a coordinate to a coding position (c./r.).
+
+        :arg int coordinate: Coordinate.
+
+        :returns tuple: Coding position (c./r.).
+        """
+        pos = self._noncoding.to_position(coordinate)
+
+        if pos[0] < self._coding[0]:
+            return pos[0] - self._coding[0], pos[1], -1, pos[2]
+        elif pos[0] >= self._coding[1]:
+            return pos[0] - self._coding[1] + 1, pos[1], 1, pos[2]
+        return pos[0] - self._coding[0] + 1, pos[1], 0, pos[2]
 
     def coordinate_to_coding(self, coordinate, degenerate=False):
         """Convert a coordinate to a coding position (c./r.).
@@ -87,13 +107,16 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        position = self._noncoding.to_position(coordinate)
+        pos = self._coordinate_to_coding(coordinate)
 
-        if position[0] < self._coding[0]:
-            return position[0] - self._coding[0], position[1], -1, position[2]
-        elif position[0] >= self._coding[1]:
-            return position[0] - self._coding[1] + 1, position[1], 1, position[2]
-        return position[0] - self._coding[0] + 1, position[1], 0, position[2]
+        if degenerate and pos[3]:
+            region = 1 if pos[3] > 0 else -1
+
+            if pos[0] == 1 and pos[1] < 0:
+                return pos[1], 0, region, pos[3]
+            return pos[0] + pos[1], 0, region, pos[3]
+
+        return pos
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -103,6 +126,7 @@ class Crossmap(object):
         :returns int: Coordinate.
         """
         self._check(self._coding, self._coding_error)
+        self._check(position[0], self._position_error)
 
         if position[2] == -1:
             return self._noncoding.to_coordinate(
@@ -122,13 +146,11 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        position = self.coordinate_to_coding(coordinate)
+        pos = self.coordinate_to_coding(coordinate)
 
-        if not position[2]:
-            return position[0] // 3, position[0] % 3 + 1, position[1], 0
-        return (
-            (position[0] + 2) // 3, (position[0] + 2) % 3 + 1,
-            position[1], position[2])
+        if not pos[2]:
+            return pos[0] // 3, pos[0] % 3 + 1, pos[1], 0
+        return (pos[0] + 2) // 3, (pos[0] + 2) % 3 + 1, pos[1], pos[2]
 
     def protein_to_coordinate(self, position):
         """Convert a protein position (p.) to a coordinate.
@@ -138,6 +160,7 @@ class Crossmap(object):
         :returns int: Coordinate.
         """
         self._check(self._coding, self._coding_error)
+        self._check(position[0], self._position_error)
 
         if not position[3]:
             return self.coding_to_coordinate(
