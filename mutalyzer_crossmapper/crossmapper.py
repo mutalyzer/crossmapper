@@ -57,7 +57,11 @@ class Crossmap(object):
         """
         self._check(self._noncoding, self._noncoding_error)
 
-        return self._noncoding.to_position(coordinate)
+        position = self._noncoding.to_position(coordinate)
+
+        if position[0] >= 0:
+            return (position[0] + 1, *position[1:])
+        return position
 
     def noncoding_to_coordinate(self, position):
         """Convert a noncoding position (n./r.) to a coordinate.
@@ -68,6 +72,9 @@ class Crossmap(object):
         """
         self._check(self._noncoding, self._noncoding_error)
 
+        if position[0] > 0:
+            return self._noncoding.to_coordinate(
+                (position[0] - 1, position[1]))
         return self._noncoding.to_coordinate(position)
 
     def coordinate_to_coding(self, coordinate, degenerate=False):
@@ -80,13 +87,13 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        position = self._noncoding.to_position(coordinate, degenerate)
+        position = self._noncoding.to_position(coordinate)
 
         if position[0] < self._coding[0]:
-            return position[0] - self._coding[0], position[1], position[2], -1
+            return position[0] - self._coding[0], position[1], -1, position[2]
         elif position[0] >= self._coding[1]:
-            return position[0] - self._coding[1] + 1, position[1], position[2], 1
-        return position[0] - self._coding[0] + 1, position[1], position[2], 0
+            return position[0] - self._coding[1] + 1, position[1], 1, position[2]
+        return position[0] - self._coding[0] + 1, position[1], 0, position[2]
 
     def coding_to_coordinate(self, position):
         """Convert a coding position (c./r.) to a coordinate.
@@ -97,14 +104,14 @@ class Crossmap(object):
         """
         self._check(self._coding, self._coding_error)
 
-        if position[3] == -1:
+        if position[2] == -1:
             return self._noncoding.to_coordinate(
-                (position[0] + self._coding[0], *position[1:]))
-        elif position[3] == 1:
+                (position[0] + self._coding[0], position[1]))
+        elif position[2] == 1:
             return self._noncoding.to_coordinate(
-                (position[0] + self._coding[1] - 1, *position[1:]))
+                (position[0] + self._coding[1] - 1, position[1]))
         return self._noncoding.to_coordinate(
-            (position[0] + self._coding[0] - 1, *position[1:]))
+            (position[0] + self._coding[0] - 1, position[1]))
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).

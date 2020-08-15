@@ -16,14 +16,132 @@ def test_Crossmap_genomic():
         crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, 99)
 
 
+#def test_Locus_degenerate_return():
+#    """Degenerate position can be retured."""
+#    locus = Locus((10, 20))
+#
+#    assert locus.to_position(9, True) == (-1, 0)
+#    assert locus.to_position(20, True) == (10, 0)
+
+
+#def test_Locus_inverted_degenerate_return():
+#    """Degenerate position can be retured."""
+#    locus = Locus((10, 20), True)
+#
+#    assert locus.to_position(20, True) == (-1, 0)
+#    assert locus.to_position(9, True) == (11, 0)
+
+
+#def test_MultiLocus_degenerate_return():
+#    """Degenerate upstream and downstream positions may be returned."""
+#    multi_locus = MultiLocus(_locations)
+#
+#    assert multi_locus.to_position(4, True) == (-1, 0, -1)
+#    assert multi_locus.to_position(72, True) == (23, 0, 1)
+#
+#
+#def test_MultiLocus_inverted_degenerate_return():
+#    """Degenerate upstream and downstream positions may be returned."""
+#    multi_locus = MultiLocus(_locations, True)
+#
+#    assert multi_locus.to_position(72, True) == (-1, 0, -1)
+#    assert multi_locus.to_position(4, True) == (23, 0, 1)
+#
+#
+#def test_MultiLocus_degenerate_no_return():
+#    """Degenerate internal positions do not exist."""
+#    multi_locus = MultiLocus(_locations)
+#
+#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)
+#
+#
+#def test_MultiLocus_inverted_degenerate_no_return():
+#    """Degenerate internal positions do not exist."""
+#    multi_locus = MultiLocus(_locations, True)
+#
+#    assert multi_locus.to_position(10, True) == multi_locus.to_position(10)
+
+
+def test_Crossmap_noncoding():
+    """Forward oriented noncoding transcript."""
+    crossmap = Crossmap(_exons)
+
+    # Boundary between upstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding, 4,
+        crossmap.noncoding_to_coordinate, (1, -1, -1))
+    invariant(
+        crossmap.coordinate_to_noncoding, 5,
+        crossmap.noncoding_to_coordinate, (1, 0, 0))
+
+    # Boundary between downstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding, 71,
+        crossmap.noncoding_to_coordinate, (22, 0, 0))
+    invariant(
+        crossmap.coordinate_to_noncoding, 72,
+        crossmap.noncoding_to_coordinate, (22, 1, 1))
+
+
+def test_Crossmap_noncoding_inverted():
+    """Forward oriented noncoding transcript."""
+    crossmap = Crossmap(_exons, inverted=True)
+
+    # Boundary between upstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding, 72,
+        crossmap.noncoding_to_coordinate, (1, -1, -1))
+    invariant(
+        crossmap.coordinate_to_noncoding, 71,
+        crossmap.noncoding_to_coordinate, (1, 0, 0))
+
+    # Boundary between downstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding, 5,
+        crossmap.noncoding_to_coordinate, (22, 0, 0))
+    invariant(
+        crossmap.coordinate_to_noncoding, 4,
+        crossmap.noncoding_to_coordinate, (22, 1, 1))
+
+
+def test_Crossmap_noncoding_degenerate():
+    """Forward oriented noncoding transcript."""
+    crossmap = Crossmap(_exons)
+
+    # Boundary between upstream and transcript.
+    degenerate_equal(
+        crossmap.noncoding_to_coordinate, 4,
+        [(1, -1, -1), (-1, 0, -1)])
+
+    # Boundary between downstream and transcript.
+    degenerate_equal(
+        crossmap.noncoding_to_coordinate, 72,
+        [(22, 1, 1), (23, 0, 1)])
+
+
+def test_Crossmap_noncoding_inverted_degenerate():
+    """Forward oriented noncoding transcript."""
+    crossmap = Crossmap(_exons, inverted=True)
+
+    # Boundary between upstream and transcript.
+    degenerate_equal(
+        crossmap.noncoding_to_coordinate, 72,
+        [(1, -1, -1), (-1, 0, -1)])
+
+    # Boundary between downstream and transcript.
+    degenerate_equal(
+        crossmap.noncoding_to_coordinate, 4,
+        [(22, 1, 1), (23, 0, 1)])
+
+
 def test_Crossmap_coding():
-    """Forward oriented Crossmap."""
+    """Forward oriented coding transcript."""
     crossmap = Crossmap(_exons, _cds)
 
     # Boundary between 5' and CDS.
     invariant(
         crossmap.coordinate_to_coding, 31,
-        crossmap.coding_to_coordinate, (-1, 0, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 32,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -34,17 +152,17 @@ def test_Crossmap_coding():
         crossmap.coding_to_coordinate, (6, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (1, 0, 0, 1))
+        crossmap.coding_to_coordinate, (1, 0, 1, 0))
 
 
 def test_Crossmap_coding_inverted():
-    """Reverse oriented Crossmap."""
+    """Reverse oriented coding transcript."""
     crossmap = Crossmap(_exons, _cds, True)
 
     # Boundary between 5' and CDS.
     invariant(
         crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (-1, 0, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 42,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -55,7 +173,7 @@ def test_Crossmap_coding_inverted():
         crossmap.coding_to_coordinate, (6, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 31,
-        crossmap.coding_to_coordinate, (1, 0, 0, 1))
+        crossmap.coding_to_coordinate, (1, 0, 1, 0))
 
 
 def test_Crossmap_coding_regions():
@@ -65,7 +183,7 @@ def test_Crossmap_coding_regions():
     # Upstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 25,
-        crossmap.coding_to_coordinate, (-1, 5, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 5, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 26,
         crossmap.coding_to_coordinate, (1, -4, 0, 0))
@@ -76,7 +194,7 @@ def test_Crossmap_coding_regions():
         crossmap.coding_to_coordinate, (10, 5, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 45,
-        crossmap.coding_to_coordinate, (1, -4, 0, 1))
+        crossmap.coding_to_coordinate, (1, -4, 1, 0))
 
 
 def test_Crossmap_coding_regions_inverted():
@@ -86,7 +204,7 @@ def test_Crossmap_coding_regions_inverted():
     # Upstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 44,
-        crossmap.coding_to_coordinate, (-1, 5, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 5, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 43,
         crossmap.coding_to_coordinate, (1, -4, 0, 0))
@@ -97,7 +215,7 @@ def test_Crossmap_coding_regions_inverted():
         crossmap.coding_to_coordinate, (10, 5, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 24,
-        crossmap.coding_to_coordinate, (1, -4, 0, 1))
+        crossmap.coding_to_coordinate, (1, -4, 1, 0))
 
 
 def test_Crossmap_coding_no_utr5():
@@ -107,7 +225,7 @@ def test_Crossmap_coding_no_utr5():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (1, -1, -1, 0))
+        crossmap.coding_to_coordinate, (1, -1, 0, -1))
     invariant(
         crossmap.coordinate_to_coding, 10,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -120,7 +238,7 @@ def test_Crossmap_coding_no_utr5_inverted():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (1, -1, -1, 0))
+        crossmap.coding_to_coordinate, (1, -1, 0, -1))
     invariant(
         crossmap.coordinate_to_coding, 19,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -136,7 +254,7 @@ def test_Crossmap_coding_no_utr3():
         crossmap.coding_to_coordinate, (5, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (5, 1, 1, 0))
+        crossmap.coding_to_coordinate, (5, 1, 0, 1))
 
 
 def test_Crossmap_coding_no_utr3_inverted():
@@ -149,7 +267,7 @@ def test_Crossmap_coding_no_utr3_inverted():
         crossmap.coding_to_coordinate, (5, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (5, 1, 1, 0))
+        crossmap.coding_to_coordinate, (5, 1, 0, 1))
 
 
 def test_Crossmap_coding_small_utr5():
@@ -162,7 +280,7 @@ def test_Crossmap_coding_small_utr5():
         crossmap.coding_to_coordinate, (-1, -1, -1, -1))
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (-1, 0, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 11,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -178,7 +296,7 @@ def test_Crossmap_coding_small_utr5_inverted():
         crossmap.coding_to_coordinate, (-1, -1, -1, -1))
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (-1, 0, 0, -1))
+        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
     invariant(
         crossmap.coordinate_to_coding, 18,
         crossmap.coding_to_coordinate, (1, 0, 0, 0))
@@ -194,7 +312,7 @@ def test_Crossmap_coding_small_utr3():
         crossmap.coding_to_coordinate, (4, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (1, 0, 0, 1))
+        crossmap.coding_to_coordinate, (1, 0, 1, 0))
     invariant(
         crossmap.coordinate_to_coding, 20,
         crossmap.coding_to_coordinate, (1, 1, 1, 1))
@@ -210,153 +328,106 @@ def test_Crossmap_coding_small_utr3_inverted():
         crossmap.coding_to_coordinate, (4, 0, 0, 0))
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (1, 0, 0, 1))
+        crossmap.coding_to_coordinate, (1, 0, 1, 0))
     invariant(
         crossmap.coordinate_to_coding, 9,
         crossmap.coding_to_coordinate, (1, 1, 1, 1))
 
 
-#def test_Crossmap_degenerate():
-#    """Degenerate upstream and downstream positions are silently corrected."""
-#    crossmap = Crossmap([(10, 20)], (11, 19))
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 9,
-#        [(-1, -1, -1, -1), (-2, 0, -1, -1), (-2, 0, -2, 0), (1, -2, -1, 0)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 20,
-#        [(1, 1, 1, 1), (2, 0, 1, 1), (10, 0, 2, 0), (8, 2, 2, 0)])
-#
-#
-#def test_Crossmap_inverted_degenerate():
-#    """Degenerate upstream and downstream positions are silently corrected."""
-#    crossmap = Crossmap([(10, 20)], (11, 19), True)
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 20,
-#        [(-1, -1, -1, -1), (-2, 0, -1, -1), (-2, 0, -2, 0), (1, -2, -1, 0)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 9,
-#        [(1, 1, 1, 1), (2, 0, 1, 1), (10, 0, 2, 0), (8, 2, 2, 0)])
-#
-#
+def test_Crossmap_degenerate():
+    """Degenerate upstream and downstream positions are silently corrected."""
+    crossmap = Crossmap([(10, 20)], (11, 19))
+
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 9,
+        [(-1, -1, -1, -1), (-2, 0, -1, -1), (1, -2, 0, -1), (1, -10, 1, -1)])
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 20,
+        [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
+
+
+def test_Crossmap_inverted_degenerate():
+    """Degenerate upstream and downstream positions are silently corrected."""
+    crossmap = Crossmap([(10, 20)], (11, 19), True)
+
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 20,
+        [(-1, -1, -1, -1), (-2, 0, -1, -1), (1, -2, 0, -1), (1, -10, 1, -1)])
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 9,
+        [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
+
+
 #def test_Crossmap_degenerate_return():
 #    """Degenerate upstream and downstream positions may be returned."""
 #    crossmap = Crossmap([(10, 20)], (11, 19))
 #
 #    assert crossmap.coordinate_to_coding(9, True) == (-2, 0, -1, -1)
 #    assert crossmap.coordinate_to_coding(20, True) == (2, 0, 1, 1)
-#
-#
+
+
 #def test_Crossmap_inverted_degenerate_return():
 #    """Degenerate upstream and downstream positions may be returned."""
 #    crossmap = Crossmap([(10, 20)], (11, 19), True)
 #
 #    assert crossmap.coordinate_to_coding(20, True) == (-2, 0, -1, -1)
 #    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
-#
-#
+
+
 #def test_Crossmap_degenerate_no_return():
 #    """Degenerate internal positions do not exist."""
 #    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40))
 #
 #    assert (crossmap.coordinate_to_coding(25) ==
 #            crossmap.coordinate_to_coding(25, True))
-#
-#
+
+
 #def test_Crossmap_inverted_degenerate_no_return():
 #    """Degenerate internal positions do not exist."""
 #    crossmap = Crossmap([(10, 20), (30, 40)], (10, 40), True)
 #
 #    assert (crossmap.coordinate_to_coding(25) ==
 #            crossmap.coordinate_to_coding(25, True))
-#
-#
-#def test_Crossmap_regions_degenerate_no_return():
-#    """Degenerate positions do not exist between regions."""
-#    crossmap = Crossmap([(10, 21), (30, 40), (49, 60)], (30, 40))
-#
-#    assert (crossmap.coordinate_to_coding(25) ==
-#            crossmap.coordinate_to_coding(25, True))
-#
-#
-#def test_Crossmap_inverted_regions_degenerate_no_return():
-#    """Degenerate positions do not exist between regions."""
-#    crossmap = Crossmap([(10, 21), (30, 40), (49, 60)], (30, 40), True)
-#
-#    assert (crossmap.coordinate_to_coding(25) ==
-#            crossmap.coordinate_to_coding(25, True))
-#
-#
-#def test_Crossmap_no_utr_degenerate():
-#    """UTRs may be missing."""
-#    crossmap = Crossmap([(10, 11)], (10, 11))
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 9, [(1, -1, -1, 0), (-1, 0, -1, 0)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 11, [(1, 1, 1, 0), (2, 0, 1, 0)])
-#
-#
+
+
+def test_Crossmap_no_utr_degenerate():
+    """UTRs may be missing."""
+    crossmap = Crossmap([(10, 11)], (10, 11))
+
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 9,
+        [(1, -1, 0, -1), (-1, 0, -1, -1), (1, -2, 1, -1)])
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 11,
+        [(1, 1, 0, 1), (1, 0, 1, 1), (-1, 2, -1, 1)])
+
+
+def test_Crossmap_inverted_no_utr_degenerate():
+    """UTRs may be missing."""
+    crossmap = Crossmap([(10, 11)], (10, 11), True)
+
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 11,
+        [(1, -1, 0, -1), (-1, 0, -1, -1), (1, -2, 1, -1)])
+    degenerate_equal(
+        crossmap.coding_to_coordinate, 9,
+        [(1, 1, 0, 1), (1, 0, 1, 1), (-1, 2, -1, 1)])
+
+
 #def test_Crossmap_no_utr_degenerate_return():
 #    """UTRs may be missing."""
 #    crossmap = Crossmap([(10, 11)], (10, 11))
 #
 #    assert crossmap.coordinate_to_coding(9, True) == (-1, 0, -1, 0)
 #    assert crossmap.coordinate_to_coding(11, True) == (2, 0, 1, 0)
-#
-#
-#def test_Crossmap_inverted_no_utr_degenerate():
-#    """UTRs may be missing."""
-#    crossmap = Crossmap([(10, 11)], (10, 11), True)
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 11, [(1, -1, -1, 0), (-1, 0, -1, 0)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 9, [(1, 1, 1, 0), (2, 0, 1, 0)])
-#
-#
+
+
 #def test_Crossmap_inverted_no_utr_degenerate_return():
 #    """UTRs may be missing."""
 #    crossmap = Crossmap([(10, 11)], (10, 11), True)
 #
 #    assert crossmap.coordinate_to_coding(11, True) == (-1, 0, -1, 0)
 #    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 0)
-#
-#
-#def test_Crossmap_small_utr_degenerate():
-#    """UTRs may be small."""
-#    crossmap = Crossmap([(9, 12)], (10, 11))
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 8, [(-1, -1, -1, -1), (-2, 0, -1, -1)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 12, [(1, 1, 1, 1), (2, 0, 1, 1)])
-#
-#def test_Crossmap_small_utr_degenerate_return():
-#    """UTRs may be small."""
-#    crossmap = Crossmap([(9, 12)], (10, 11))
-#
-#    assert crossmap.coordinate_to_coding(8, True) == (-2, 0, -1, -1)
-#    assert crossmap.coordinate_to_coding(12, True) == (2, 0, 1, 1)
-#
-#
-#def test_Crossmap_inverted_small_utr_degenerate():
-#    """UTRs may be small."""
-#    crossmap = Crossmap([(9, 12)], (10, 11), True)
-#
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 12, [(-1, -1, -1, -1), (-2, 0, -1, -1)])
-#    degenerate_equal(
-#        crossmap.coding_to_coordinate, 8, [(1, 1, 1, 1), (2, 0, 1, 1)])
-#
-#
-#def test_Crossmap_inverted_small_utr_degenerate_return():
-#    """UTRs may be small."""
-#    crossmap = Crossmap([(9, 12)], (10, 11), True)
-#
-#    assert crossmap.coordinate_to_coding(12, True) == (-2, 0, -1, -1)
-#    assert crossmap.coordinate_to_coding(8, True) == (2, 0, 1, 1)
 
 
 #def test_Crossmap_protein():

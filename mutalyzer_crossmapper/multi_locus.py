@@ -49,7 +49,7 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate, degenerate=False):
+    def to_position(self, coordinate):
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
