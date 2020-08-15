@@ -63,9 +63,7 @@ class Crossmap(object):
 
         pos = self._noncoding.to_position(coordinate)
 
-        if pos[0] >= 0:
-            return pos[0] + 1, pos[1], pos[2]
-        return pos
+        return pos[0] + 1, pos[1], pos[2]
 
     def noncoding_to_coordinate(self, position):
         """Convert a noncoding position (n./r.) to a coordinate.

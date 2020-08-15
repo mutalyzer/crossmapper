@@ -1,6 +1,6 @@
 from mutalyzer_crossmapper import Crossmap
 
-from helper import degenerate_equal, invariant
+from helper import degenerate_equal, invariant, raise_error
 
 _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 _cds = (32, 43)
@@ -14,6 +14,26 @@ def test_Crossmap_genomic():
         crossmap.coordinate_to_genomic, 0, crossmap.genomic_to_coordinate, 1)
     invariant(
         crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, 99)
+
+
+def test_Crossmap_genomic_unavailable():
+    """Unavailable conversions should raise an error."""
+    crossmap = Crossmap()
+
+    # Noncoding conversions are not available.
+    raise_error(crossmap.coordinate_to_noncoding, 0, Crossmap._noncoding_error)
+    raise_error(
+        crossmap.noncoding_to_coordinate, (1, 0), Crossmap._noncoding_error)
+
+    # Coding conversions are not available.
+    raise_error(crossmap.coordinate_to_coding, 0, Crossmap._coding_error)
+    raise_error(
+        crossmap.coding_to_coordinate, (1, 0, 0), Crossmap._coding_error)
+
+    # Protein conversions are not available.
+    raise_error(crossmap.coordinate_to_protein, 0, Crossmap._coding_error)
+    raise_error(
+        crossmap.protein_to_coordinate, (1, 0, 0, 0), Crossmap._coding_error)
 
 
 def test_Crossmap_noncoding():
@@ -86,6 +106,29 @@ def test_Crossmap_noncoding_inverted_degenerate():
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 4,
         [(22, 1, 1), (23, 0, 1)])
+
+
+def test_Crossmap_noncoding_unavailable():
+    """Unavailable conversions should raise an error."""
+    crossmap = Crossmap(_exons)
+
+    # Coding conversions are not available.
+    raise_error(crossmap.coordinate_to_coding, 0, Crossmap._coding_error)
+    raise_error(
+        crossmap.coding_to_coordinate, (1, 0, 0), Crossmap._coding_error)
+
+    # Protein conversions are not available.
+    raise_error(crossmap.coordinate_to_protein, 0, Crossmap._coding_error)
+    raise_error(
+        crossmap.protein_to_coordinate, (1, 0, 0, 0), Crossmap._coding_error)
+
+
+def test_Crossmap_noncoding_invalid():
+    """Invalid positions should raise an error."""
+    crossmap = Crossmap(_exons)
+
+    raise_error(
+        crossmap.noncoding_to_coordinate, (0, 0), Crossmap._position_error)
 
 
 def test_Crossmap_coding():
@@ -386,6 +429,14 @@ def test_Crossmap_inverted_no_utr_degenerate_return():
     assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
 
 
+def test_Crossmap_coding_invalid():
+    """Invalid positions should raise an error."""
+    crossmap = Crossmap(_exons, _cds)
+
+    raise_error(
+        crossmap.coding_to_coordinate, (0, 0, 0), Crossmap._position_error)
+
+
 def test_Crossmap_protein():
     """Protein positions."""
     crossmap = Crossmap(_exons, _cds)
@@ -413,3 +464,11 @@ def test_Crossmap_protein():
     invariant(
         crossmap.coordinate_to_protein, 43,
         crossmap.protein_to_coordinate, (1, 1, 0, 1, 0))
+
+
+def test_Crossmap_protein_invalid():
+    """Invalid positions should raise an error."""
+    crossmap = Crossmap(_exons, _cds)
+
+    raise_error(
+        crossmap.protein_to_coordinate, (0, 0, 0, 0), Crossmap._position_error)
