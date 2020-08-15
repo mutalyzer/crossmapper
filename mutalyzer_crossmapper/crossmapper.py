@@ -148,9 +148,9 @@ class Crossmap(object):
 
         pos = self.coordinate_to_coding(coordinate)
 
-        if not pos[2]:
-            return pos[0] // 3, pos[0] % 3 + 1, pos[1], 0
-        return (pos[0] + 2) // 3, (pos[0] + 2) % 3 + 1, pos[1], pos[2]
+        if pos[2] == -1:
+            return (pos[0] // 3, pos[0] % 3 + 1, *pos[1:])
+        return ((pos[0] + 2) // 3, (pos[0] + 2) % 3 + 1, *pos[1:])
 
     def protein_to_coordinate(self, position):
         """Convert a protein position (p.) to a coordinate.
@@ -162,9 +162,9 @@ class Crossmap(object):
         self._check(self._coding, self._coding_error)
         self._check(position[0], self._position_error)
 
-        if not position[3]:
+        if position[3] == -1:
             return self.coding_to_coordinate(
-                (position[0] * 3 + position[1] - 1, position[2], position[3]))
+                (3 * position[0] + position[1] - 1, *position[2:]))
 
         return self.coding_to_coordinate(
-            (position[0] * 3 - 3 + position[1], position[2], position[3]))
+            (3 * position[0] + position[1] - 3, *position[2:]))

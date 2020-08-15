@@ -386,27 +386,30 @@ def test_Crossmap_inverted_no_utr_degenerate_return():
     assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
 
 
-#def test_Crossmap_protein():
-#    crossmap = Crossmap(_exons, _cds)
-#
-#    invariant(
-#        crossmap.coordinate_to_protein, 31,
-#        crossmap.protein_to_coordinate, (-1, 3, 0, 0))
-#    invariant(
-#        crossmap.coordinate_to_protein, 32,
-#        crossmap.protein_to_coordinate, (1, 1, 0, 1))
-#    invariant(
-#        crossmap.coordinate_to_protein, 34,
-#        crossmap.protein_to_coordinate, (1, 3, 0, 1))
-#    invariant(
-#        crossmap.coordinate_to_protein, 36,
-#        crossmap.protein_to_coordinate, (1, 3, 2, 1))
-#    invariant(
-#        crossmap.coordinate_to_protein, 40,
-#        crossmap.protein_to_coordinate, (2, 1, 0, 1))
-#    invariant(
-#        crossmap.coordinate_to_protein, 42,
-#        crossmap.protein_to_coordinate, (2, 3, 0, 1))
-#    invariant(
-#        crossmap.coordinate_to_protein, 43,
-#        crossmap.protein_to_coordinate, (1, 1, 0, 2))
+def test_Crossmap_protein():
+    """Protein positions."""
+    crossmap = Crossmap(_exons, _cds)
+
+    # Boundary between 5' UTR and CDS.
+    invariant(
+        crossmap.coordinate_to_protein, 31,
+        crossmap.protein_to_coordinate, (-1, 3, 0, -1, 0))
+    invariant(
+        crossmap.coordinate_to_protein, 32,
+        crossmap.protein_to_coordinate, (1, 1, 0, 0, 0))
+
+    # Intron boundary.
+    invariant(
+        crossmap.coordinate_to_protein, 34,
+        crossmap.protein_to_coordinate, (1, 3, 0, 0, 0))
+    invariant(
+        crossmap.coordinate_to_protein, 35,
+        crossmap.protein_to_coordinate, (1, 3, 1, 0, 0))
+
+    # Boundary between CDS and 3' UTR.
+    invariant(
+        crossmap.coordinate_to_protein, 42,
+        crossmap.protein_to_coordinate, (2, 3, 0, 0, 0))
+    invariant(
+        crossmap.coordinate_to_protein, 43,
+        crossmap.protein_to_coordinate, (1, 1, 0, 1, 0))
