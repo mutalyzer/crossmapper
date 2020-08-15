@@ -27,8 +27,10 @@ class Crossmap(object):
 
                 if self._inverted:
                     self._coding = (b1[0] + b1[1] + 1, b0[0] + b0[1] + 1)
+                    self._cds_len = (b0[0] + b0[1]) - (b1[0] + b1[1])
                 else:
                     self._coding = (b0[0] + b0[1], b1[0] + b1[1])
+                    self._cds_len = (b1[0] + b1[1]) - (b0[0] + b0[1])
 
     def _check(self, condition, error):
         if not condition:
@@ -108,11 +110,12 @@ class Crossmap(object):
         pos = self._coordinate_to_coding(coordinate)
 
         if degenerate and pos[3]:
-            region = 1 if pos[3] > 0 else -1
-
-            if pos[0] == 1 and pos[1] < 0:
-                return pos[1], 0, region, pos[3]
-            return pos[0] + pos[1], 0, region, pos[3]
+            if pos[2] == 0:
+                if pos[0] == 1 and pos[1] < 0:
+                    return pos[1], 0, -1, pos[3]
+                if pos[0] == self._cds_len and pos[1] > 0:
+                    return pos[0] + pos[1] - self._cds_len, 0, 1, pos[3]
+            return pos[0] + pos[1], 0, pos[2], pos[3]
 
         return pos
 

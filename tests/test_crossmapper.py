@@ -417,8 +417,8 @@ def test_Crossmap_no_utr_degenerate_return():
 
     assert crossmap.coordinate_to_coding(8, True) == (-2, 0, -1, -2)
     assert crossmap.coordinate_to_coding(9, True) == (-1, 0, -1, -1)
-    assert crossmap.coordinate_to_coding(11, True) == (2, 0, 1, 1)
-    assert crossmap.coordinate_to_coding(12, True) == (3, 0, 1, 2)
+    assert crossmap.coordinate_to_coding(11, True) == (1, 0, 1, 1)
+    assert crossmap.coordinate_to_coding(12, True) == (2, 0, 1, 2)
 
 
 def test_Crossmap_inverted_no_utr_degenerate_return():
@@ -426,7 +426,7 @@ def test_Crossmap_inverted_no_utr_degenerate_return():
     crossmap = Crossmap([(10, 11)], (10, 11), True)
 
     assert crossmap.coordinate_to_coding(11, True) == (-1, 0, -1, -1)
-    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
+    assert crossmap.coordinate_to_coding(9, True) == (1, 0, 1, 1)
 
 
 def test_Crossmap_coding_invalid():
