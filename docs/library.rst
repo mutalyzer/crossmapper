@@ -4,45 +4,16 @@ Library
 The library provides a number of classes to perform various conversions.
 
 
-The ``Crossmap`` class
-----------------------
+The ``Genomic`` class
+---------------------
 
-The ``Crossmap`` class provides an interface to all conversions between
-positioning systems and coordinates. Conversions between positioning systems
-should be done via a coordinate.
-
-.. code:: python
-
-    >>> from mutalyzer_crossmapper import Crossmap
-
-The constructor takes several optional parameters, these determine which types
-of conversions can be done.
-
-.. list-table:: Constructor parameters.
-   :header-rows: 1
-
-   * - name
-     - description
-     - default
-   * - ``locations``
-     - List of locations ``(start, end)`` of exons.
-     - ``None``
-   * - ``cds``
-     - Location ``(start, end)`` of the CDS.
-     - ``None``
-   * - ``inverted``
-     - Orientation.
-     - ``False``
-
-No transcripts
-^^^^^^^^^^^^^^
-
-When no parameters are provided to the constructor, only conversions concerning
-genomic positions are availabe.
+The ``Genomic`` class provides an interface to conversions between genomic
+positions and coordinates.
 
 .. code:: python
 
-    >>> crossmap = Crossmap()
+    >>> from mutalyzer_crossmapper import Genomic
+    >>> crossmap = Genomic()
 
 The functions ``coordinate_to_genomic()`` and ``genomic_to_coordinate`` can be
 used to convert to and from genomic positions.
@@ -54,19 +25,24 @@ used to convert to and from genomic positions.
     >>> crossmap.genomic_to_coordinate(1)
     0
 
-Noncoding transcripts
-^^^^^^^^^^^^^^^^^^^^^
+See :doc:`api/crossmap` for a detailed description.
 
-When a list of exon boundary coordinates is passed to the constructor,
-conversions concerning noncoding transcripts are available.
+The ``NonCoding`` class
+-----------------------
+
+On top of the functionality provided by the ``Genomic`` class, the
+``NonCoding`` class provides an interface to conversions between noncoding
+positions and coordinates. Conversions between positioning systems should be
+done via a coordinate.
 
 .. code:: python
 
+    >>> from mutalyzer_crossmapper import NonCoding
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-    >>> crossmap = Crossmap(exons)
+    >>> crossmap = NonCoding(exons)
 
 Now the functions ``coordinate_to_noncoding()`` and
-``noncoding_to_coordinate()`` can be used. These functions use a 2-tuple to
+``noncoding_to_coordinate()`` can be used. These functions use a 3-tuple to
 represent a noncoding position.
 
 .. _table_noncoding:
@@ -79,6 +55,8 @@ represent a noncoding position.
      - Transcript position.
    * - 1
      - Offset.
+   * - 2
+     - Upstream or downstream offset.
 
 In our example, the HGVS position "g.36" (coordinate ``35``) is equivalent to
 position "n.14+1". We can convert between these two as follows.
@@ -86,7 +64,23 @@ position "n.14+1". We can convert between these two as follows.
 .. code:: python
 
     >>> crossmap.coordinate_to_noncoding(35)
-    (14, 1)
+    (14, 1, 0)
+
+When the coordinate is upstream or downstream of the transcript, the last
+element of the tuple denotes the offset with respect to the transcript. This
+makes it possible to distinguish between intronic positions and those outside
+of the transcript.
+
+.. code:: python
+
+    >>> crossmap.coordinate_to_noncoding(2)
+    (1, -3, -3)
+    >>> crossmap.coordinate_to_noncoding(73)
+    (22, 2, 2)
+
+Note that this last element is optional (and ignored) when a conversion to a
+coordinate is requested.
+
     >>> crossmap.noncoding_to_coordinate((14, 1))
     35
 
@@ -96,26 +90,30 @@ parameter should be set to ``True``. In our example, HGVS position "g.36"
 
 .. code:: python
 
-    >>> crossmap = Crossmap(exons, inverted=True)
+    >>> crossmap = NonCoding(exons, inverted=True)
     >>> crossmap.coordinate_to_noncoding(35)
-    (9, -1)
+    (9, -1, 0)
     >>> crossmap.noncoding_to_coordinate((9, -1))
     35
 
-Coding transcripts
-^^^^^^^^^^^^^^^^^^
+See :doc:`api/crossmap` for a detailed description.
 
-When both a list of exon boundary coordinates, as well as the CDS coordinates
-are passed to the constructor, conversions concerning coding transcripts are
-available.
+The ``Coding`` class
+--------------------
+
+The ``Coding`` class provides an interface to all conversions between
+positioning systems and coordinates. Conversions between positioning systems
+should be done via a coordinate.
 
 .. code:: python
 
+    >>> from mutalyzer_crossmapper import Coding
+    >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> cds = (32, 43)
-    >>> crossmap = Crossmap(exons, cds)
+    >>> crossmap = Coding(exons, cds)
 
 Now the functions ``coordinate_to_coding()`` and ``coding_to_coordinate()`` can
-be used. These functions use a 3-tuple to represent a coding position.
+be used. These functions use a 4-tuple to represent a coding position.
 
 .. list-table:: Coding positions.
    :header-rows: 1
@@ -128,6 +126,8 @@ be used. These functions use a 3-tuple to represent a coding position.
      - Offset.
    * - 2
      - Region.
+   * - 3
+     - Upstream or downstream offset.
 
 The region denotes the location of the position with respect to the CDS. This
 is needed in order to work with the HGVS "-" and "*" positions.
@@ -138,13 +138,13 @@ is needed in order to work with the HGVS "-" and "*" positions.
    * - value
      - description
      - HGVS example
-   * - ``0``
+   * - ``-1``
      - Upstream of the CDS.
      - "c.-10"
-   * - ``1``
+   * - ``0``
      - In the CDS.
      - "c.1"
-   * - ``2``
+   * - ``1``
      - Downstream of the CDS.
      - "c.*10"
 
@@ -154,12 +154,12 @@ position "c.-1". We can convert between these two as follows.
 .. code:: python
 
     >>> crossmap.coordinate_to_coding(31)
-    (-1, 0, 0)
-    >>> crossmap.coding_to_coordinate((-1, 0, 0))
+    (-1, 0, -1, 0)
+    >>> crossmap.coding_to_coordinate((-1, 0, -1))
     31
 
 Additionally, the functions ``coordinate_to_protein()`` and
-``protein_to_coordinate()`` can be used. These functions use a 4-tuple to
+``protein_to_coordinate()`` can be used. These functions use a 5-tuple to
 represent a protein position.
 
 .. list-table:: Protein positions.
@@ -175,6 +175,8 @@ represent a protein position.
      - Offset.
    * - 3
      - Region.
+   * - 4
+     - Upstream or downstream offset.
 
 In our example the HGVS position "g.42" (coordinate ``41``) corresponds with
 position "p.2". We can convert between these to as follows.
@@ -217,11 +219,39 @@ when the offset equals ``0`` and the region equals ``1``.
      - Downstream position.
      - invalid
 
+See :doc:`api/crossmap` for a detailed description.
+
+Locations
+---------
+
+In many cases we need to know the nearest location with respect to a
+coordinate. For example, we need to know where the nearest exon is when we want
+to describe a position in an intron. The ``nearest_location()`` can be used to
+do exactly this.
+
+.. code:: python
+
+    >>> from mutalyzer_crossmapper import nearest_location
+    >>> nearest_location(exons, 37)
+    2
+    >>> nearest_location(exons, 38)
+    3
+
+Notice that coordinate ``37`` is in the center of intron 2. By default
+``nearest_location()`` will return the left location in case of a draw. This
+behaviour can be altered by as follows.
+
+.. code:: python
+
+    >>> nearest_location(exons, 37, 1)
+    3
+
+See :doc:`api/location` for a detailed description.
 
 Basic classes
 -------------
 
-The ``Crossmap`` class makes use of a number of basic classes described in this
+The ``Coding`` class makes use of a number of basic classes described in this
 section.
 
 The ``Locus`` class
@@ -237,7 +267,7 @@ locus.
 
 This class provides the functions ``to_position()`` and ``to_coordinate()`` for
 converting from a locus position to a coordinate and vice versa. These
-functions work with a 2-tuple, see the section about `Noncoding transcripts`_
+functions work with a 2-tuple, see the section about `The NonCoding class`_
 for the semantics.
 
 .. code:: python
@@ -247,6 +277,8 @@ for the semantics.
 
 For loci that reside on the reverse complement strand, the optional
 ``inverted`` constructor parameter should be set to ``True``.
+
+See :doc:`api/locus` for a detailed description.
 
 The ``MultiLocus`` class
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -267,3 +299,5 @@ The interface to this class is similar to that of the ``Locus`` class.
     (10, 3)
     >>> multilocus.to_position(38)
     (11, -2)
+
+See :doc:`api/multi_locus` for a detailed description.
