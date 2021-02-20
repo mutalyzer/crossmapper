@@ -45,53 +45,60 @@ Please see ReadTheDocs_ for the latest documentation.
 Quick start
 -----------
 
-The ``Crossmap`` class provides an interface to all conversions between
-positioning systems.
+The ``Genomic`` class provides an interface to conversions between genomic
+positions and coordinates.
 
 .. code:: python
 
-    >>> from mutalyzer_crossmapper import Crossmap
-
-When initialised with no gene information, the only conversions available are
-those between genomic positions and standard coordinates.
-
-.. code:: python
-
-    >>> crossmap = Crossmap()
+    >>> from mutalyzer_crossmapper import Genomic
+    >>> crossmap = Genomic()
     >>> crossmap.coordinate_to_genomic(0)
     1
     >>> crossmap.genomic_to_coordinate(1)
     0
 
-When initialised with only exon information, conversions to and from noncoding
-positions are available as well.
+On top of the functionality provided by the ``Genomic`` class, the
+``NonCoding`` class provides an interface to conversions between noncoding
+positions and coordinates.
 
 .. code:: python
 
+    >>> from mutalyzer_crossmapper import NonCoding
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-    >>> crossmap = Crossmap(exons)
+    >>> crossmap = NonCoding(exons)
     >>> crossmap.coordinate_to_noncoding(35)
-    (14, 1)
+    (14, 1, 0)
     >>> crossmap.noncoding_to_coordinate((14, 1))
     35
 
 Add the flag ``inverted=True`` to the constructor when the transcript resides
 on the reverse complement strand.
 
-When initialised with both exon information as well as a CDS, conversions to
-and from coding positions and protein positions are available as well.
+On top of the functionality provided by the ``NonCoding`` class, the ``Coding``
+class provides an interface to conversions between coding positions and
+coordinates as well as conversions between protein positions and coordinates.
 
 .. code:: python
 
+    >>> from mutalyzer_crossmapper import Coding
     >>> cds = (32, 43)
-    >>> crossmap = Crossmap(exons, cds)
+    >>> crossmap = Coding(exons, cds)
     >>> crossmap.coordinate_to_coding(31)
-    (-1, 0, 0)
-    >>> crossmap.coding_to_coordinate((-1, 0, 0))
+    (-1, 0, -1, 0)
+    >>> crossmap.coding_to_coordinate((-1, 0, -1))
     31
 
 Again, the flag ``inverted=True`` can be used for transcripts that reside on
 the reverse complement strand.
+
+Conversions between protein positions and coordinates are done as follows.
+
+.. code:: python
+
+    >>> crossmap.coordinate_to_protein(41)
+    (2, 2, 0, 0, 0)
+    >>> crossmap.protein_to_coordinate((2, 2, 0, 0))
+    41
 
 
 .. _numbering: http://varnomen.hgvs.org/bg-material/numbering/

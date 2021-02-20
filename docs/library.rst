@@ -196,12 +196,13 @@ position "p.2". We can convert between these to as follows.
 .. code:: python
 
     >>> crossmap.coordinate_to_protein(41)
-    (2, 2, 0, 1)
-    >>> crossmap.protein_to_coordinate((2, 2, 0, 1))
+    (2, 2, 0, 0, 0)
+    >>> crossmap.protein_to_coordinate((2, 2, 0, 0))
     41
 
 Note that the protein position only corresponds with the HGVS "p." notation
-when the offset equals ``0`` and the region equals ``1``.
+when the offset equals ``0`` and the region equals ``1``. In the following
+table, we show a number of annotated examples.
 
 .. list-table:: Protein positions examples.
    :header-rows: 1
@@ -211,23 +212,23 @@ when the offset equals ``0`` and the region equals ``1``.
      - description
      - HGVS position
    * - ``31``
-     - ``(-1, 3, 0, 0)``
+     - ``(-1, 3, 0, -1, 0)``
      - Upstream position.
      - invalid
    * - ``36``
-     - ``(1, 3, 2, 1)``
+     - ``(1, 3, 2, 0, 0)``
      - Intronic position.
      - invalid
    * - ``40``
-     - ``(2, 1, 0, 1)``
+     - ``(2, 1, 0, 0, 0)``
      - Second amino acid, first nucleotide.
      - "p.2"
    * - ``41``
-     - ``(2, 2, 0, 1)``
+     - ``(2, 2, 0, 0, 0)``
      - Second amino acid, second nucleotide.
      - "p.2"
    * - ``43``
-     - ``(1, 1, 0, 2)``
+     - ``(1, 1, 0, 1, 0)``
      - Downstream position.
      - invalid
 
