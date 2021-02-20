@@ -112,8 +112,9 @@ should be done via a coordinate.
     >>> cds = (32, 43)
     >>> crossmap = Coding(exons, cds)
 
-Now the functions ``coordinate_to_coding()`` and ``coding_to_coordinate()`` can
-be used. These functions use a 4-tuple to represent a coding position.
+On top of the functionality provided by the ``NonCoding`` class, the functions
+``coordinate_to_coding()`` and ``coding_to_coordinate()`` can be used. These
+functions use a 4-tuple to represent a coding position.
 
 .. list-table:: Coding positions.
    :header-rows: 1
@@ -157,6 +158,17 @@ position "c.-1". We can convert between these two as follows.
     (-1, 0, -1, 0)
     >>> crossmap.coding_to_coordinate((-1, 0, -1))
     31
+
+The ``coordinate_to_coding()`` function accepts an optional ``degenerate``
+argument. When set to ``True``, positions outside of the transcript are no
+longer described using the offset notation.
+
+.. code:: python
+
+    >>> crossmap.coordinate_to_coding(4)
+    (-11, -1, -1, -1)
+    >>> crossmap.coordinate_to_coding(4, True)
+    (-12, 0, -1, -1)
 
 Additionally, the functions ``coordinate_to_protein()`` and
 ``protein_to_coordinate()`` can be used. These functions use a 5-tuple to
@@ -239,7 +251,7 @@ do exactly this.
 
 Notice that coordinate ``37`` is in the center of intron 2. By default
 ``nearest_location()`` will return the left location in case of a draw. This
-behaviour can be altered by as follows.
+behaviour can be altered by setting the optional argument ``p`` to ``1``.
 
 .. code:: python
 
