@@ -25,7 +25,7 @@ used to convert to and from genomic positions.
     >>> crossmap.genomic_to_coordinate(1)
     0
 
-See :doc:`api/crossmap` for a detailed description.
+See section :doc:`api/crossmap` for a detailed description.
 
 The ``NonCoding`` class
 -----------------------
@@ -96,7 +96,7 @@ parameter should be set to ``True``. In our example, HGVS position "g.36"
     >>> crossmap.noncoding_to_coordinate((9, -1))
     35
 
-See :doc:`api/crossmap` for a detailed description.
+See section :doc:`api/crossmap` for a detailed description.
 
 The ``Coding`` class
 --------------------
@@ -240,7 +240,7 @@ table, we show a number of annotated examples.
      - Downstream position.
      - invalid
 
-See :doc:`api/crossmap` for a detailed description.
+See section :doc:`api/crossmap` for a detailed description.
 
 Locations
 ---------
@@ -267,7 +267,7 @@ behaviour can be altered by setting the optional argument ``p`` to ``1``.
     >>> nearest_location(exons, 37, 1)
     3
 
-See :doc:`api/location` for a detailed description.
+See section :doc:`api/location` for a detailed description.
 
 Basic classes
 -------------
@@ -299,7 +299,7 @@ for the semantics.
 For loci that reside on the reverse complement strand, the optional
 ``inverted`` constructor parameter should be set to ``True``.
 
-See :doc:`api/locus` for a detailed description.
+See section :doc:`api/locus` for a detailed description.
 
 The ``MultiLocus`` class
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -321,4 +321,4 @@ The interface to this class is similar to that of the ``Locus`` class.
     >>> multilocus.to_position(38)
     (11, -2)
 
-See :doc:`api/multi_locus` for a detailed description.
+See section :doc:`api/multi_locus` for a detailed description.
