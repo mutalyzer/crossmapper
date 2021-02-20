@@ -211,9 +211,13 @@ table, we show a number of annotated examples.
      - protein position
      - description
      - HGVS position
+   * - ``4``
+     - ``(-4, 2, -1, -1, -1)``
+     - Upstream position.
+     - invalid
    * - ``31``
      - ``(-1, 3, 0, -1, 0)``
-     - Upstream position.
+     - 5' UTR position.
      - invalid
    * - ``36``
      - ``(1, 3, 2, 0, 0)``
@@ -229,6 +233,10 @@ table, we show a number of annotated examples.
      - "p.2"
    * - ``43``
      - ``(1, 1, 0, 1, 0)``
+     - 3' UTR position.
+     - invalid
+   * - ``43``
+     - ``(2, 2, 2, 1, 2)``
      - Downstream position.
      - invalid
 
