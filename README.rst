@@ -3,8 +3,8 @@ HGVS position crossmapper
 
 .. image:: https://img.shields.io/github/last-commit/mutalyzer/crossmapper.svg
    :target: https://github.com/mutalyzer/crossmapper/graphs/commit-activity
-.. image:: https://travis-ci.org/mutalyzer/crossmapper.svg?branch=master
-   :target: https://travis-ci.org/mutalyzer/crossmapper
+.. image:: https://github.com/mutalyzer/crossmapper/actions/workflows/python-package.yml/badge.svg
+   :target: https://github.com/mutalyzer/crossmapper/actions/workflows/python-package.yml
 .. image:: https://readthedocs.org/projects/mutalyzer-crossmapper/badge/?version=latest
    :target: https://mutalyzer-crossmapper.readthedocs.io/en/latest
 .. image:: https://img.shields.io/github/release-date/mutalyzer/crossmapper.svg
