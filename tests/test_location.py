@@ -41,7 +41,7 @@ def test_nearest_location_even():
     assert nearest_location([(3, 6), (8, 13)], 7, 1) == 1
 
 
-def test_nearest_location_even():
+def test_nearest_location_odd():
     """Index of the nearest location, preference is relevant."""
     assert nearest_location([(3, 6), (9, 13)], 7) == 0
     assert nearest_location([(3, 6), (9, 13)], 7, 1) == 1
