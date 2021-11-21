@@ -1,7 +1,3 @@
-from subprocess import call
-
-call('pip install ..', shell=True)
-
 from mutalyzer_crossmapper import _get_metadata
 
 

@@ -21,7 +21,7 @@ from .multi_locus import MultiLocus
 
 
 def _get_metadata(name):
-    pkg = get_distribution(__package__)
+    pkg = get_distribution('mutalyzer_crossmapper')
 
     for line in pkg.get_metadata_lines(pkg.PKG_INFO):
         if line.startswith('{}: '.format(name)):
