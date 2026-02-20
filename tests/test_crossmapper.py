@@ -11,9 +11,9 @@ def test_Genomic():
     crossmap = Genomic()
 
     invariant(
-        crossmap.coordinate_to_genomic, 0, crossmap.genomic_to_coordinate, 1)
+        crossmap.coordinate_to_genomic, 0, crossmap.genomic_to_coordinate, {"position": 1})
     invariant(
-        crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, 99)
+        crossmap.coordinate_to_genomic, 98, crossmap.genomic_to_coordinate, {"position": 99})
 
 
 def test_NonCoding():

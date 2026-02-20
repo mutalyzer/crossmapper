@@ -1,3 +1,4 @@
+from turtle import position
 from .multi_locus import MultiLocus
 
 
@@ -8,18 +9,18 @@ class Genomic(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns int: Genomic position.
+        :returns dict: Genomic position.
         """
-        return coordinate + 1
+        return {"position": coordinate + 1}
 
-    def genomic_to_coordinate(self, position):
+    def genomic_to_coordinate(self, position_m):
         """Convert a genomic position (g./m./o.) to a coordinate.
 
-        :arg int position: Genomic position.
+        :arg int position: Genomic position model.
 
         :returns int: Coordinate.
         """
-        return position - 1
+        return position_m["position"] - 1
 
 
 class NonCoding(Genomic):
