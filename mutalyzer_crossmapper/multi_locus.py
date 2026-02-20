@@ -19,7 +19,7 @@ def _offsets(locations, orientation):
 
 class MultiLocus(object):
     """MultiLocus object."""
-    def __init__(self, locations, inverted=False):
+    def __init__(self, locations:list, inverted=False):
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -36,7 +36,7 @@ class MultiLocus(object):
             return len(self._offsets) - index - 1
         return index
 
-    def outside(self, coordinate):
+    def outside(self, coordinate:int):
         """Calculate the offset relative to this MultiLocus.
 
         :arg int coordinate: Coordinate.
@@ -49,32 +49,34 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate):
+    def to_position(self, coordinate:int):
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
 
-        :returns tuple: Position.
+        :returns dict: Position model.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
+        region = "u" if outside < 0 else "d" if outside > 0 else ""
         location = self._loci[index].to_position(coordinate)
 
-        return (
-            location[0] + self._offsets[self._direction(index)],
-            location[1],
-            outside)
+        return {"position": location["position"] + self._offsets[self._direction(index)],
+            "offset": location["offset"],
+            "region": region}
 
-    def to_coordinate(self, position):
-        """Convert a position to a coordinate.
+    def to_coordinate(self, position_model:dict):
+        """Convert a position model to a coordinate.
 
-        :arg int position: Position.
+        :arg dict position: Position.
 
         :returns int: Coordinate.
         """
+        offset_val = position_model["offset"]
         index = min(
             len(self._offsets),
-            max(0, bisect_right(self._offsets, position[0]) - 1))
-
+            max(0, bisect_right(self._offsets, position_model["position"]) - 1)
+        )
         return self._loci[self._direction(index)].to_coordinate(
-            (position[0] - self._offsets[index], position[1]))
+            {"position": position_model["position"] - self._offsets[index], "offset": offset_val}
+        )
