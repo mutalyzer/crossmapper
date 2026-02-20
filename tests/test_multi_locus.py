@@ -1,5 +1,3 @@
-"""Tests for MultiLocus flattening and coordinate conversions."""
-
 from mutalyzer_crossmapper import MultiLocus
 from mutalyzer_crossmapper.multi_locus import _offsets
 
@@ -17,11 +15,6 @@ def test_offsets_inverted():
     """Cummulative location lengths for inverted list of locations."""
     assert _offsets(_locations, -1) == [0, 2, 4, 8, 13, 19]
 
-    invariant(
-        multi_locus.to_position,
-        4,
-        multi_locus.to_coordinate,
-        {"position": 0, "offset": -1, "region": "u"},
 def test_offsets_adjacent():
     """Cummulative location lengths for adjacent locations."""
     assert _offsets([(1, 3), (3, 5)], 1) == [0, 2]
