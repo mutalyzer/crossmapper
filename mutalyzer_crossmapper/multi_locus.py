@@ -60,23 +60,34 @@ class MultiLocus(object):
         outside = self._orientation * self.outside(coordinate)
         region = "u" if outside < 0 else "d" if outside > 0 else ""
         location = self._loci[index].to_position(coordinate)
+        if not outside:
+            return {
+                "position": location["position"] + self._offsets[self._direction(index)],
+                "offset": location["offset"],
+                "region": region}
+        else:
+            return  {
+                "position": abs(self._offsets[self._direction(index)] - self._offsets[self._direction(index)] + 1),
+                "offset": 0,
+                "region":region
+            }
 
-        return {"position": location["position"] + self._offsets[self._direction(index)],
-            "offset": location["offset"],
-            "region": region}
-
-    def to_coordinate(self, position_model:dict):
+    def to_coordinate(self, position_m:dict):
         """Convert a position model to a coordinate.
 
         :arg dict position: Position.
 
         :returns int: Coordinate.
         """
-        offset_val = position_model["offset"]
-        index = min(
-            len(self._offsets),
-            max(0, bisect_right(self._offsets, position_model["position"]) - 1)
-        )
-        return self._loci[self._direction(index)].to_coordinate(
-            {"position": position_model["position"] - self._offsets[index], "offset": offset_val}
-        )
+        if position_m["region"] == "":
+            index = min(
+                len(self._offsets),
+                max(0, bisect_right(self._offsets, position_m["position"]) - 1)
+            )
+            position_m["position"] = position_m["position"] - self._offsets[index]
+
+        elif position_m["region"] == "u":
+          index = 0
+        else: # "d"
+            index = len(self._offsets) -1
+        return self._loci[self._direction(index)].to_coordinate(position_m)

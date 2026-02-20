@@ -30,13 +30,22 @@ class Locus(object):
             return {"position": self._end, "offset": coordinate - self.boundary[1]}
         return {"position": coordinate - self.boundary[0], "offset": 0}
 
-    def to_coordinate(self, position):
-        """Convert a position to a coordinate.
+    def to_coordinate(self, position_m):
+        """Convert a position model to a coordinate.
 
         :arg dict position: Position model with 'position' and 'offset' keys.
 
         :returns int: Coordinate.
         """
         if self._inverted:
-            return self.boundary[1] - position["position"] - position["offset"]
-        return self.boundary[0] + position["position"] + position["offset"]
+            if position_m["region"] == "u":
+                return self.boundary[1] + position_m["position"]
+            elif position_m["region"] == "d":
+                return self.boundary[0] - position_m["position"]
+            return self.boundary[1] - position_m["position"] - position_m["offset"]
+        if position_m["region"] == "u":
+            return self.boundary[0] - position_m["position"]
+        elif position_m["region"] == "d":
+            return self.boundary[1] + position_m["position"]
+        else:
+            return self.boundary[0] + position_m["position"] + position_m["offset"]
