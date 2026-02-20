@@ -11,32 +11,32 @@ class Locus(object):
         self._end = self.boundary[1] - self.boundary[0]
 
     def to_position(self, coordinate):
-        """Convert a coordinate to a proper position.
+        """Convert a coordinate to a proper position model.
 
         :arg int coordinate: Coordinate.
 
-        :returns tuple: Position.
+        :returns dict: Position model with 'position' and 'offset' keys.
         """
         if self._inverted:
             if coordinate > self.boundary[1]:
-                return 0, self.boundary[1] - coordinate
+                return {"position": 0, "offset": self.boundary[1] - coordinate}
             if coordinate < self.boundary[0]:
-                return self._end, self.boundary[0] - coordinate
-            return self.boundary[1] - coordinate, 0
+                return {"position": self._end, "offset": self.boundary[0] - coordinate}
+            return {"position": self.boundary[1] - coordinate, "offset": 0}
 
-        if coordinate < self.boundary[0]:
-            return 0, coordinate - self.boundary[0]
-        if coordinate > self.boundary[1]:
-            return self._end, coordinate - self.boundary[1]
-        return coordinate - self.boundary[0], 0
+        if coordinate < self.boundary[0]:           # upstream of an exon, re
+            return {"position": 0, "offset": coordinate - self.boundary[0]}
+        if coordinate > self.boundary[1]:           # downstream of an exon
+            return {"position": self._end, "offset": coordinate - self.boundary[1]}
+        return {"position": coordinate - self.boundary[0], "offset": 0}
 
     def to_coordinate(self, position):
         """Convert a position to a coordinate.
 
-        :arg int position: Position.
+        :arg dict position: Position model with 'position' and 'offset' keys.
 
         :returns int: Coordinate.
         """
         if self._inverted:
-            return self.boundary[1] - position[0] - position[1]
-        return self.boundary[0] + position[0] + position[1]
+            return self.boundary[1] - position["position"] - position["offset"]
+        return self.boundary[0] + position["position"] + position["offset"]
