@@ -1,4 +1,3 @@
-from turtle import position
 from .multi_locus import MultiLocus
 
 
@@ -39,23 +38,24 @@ class NonCoding(Genomic):
 
         :arg int coordinate: Coordinate.
 
-        :returns tuple: Noncoding position.
+        :returns dict: Noncoding position model.
         """
-        pos = self._noncoding.to_position(coordinate)
+        pos_m = self._noncoding.to_position(coordinate)
+        if pos_m["region"] == "":
+            pos_m["position"] = pos_m["position"] + 1
+        return pos_m
 
-        return pos[0] + 1, pos[1], pos[2]
-
-    def noncoding_to_coordinate(self, position):
+    def noncoding_to_coordinate(self, position_m):
         """Convert a noncoding position (n./r.) to a coordinate.
 
-        :arg tuple position: Noncoding position.
+        :arg dict postion_m: Noncoding position model.
 
         :returns int: Coordinate.
         """
-        if position[0] > 0:
-            return self._noncoding.to_coordinate(
-                (position[0] - 1, position[1]))
-        return self._noncoding.to_coordinate(position)
+        if position_m["region"] == "":
+        # if position_m["position"] > 0:
+            position_m["position"] = position_m["position"] - 1
+        return self._noncoding.to_coordinate(position_m)
 
 
 class Coding(NonCoding):
