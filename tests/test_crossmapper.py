@@ -23,18 +23,18 @@ def test_NonCoding():
     # Boundary between upstream and transcript.
     invariant(
         crossmap.coordinate_to_noncoding, 4,
-        crossmap.noncoding_to_coordinate, (1, -1, -1))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region":"u"})
     invariant(
         crossmap.coordinate_to_noncoding, 5,
-        crossmap.noncoding_to_coordinate, (1, 0, 0))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region": ""})
 
     # Boundary between downstream and transcript.
     invariant(
         crossmap.coordinate_to_noncoding, 71,
-        crossmap.noncoding_to_coordinate, (22, 0, 0))
+        crossmap.noncoding_to_coordinate, {"position": 22, "offset": 0, "region": ""})
     invariant(
         crossmap.coordinate_to_noncoding, 72,
-        crossmap.noncoding_to_coordinate, (22, 1, 1))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region": "d"})
 
 
 def test_NonCoding_inverted():
@@ -44,18 +44,18 @@ def test_NonCoding_inverted():
     # Boundary between upstream and transcript.
     invariant(
         crossmap.coordinate_to_noncoding, 72,
-        crossmap.noncoding_to_coordinate, (1, -1, -1))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region": "u"})
     invariant(
         crossmap.coordinate_to_noncoding, 71,
-        crossmap.noncoding_to_coordinate, (1, 0, 0))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region": ""})
 
     # Boundary between downstream and transcript.
     invariant(
         crossmap.coordinate_to_noncoding, 5,
-        crossmap.noncoding_to_coordinate, (22, 0, 0))
+        crossmap.noncoding_to_coordinate, {"position": 22, "offset": 0, "region": ""})
     invariant(
         crossmap.coordinate_to_noncoding, 4,
-        crossmap.noncoding_to_coordinate, (22, 1, 1))
+        crossmap.noncoding_to_coordinate, {"position": 1, "offset": 0, "region": "d"})
 
 
 def test_NonCoding_degenerate():
@@ -65,12 +65,12 @@ def test_NonCoding_degenerate():
     # Boundary between upstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 4,
-        [(1, -1, -1), (-1, 0, -1)])
+        [{"position": 1, "offset": 0, "region":"u"}])
 
     # Boundary between downstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 72,
-        [(22, 1, 1), (23, 0, 1)])
+        [{"position": 1, "offset": 0, "region": "d"}])
 
 
 def test_NonCoding_inverted_degenerate():
@@ -80,12 +80,12 @@ def test_NonCoding_inverted_degenerate():
     # Boundary between upstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 72,
-        [(1, -1, -1), (-1, 0, -1)])
+        [{"position": 1, "offset": 0, "region": "u"}])
 
     # Boundary between downstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 4,
-        [(22, 1, 1), (23, 0, 1)])
+        [{"position": 1 , "offset": 0, "region": "d"}])
 
 
 def test_Coding():
