@@ -60,16 +60,31 @@ class MultiLocus(object):
         outside = self._orientation * self.outside(coordinate)
         region = "u" if outside < 0 else "d" if outside > 0 else ""
         location = self._loci[index].to_position(coordinate)
-        if not outside:
+        # UTR
+        if outside:
+            return {
+                "position": abs(location["offset"]),
+                "offset": 0,
+                "region": region
+            }
+        # in exons
+        if location["offset"] == 0: # in an exon
             return {
                 "position": location["position"] + self._offsets[self._direction(index)],
-                "offset": location["offset"],
-                "region": region}
-        else:
-            return  {
-                "position": abs(self._offsets[self._direction(index)] - self._offsets[self._direction(index)] + 1),
                 "offset": 0,
-                "region":region
+                "region": ""
+            }
+        elif location["offset"] < 0: # before an exon
+            return {
+                "position": self._offsets[self._direction(index)],
+                "offset": location["offset"],
+                "region": ""
+            }
+        else: # after an exon
+            return{
+                "position": location["position"] + self._offsets[self._direction(index)],
+                "offset": location["offset"],
+                "region": ""
             }
 
     def to_coordinate(self, position_m:dict):
@@ -85,9 +100,14 @@ class MultiLocus(object):
                 max(0, bisect_right(self._offsets, position_m["position"]) - 1)
             )
             position_m["position"] = position_m["position"] - self._offsets[index]
+            return self._loci[self._direction(index)].to_coordinate(position_m)
 
         elif position_m["region"] == "u":
-          index = 0
-        else: # "d"
-            index = len(self._offsets) -1
-        return self._loci[self._direction(index)].to_coordinate(position_m)
+            if self._inverted:
+                return position_m["position"] + self._locations[-1][1] - 1
+            return self._locations[0][0] - position_m["position"]
+
+        else: # d
+            if self._inverted:
+                return self._locations[0][0] - position_m["position"]
+            return position_m["position"] + self._locations[-1][1] - 1
