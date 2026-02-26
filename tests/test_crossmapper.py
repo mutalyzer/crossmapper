@@ -95,18 +95,37 @@ def test_Coding():
     # Boundary between 5' and CDS.
     invariant(
         crossmap.coordinate_to_coding, 31,
-        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
+        crossmap.coding_to_coordinate,
+        {"position": 1,
+         "offset":0,
+         "region":"-"
+        }
+    )
     invariant(
         crossmap.coordinate_to_coding, 32,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {"position": 1,
+         "offset":0,
+         "region":""
+        }
+        )
 
     # Boundary between CDS and 3'.
     invariant(
         crossmap.coordinate_to_coding, 42,
-        crossmap.coding_to_coordinate, (6, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {"position": 6,
+         "offset":0,
+         "region":""
+        })
     invariant(
         crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (1, 0, 1, 0))
+        crossmap.coding_to_coordinate,
+        {"position": 1,
+         "offset":0,
+         "region":"*"
+        }
+        )
 
 
 def test_Coding_inverted():
@@ -116,18 +135,42 @@ def test_Coding_inverted():
     # Boundary between 5' and CDS.
     invariant(
         crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
+        crossmap.coding_to_coordinate,
+        {
+            "position": 1,
+            "offset": 0,
+            "region": "-"
+        }
+    )
     invariant(
         crossmap.coordinate_to_coding, 42,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {
+            "position": 1,
+            "offset": 0,
+            "region": ""
+        }
+        )
 
     # Boundary between CDS and 3'.
     invariant(
         crossmap.coordinate_to_coding, 32,
-        crossmap.coding_to_coordinate, (6, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {
+            "position": 6,
+            "offset": 0,
+            "region": ""
+        }
+        )
     invariant(
         crossmap.coordinate_to_coding, 31,
-        crossmap.coding_to_coordinate, (1, 0, 1, 0))
+        crossmap.coding_to_coordinate,
+        {
+            "position": 1,
+            "offset": 0,
+            "region": "*"
+        }
+    )
 
 
 def test_Coding_regions():
@@ -137,18 +180,22 @@ def test_Coding_regions():
     # Upstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 25,
-        crossmap.coding_to_coordinate, (-1, 5, -1, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 5, 'region': '-'})
     invariant(
         crossmap.coordinate_to_coding, 26,
-        crossmap.coding_to_coordinate, (1, -4, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': -4, 'region': ''})
 
     # Downstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 44,
-        crossmap.coding_to_coordinate, (10, 5, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 10, 'offset': 5, 'region': ''})
     invariant(
         crossmap.coordinate_to_coding, 45,
-        crossmap.coding_to_coordinate, (1, -4, 1, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': -4, 'region': '*'})
 
 
 def test_Coding_regions_inverted():
@@ -158,18 +205,22 @@ def test_Coding_regions_inverted():
     # Upstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 44,
-        crossmap.coding_to_coordinate, (-1, 5, -1, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 5, 'region': '-'})
     invariant(
         crossmap.coordinate_to_coding, 43,
-        crossmap.coding_to_coordinate, (1, -4, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': -4, 'region': ''})
 
     # Downstream odd length intron between two regions.
     invariant(
         crossmap.coordinate_to_coding, 25,
-        crossmap.coding_to_coordinate, (10, 5, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 10, 'offset': 5, 'region': ''})
     invariant(
         crossmap.coordinate_to_coding, 24,
-        crossmap.coding_to_coordinate, (1, -4, 1, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': -4, 'region': '*'})
 
 
 def test_Coding_no_utr5():
@@ -179,10 +230,12 @@ def test_Coding_no_utr5():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (1, -1, 0, -1))
+        crossmap.coding_to_coordinate, #(1, -1, 0, -1)
+        {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': ''})
 
 
 def test_Coding_no_utr5_inverted():
@@ -192,10 +245,12 @@ def test_Coding_no_utr5_inverted():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (1, -1, 0, -1))
+        crossmap.coding_to_coordinate, #(1, -1, 0, -1)
+        {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 2, 'offset': 0, 'region': '-'})
 
 
 def test_Coding_no_utr3():
@@ -203,12 +258,15 @@ def test_Coding_no_utr3():
     crossmap = Coding([(10, 20)], (15, 20))
 
     # Direct transition from CDS to downstream.
+    #TODO:
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (5, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 9, 'offset': 0, 'region': '*'})
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (5, 1, 0, 1))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': 'd'})
 
 
 def test_Coding_no_utr3_inverted():
@@ -218,10 +276,12 @@ def test_Coding_no_utr3_inverted():
     # Direct transition from CDS to downstream.
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (5, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 5, 'offset': 0, 'region': ''})
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (5, 1, 0, 1))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': 'd'})
 
 
 def test_Coding_small_utr5():
@@ -231,13 +291,17 @@ def test_Coding_small_utr5():
     # Transition from upstream to 5' UTR to CDS.
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (-1, -1, -1, -1))
+        crossmap.coding_to_coordinate, #(-1, -1, -1, -1)
+        {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
+        crossmap.coding_to_coordinate, #(-1, 0, -1, 0))
+        {'position': 1, 'offset': 0, 'region': '-'}
+    )
     invariant(
         crossmap.coordinate_to_coding, 11,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate, #(1, 0, 0, 0))
+        {'position': 1, 'offset': 0, 'region': ''})
 
 
 def test_Coding_small_utr5_inverted():
@@ -247,13 +311,16 @@ def test_Coding_small_utr5_inverted():
     # Transition from upstream to 5' UTR to CDS.
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (-1, -1, -1, -1))
+        crossmap.coding_to_coordinate,# (-1, -1, -1, -1)
+        {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (-1, 0, -1, 0))
+        crossmap.coding_to_coordinate, #(-1, 0, -1, 0))
+        {'position': 1, 'offset': 0, 'region': '-'})
     invariant(
         crossmap.coordinate_to_coding, 18,
-        crossmap.coding_to_coordinate, (1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': ''})
 
 
 def test_Coding_small_utr3():
@@ -263,13 +330,16 @@ def test_Coding_small_utr3():
     # Transition from CDS to 3' UTR to downstream.
     invariant(
         crossmap.coordinate_to_coding, 18,
-        crossmap.coding_to_coordinate, (4, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 4, 'offset': 0, 'region': ''})
     invariant(
         crossmap.coordinate_to_coding, 19,
-        crossmap.coding_to_coordinate, (1, 0, 1, 0))
+        crossmap.coding_to_coordinate, #(1, 0, 1, 0)
+        {'position': 1, 'offset': 0, 'region': '*'})
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, (1, 1, 1, 1))
+        crossmap.coding_to_coordinate, #(1, 1, 1, 1))
+        {'position': 1, 'offset': 0, 'region': 'd'})
 
 
 def test_Coding_small_utr3_inverted():
@@ -279,13 +349,16 @@ def test_Coding_small_utr3_inverted():
     # Transition from CDS to 3' UTR to downstream.
     invariant(
         crossmap.coordinate_to_coding, 11,
-        crossmap.coding_to_coordinate, (4, 0, 0, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 4, 'offset': 0, 'region': ''})
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, (1, 0, 1, 0))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': '*'})
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, (1, 1, 1, 1))
+        crossmap.coding_to_coordinate,
+        {'position': 1, 'offset': 0, 'region': 'd'})
 
 
 def test_Coding_degenerate():

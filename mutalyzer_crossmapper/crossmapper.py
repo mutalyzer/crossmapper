@@ -53,7 +53,6 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         if position_m["region"] == "":
-        # if position_m["position"] > 0:
             position_m["position"] = position_m["position"] - 1
         return self._noncoding.to_coordinate(position_m)
 
@@ -72,11 +71,11 @@ class Coding(NonCoding):
         b1 = self._noncoding.to_position(cds[1])
 
         if self._inverted:
-            self._coding = (b1[0] + b1[1] + 1, b0[0] + b0[1] + 1)
-            self._cds_len = (b0[0] + b0[1]) - (b1[0] + b1[1])
+            self._coding = (b1["position"] + b1["offset"] + 1, b0["position"] + b0["offset"] + 1)
+            self._cds_len = (b0["position"] + b0["offset"]) - (b1["position"] + b1["offset"])
         else:
-            self._coding = (b0[0] + b0[1], b1[0] + b1[1])
-            self._cds_len = (b1[0] + b1[1]) - (b0[0] + b0[1])
+            self._coding = (b0["position"] + b0["offset"], b1["position"] + b1["offset"])
+            self._cds_len = (b1["position"] + b1["offset"]) - (b0["position"] + b0["offset"])
 
     def _coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a coding position (c./r.).
@@ -85,13 +84,31 @@ class Coding(NonCoding):
 
         :returns tuple: Coding position (c./r.).
         """
-        pos = self._noncoding.to_position(coordinate)
+        noncoding_pos = self._noncoding.to_position(coordinate)
 
-        if pos[0] < self._coding[0]:
-            return pos[0] - self._coding[0], pos[1], -1, pos[2]
-        elif pos[0] >= self._coding[1]:
-            return pos[0] - self._coding[1] + 1, pos[1], 1, pos[2]
-        return pos[0] - self._coding[0] + 1, pos[1], 0, pos[2]
+        # on top of the noncoding position model, add CDs info
+        location = noncoding_pos["position"]
+        if noncoding_pos["region"] == "":
+            if location < self._coding[0]: # before CDs
+                return {
+                    "position": self._coding[0] - location,
+                    "offset": noncoding_pos["offset"],
+                    "region": "-"
+                }
+            elif location >= self._coding[1]: # after CDs
+                return {
+                    "position": location - self._coding[1] + 1,
+                    "offset": noncoding_pos["offset"],
+                    "region": "*"
+                }
+            else:
+                return {
+                    "position": location - self._coding[0] + 1,
+                    "offset": noncoding_pos["offset"],
+                    "region": ""
+                }
+        else:
+            return noncoding_pos
 
     def coordinate_to_coding(self, coordinate, degenerate=False):
         """Convert a coordinate to a coding position (c./r.).
@@ -113,21 +130,46 @@ class Coding(NonCoding):
 
         return pos
 
-    def coding_to_coordinate(self, position):
+    def coding_to_coordinate(self, pos_m):
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg tuple position: Coding position (c./r.).
 
         :returns int: Coordinate.
         """
-        if position[2] == -1:
-            return self._noncoding.to_coordinate(
-                (position[0] + self._coding[0], position[1]))
-        elif position[2] == 1:
-            return self._noncoding.to_coordinate(
-                (position[0] + self._coding[1] - 1, position[1]))
-        return self._noncoding.to_coordinate(
-            (position[0] + self._coding[0] - 1, position[1]))
+        region = pos_m["region"]
+        if region == "u":
+            noncoding_pos = {
+                "position": pos_m["position"],
+                "offset": 0,
+                "region": "u"
+            }
+        elif region == "d":
+            noncoding_pos = {
+                "position": pos_m["position"],
+                "offset": 0,
+                "region": "d"
+            }
+        elif region == "":
+            noncoding_pos = {
+                "position": pos_m["position"] + self._coding[0] -1,
+                "offset": pos_m["offset"],
+                "region": ""
+            }
+        elif region == "-":
+            noncoding_pos = {
+                "position": self._coding[0] - pos_m["position"],
+                "offset": pos_m["offset"],
+                "region": ""
+            }
+        else: # *
+            noncoding_pos = {
+                "position": self._coding[1] + pos_m["position"] - 1,
+                "offset": pos_m["offset"],
+                "region": ""
+            }
+        return self._noncoding.to_coordinate(noncoding_pos)
+
 
     def coordinate_to_protein(self, coordinate):
         """Convert a coordinate to a protein position (p.).
@@ -138,7 +180,7 @@ class Coding(NonCoding):
         """
         pos = self.coordinate_to_coding(coordinate)
 
-        if pos[2] == -1:
+        if pos[2] == -1: # before CDs
             return (pos[0] // 3, pos[0] % 3 + 1, *pos[1:])
         return ((pos[0] + 2) // 3, (pos[0] + 2) % 3 + 1, *pos[1:])
 
