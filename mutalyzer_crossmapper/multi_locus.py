@@ -94,7 +94,8 @@ class MultiLocus(object):
 
         :returns int: Coordinate.
         """
-        if position_m["region"] == "":
+        region = position_m["region"]
+        if region == "":
             index = min(
                 len(self._offsets),
                 max(0, bisect_right(self._offsets, position_m["position"]) - 1)
@@ -102,12 +103,12 @@ class MultiLocus(object):
             position_m["position"] = position_m["position"] - self._offsets[index]
             return self._loci[self._direction(index)].to_coordinate(position_m)
 
-        elif position_m["region"] == "u":
+        elif region == "u":
             if self._inverted:
-                return position_m["position"] + self._locations[-1][1] - 1
-            return self._locations[0][0] - position_m["position"]
+                return abs(position_m["position"]) + self._locations[-1][1] + position_m["offset"] - 1
+            return self._locations[0][0] - abs(position_m["position"]) + position_m["offset"]
 
         else: # d
             if self._inverted:
-                return self._locations[0][0] - position_m["position"]
-            return position_m["position"] + self._locations[-1][1] - 1
+                return self._locations[0][0] - abs(position_m["position"]) + position_m["offset"]
+            return abs(position_m["position"]) + self._locations[-1][1] + position_m["offset"] - 1

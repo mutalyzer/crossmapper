@@ -158,6 +158,7 @@ def test_MultiLocus_degenerate():
         4,
         [
             {"position": 0, "offset": -1, "region": "u"},
+            {"position": 1, "offset": 0, "region": "u"},
             {"position": -1, "offset": 0, "region": "u"},
         ],
     )
@@ -166,8 +167,8 @@ def test_MultiLocus_degenerate():
         multi_locus.to_coordinate,
         72,
         [
-            {"position": 21, "offset": 1, "region": "d"},
-            {"position": 22, "offset": 0, "region": "d"},
+            {"position": 0, "offset": 1, "region": "d"},
+            {"position": 1, "offset": 0, "region": "d"},
         ],
     )
 
@@ -180,8 +181,9 @@ def test_MultiLocus_inverted_degenerate():
         multi_locus.to_coordinate,
         72,
         [
-            {"position": 0, "offset": -1, "region": "u"},
+            {"position": 0, "offset": 1, "region": "u"},
             {"position": -1, "offset": 0, "region": "u"},
+            {"position": 1, "offset": 0, "region": "u"},
         ],
     )
 
@@ -189,7 +191,8 @@ def test_MultiLocus_inverted_degenerate():
         multi_locus.to_coordinate,
         4,
         [
-            {"position": 21, "offset": 1, "region": "d"},
-            {"position": 22, "offset": 0, "region": "d"},
+            {"position": 0, "offset": -1, "region": "d"},
+            {"position": 1, "offset": 0, "region": "d"},
+            {"position": 2, "offset": 1, "region": "d"}
         ],
     )
