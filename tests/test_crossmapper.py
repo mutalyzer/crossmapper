@@ -70,7 +70,10 @@ def test_NonCoding_degenerate():
     # Boundary between downstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 72,
-        [{"position": 1, "offset": 0, "region": "d"}])
+        [
+            {"position": 1, "offset": 0, "region": "d"},
+            {"position": 0, "offset": 1, "region": "d"}
+            ])
 
 
 def test_NonCoding_inverted_degenerate():
@@ -87,7 +90,8 @@ def test_NonCoding_inverted_degenerate():
         crossmap.noncoding_to_coordinate, 4,
         [{"position": 1 , "offset": 0, "region": "d"}])
 
-
+_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
+_cds = (32, 43)
 def test_Coding():
     """Forward oriented coding transcript."""
     crossmap = Coding(_exons, _cds)
@@ -231,11 +235,11 @@ def test_Coding_no_utr5():
     invariant(
         crossmap.coordinate_to_coding, 9,
         crossmap.coding_to_coordinate, #(1, -1, 0, -1)
-        {'position': 1, 'offset': 0, 'region': 'u'})
+        {'position': 1, 'offset': 0, 'region': 'u'}) # serialize result : u1
     invariant(
         crossmap.coordinate_to_coding, 10,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': ''})
+        {'position': 1, 'offset': 0, 'region': ''}) # serialize result: 1
 
 
 def test_Coding_no_utr5_inverted():
@@ -367,7 +371,11 @@ def test_Coding_degenerate():
 
     degenerate_equal(
         crossmap.coding_to_coordinate, 9,
-        [(-1, -1, -1, -1), (-2, 0, -1, -1), (1, -2, 0, -1), (1, -10, 1, -1)])
+        [
+            {'position': 1, 'offset': 8, 'region': 'u'},
+            {'position': 8, 'offset': 1, 'region': 'u'},
+            {'position': -1, 'offset': 10, 'region': 'u'}
+        ])
     degenerate_equal(
         crossmap.coding_to_coordinate, 20,
         [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
@@ -466,23 +474,29 @@ def test_Coding_protein():
     # Boundary between 5' UTR and CDS.
     invariant(
         crossmap.coordinate_to_protein, 31,
-        crossmap.protein_to_coordinate, (-1, 3, 0, -1, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 1, "position_in_codon": 1, 'offset': 0, 'region': '-'})
     invariant(
         crossmap.coordinate_to_protein, 32,
-        crossmap.protein_to_coordinate, (1, 1, 0, 0, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 1, "position_in_codon": 1, 'offset': 0, 'region': ''})
 
     # Intron boundary.
     invariant(
         crossmap.coordinate_to_protein, 34,
-        crossmap.protein_to_coordinate, (1, 3, 0, 0, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 1, "position_in_codon": 3, 'offset': 0, 'region': ''})
     invariant(
         crossmap.coordinate_to_protein, 35,
-        crossmap.protein_to_coordinate, (1, 3, 1, 0, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 1, "position_in_codon": 3, 'offset': 1, 'region': ''})
 
     # Boundary between CDS and 3' UTR.
     invariant(
         crossmap.coordinate_to_protein, 42,
-        crossmap.protein_to_coordinate, (2, 3, 0, 0, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 2, "position_in_codon": 3, 'offset': 0, 'region': ''})
     invariant(
         crossmap.coordinate_to_protein, 43,
-        crossmap.protein_to_coordinate, (1, 1, 0, 1, 0))
+        crossmap.protein_to_coordinate,
+        {'position': 1, "position_in_codon": 1, 'offset': 0, 'region': '*'})

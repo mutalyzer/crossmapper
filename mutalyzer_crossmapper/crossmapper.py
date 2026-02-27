@@ -119,14 +119,30 @@ class Coding(NonCoding):
         :returns tuple: Coding position (c./r.).
         """
         pos = self._coordinate_to_coding(coordinate)
+        # degenerate option: allow multiple or less correct ways to describe one position,
+        # e.g., neucleo c.10 can be the same location as c.d1 (if CDs ends at c9)
+        # the previous version corrects location+offset to location in UTR  area (c.1-2->c.-2)
+        # or merge the offset to location
 
-        if degenerate and pos[3]:
-            if pos[2] == 0:
-                if pos[0] == 1 and pos[1] < 0:
-                    return pos[1], 0, -1, pos[3]
-                if pos[0] == self._cds_len and pos[1] > 0:
-                    return pos[0] + pos[1] - self._cds_len, 0, 1, pos[3]
-            return pos[0] + pos[1], 0, pos[2], pos[3]
+        if degenerate and pos["region"] in ["u", "d"]:
+            # if pos["region"] == "": unlikely to happen in biology? maybe used to collapse HGVS location at CDs boundary?
+            if pos["position"] == 1 and pos["offset"] < 0:
+                return {
+                    "position":pos["offset"],
+                    "offset": 0,
+                    "region": "-"
+                }
+            if pos["position"] == self._cds_len and pos["offset"] > 0:
+                return {
+                    "position": pos["position"] + pos["offset"] - self._cds_len,
+                    "offset": 0,
+                    "region": "*"
+                }
+            return {
+                "position": pos["position"] + pos["offset"],
+                "offset": 0,
+                "region":pos["region"]
+            }
 
         return pos
 
@@ -140,13 +156,13 @@ class Coding(NonCoding):
         region = pos_m["region"]
         if region == "u":
             noncoding_pos = {
-                "position": pos_m["position"],
+                "position": abs(pos_m["position"]) + pos_m["offset"],
                 "offset": 0,
                 "region": "u"
             }
         elif region == "d":
             noncoding_pos = {
-                "position": pos_m["position"],
+                "position": abs(pos_m["position"]) + pos_m["offset"],
                 "offset": 0,
                 "region": "d"
             }
@@ -180,9 +196,15 @@ class Coding(NonCoding):
         """
         pos = self.coordinate_to_coding(coordinate)
 
-        if pos[2] == -1: # before CDs
-            return (pos[0] // 3, pos[0] % 3 + 1, *pos[1:])
-        return ((pos[0] + 2) // 3, (pos[0] + 2) % 3 + 1, *pos[1:])
+        if pos["region"] in ["-", "*"]:
+            return {
+                "position": pos["position"] // 3 + 1,
+                "position_in_codon": pos["position"] % 3,
+                **{k: v for k, v in pos.items() if k != "position"}}
+        return {
+                "position": (pos["position"]+2) // 3,
+                "position_in_codon": (pos["position"]+2) % 3 + 1,
+                **{k: v for k, v in pos.items() if k != "position"}}
 
     def protein_to_coordinate(self, position):
         """Convert a protein position (p.) to a coordinate.
@@ -191,9 +213,13 @@ class Coding(NonCoding):
 
         :returns int: Coordinate.
         """
-        if position[3] == -1:
+        if position["region"] in ["-", "*"]:
             return self.coding_to_coordinate(
-                (3 * position[0] + position[1] - 1, *position[2:]))
+                {"position": 3 * position["position"] + position["position_in_codon"] - 3,
+                 "offset": position["offset"],
+                 "region": position["region"]})
 
         return self.coding_to_coordinate(
-            (3 * position[0] + position[1] - 3, *position[2:]))
+                {"position": 3 * position["position"] + position["position_in_codon"] - 3,
+                 "offset": position["offset"],
+                 "region": position["region"]})
