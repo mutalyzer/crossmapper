@@ -110,7 +110,7 @@ class Coding(NonCoding):
         else:
             return noncoding_pos
 
-    def coordinate_to_coding(self, coordinate, degenerate=False):
+    def coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
@@ -119,31 +119,6 @@ class Coding(NonCoding):
         :returns tuple: Coding position (c./r.).
         """
         pos = self._coordinate_to_coding(coordinate)
-        # degenerate option: allow multiple or less correct ways to describe one position,
-        # e.g., neucleo c.10 can be the same location as c.d1 (if CDs ends at c9)
-        # the previous version corrects location+offset to location in UTR  area (c.1-2->c.-2)
-        # or merge the offset to location
-
-        if degenerate and pos["region"] in ["u", "d"]:
-            # if pos["region"] == "": unlikely to happen in biology? maybe used to collapse HGVS location at CDs boundary?
-            if pos["position"] == 1 and pos["offset"] < 0:
-                return {
-                    "position":pos["offset"],
-                    "offset": 0,
-                    "region": "-"
-                }
-            if pos["position"] == self._cds_len and pos["offset"] > 0:
-                return {
-                    "position": pos["position"] + pos["offset"] - self._cds_len,
-                    "offset": 0,
-                    "region": "*"
-                }
-            return {
-                "position": pos["position"] + pos["offset"],
-                "offset": 0,
-                "region":pos["region"]
-            }
-
         return pos
 
     def coding_to_coordinate(self, pos_m):
