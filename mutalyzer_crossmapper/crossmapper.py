@@ -110,7 +110,7 @@ class Coding(NonCoding):
         else:
             return noncoding_pos
 
-    def coordinate_to_coding(self, coordinate):
+    def coordinate_to_coding(self, coordinate, degenerate=False):
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
@@ -119,6 +119,13 @@ class Coding(NonCoding):
         :returns tuple: Coding position (c./r.).
         """
         pos = self._coordinate_to_coding(coordinate)
+        if degenerate and pos["region"] in ["u", "d"]:
+            if pos["region"] == "u":
+                pos["position"] = pos["position"] + self._coding[0]
+                pos["region"] = "-"
+            else:
+                pos["position"] = pos["position"] + self._coding[1]
+                pos["region"] = "*"
         return pos
 
     def coding_to_coordinate(self, pos_m):
