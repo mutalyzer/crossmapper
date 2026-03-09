@@ -15,6 +15,7 @@ def test_offsets_inverted():
     """Cummulative location lengths for inverted list of locations."""
     assert _offsets(_locations, -1) == [0, 2, 4, 8, 13, 19]
 
+
 def test_offsets_adjacent():
     """Cummulative location lengths for adjacent locations."""
     assert _offsets([(1, 3), (3, 5)], 1) == [0, 2]
@@ -30,32 +31,71 @@ def test_MultiLocus():
     multi_locus = MultiLocus(_locations)
 
     # Boundary between upstream and the first locus.
-    invariant(multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": "u"},
+    invariant(
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": "u"},
     )
 
     invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, {"position": 0, "offset": 0, "region": ""},
+        multi_locus.to_position,
+        5,
+        multi_locus.to_coordinate,
+        {"position": 0, "offset": 0, "region": ""},
     )
 
     # Internal locus.
     invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, {"position": 9, "offset": -1, "region": ""})
+        multi_locus.to_position,
+        29,
+        multi_locus.to_coordinate,
+        {"position": 9, "offset": -1, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, {"position": 9, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        30,
+        multi_locus.to_coordinate,
+        {"position": 9, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, {"position": 10, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        31,
+        multi_locus.to_coordinate,
+        {"position": 10, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, {"position": 12, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        33,
+        multi_locus.to_coordinate,
+        {"position": 12, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, {"position": 13, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        34,
+        multi_locus.to_coordinate,
+        {"position": 13, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, {"position": 13, "offset": 1, "region": ""})
+        multi_locus.to_position,
+        35,
+        multi_locus.to_coordinate,
+        {"position": 13, "offset": 1, "region": ""},
+    )
 
     # Boundary between the last locus and downstream.
     invariant(
-        multi_locus.to_position, 71, multi_locus.to_coordinate, {"position": 21, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        71,
+        multi_locus.to_coordinate,
+        {"position": 21, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 72, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": "d"})
+        multi_locus.to_position,
+        72,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": "d"},
+    )
 
 
 def test_MultiLocus_inverted():
@@ -64,29 +104,69 @@ def test_MultiLocus_inverted():
 
     # Boundary between upstream and the first locus.
     invariant(
-        multi_locus.to_position, 72, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": "u"})
+        multi_locus.to_position,
+        72,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": "u"},
+    )
     invariant(
-        multi_locus.to_position, 71, multi_locus.to_coordinate, {"position": 0, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        71,
+        multi_locus.to_coordinate,
+        {"position": 0, "offset": 0, "region": ""},
+    )
 
     # Internal locus.
     invariant(
-        multi_locus.to_position, 35, multi_locus.to_coordinate, {"position": 8, "offset": -1, "region": ""})
+        multi_locus.to_position,
+        35,
+        multi_locus.to_coordinate,
+        {"position": 8, "offset": -1, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 34, multi_locus.to_coordinate, {"position": 8, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        34,
+        multi_locus.to_coordinate,
+        {"position": 8, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 33, multi_locus.to_coordinate, {"position": 9, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        33,
+        multi_locus.to_coordinate,
+        {"position": 9, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 31, multi_locus.to_coordinate, {"position": 11, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        31,
+        multi_locus.to_coordinate,
+        {"position": 11, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 30, multi_locus.to_coordinate, {"position": 12, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        30,
+        multi_locus.to_coordinate,
+        {"position": 12, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 29, multi_locus.to_coordinate, {"position": 12, "offset": 1, "region": ""})
+        multi_locus.to_position,
+        29,
+        multi_locus.to_coordinate,
+        {"position": 12, "offset": 1, "region": ""},
+    )
 
     # Boundary between the last locus and downstream.
     invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, {"position": 21, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        5,
+        multi_locus.to_coordinate,
+        {"position": 21, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": "d"})
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": "d"},
+    )
 
 
 def test_MultiLocus_adjacent_loci():
@@ -94,9 +174,17 @@ def test_MultiLocus_adjacent_loci():
     multi_locus = MultiLocus([(1, 3), (3, 5)])
 
     invariant(
-        multi_locus.to_position, 2, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        2,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, {"position": 2, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        3,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": 0, "region": ""},
+    )
 
 
 def test_MultiLocus_adjacent_loci_inverted():
@@ -104,9 +192,17 @@ def test_MultiLocus_adjacent_loci_inverted():
     multi_locus = MultiLocus([(1, 3), (3, 5)], True)
 
     invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, {"position": 1, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        3,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 0, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 2, multi_locus.to_coordinate, {"position": 2, "offset": 0, "region": ""})
+        multi_locus.to_position,
+        2,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": 0, "region": ""},
+    )
 
 
 def test_MultiLocus_offsets_odd():
@@ -114,9 +210,17 @@ def test_MultiLocus_offsets_odd():
     multi_locus = MultiLocus([(1, 3), (6, 8)])
 
     invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 1, "offset": 2, "region": ""})
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 2, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, {"position": 2, "offset": -1, "region": ""})
+        multi_locus.to_position,
+        5,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": -1, "region": ""},
+    )
 
 
 def test_MultiLocus_offsets_odd_inverted():
@@ -124,9 +228,17 @@ def test_MultiLocus_offsets_odd_inverted():
     multi_locus = MultiLocus([(1, 3), (6, 8)], True)
 
     invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 1, "offset": 2, "region": ""})
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 2, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 3, multi_locus.to_coordinate, {"position": 2, "offset": -1, "region": ""})
+        multi_locus.to_position,
+        3,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": -1, "region": ""},
+    )
 
 
 def test_MultiLocus_offsets_even():
@@ -134,9 +246,17 @@ def test_MultiLocus_offsets_even():
     multi_locus = MultiLocus([(1, 3), (7, 9)])
 
     invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 1, "offset": 2, "region": ""})
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 2, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, {"position": 2, "offset": -2, "region": ""})
+        multi_locus.to_position,
+        5,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": -2, "region": ""},
+    )
 
 
 def test_MultiLocus_offsets_even_inverted():
@@ -144,9 +264,17 @@ def test_MultiLocus_offsets_even_inverted():
     multi_locus = MultiLocus([(1, 3), (7, 9)], True)
 
     invariant(
-        multi_locus.to_position, 5, multi_locus.to_coordinate, {"position": 1, "offset": 2, "region": ""})
+        multi_locus.to_position,
+        5,
+        multi_locus.to_coordinate,
+        {"position": 1, "offset": 2, "region": ""},
+    )
     invariant(
-        multi_locus.to_position, 4, multi_locus.to_coordinate, {"position": 2, "offset": -2, "region": ""})
+        multi_locus.to_position,
+        4,
+        multi_locus.to_coordinate,
+        {"position": 2, "offset": -2, "region": ""},
+    )
 
 
 def test_MultiLocus_degenerate():
@@ -193,6 +321,6 @@ def test_MultiLocus_inverted_degenerate():
         [
             {"position": 0, "offset": -1, "region": "d"},
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 2, "offset": 1, "region": "d"}
+            {"position": 2, "offset": 1, "region": "d"},
         ],
     )
