@@ -75,19 +75,18 @@ class MultiLocus(object):
                 "region": ""
             }
 
-        elif location["offset"] < 0:
+        if location["offset"] < 0:
             return {
                 "position": self._offsets[self._direction(index)],
                 "offset": location["offset"],
                 "region": ""
             }
 
-        else:
-            return{
-                "position": location["position"] + self._offsets[self._direction(index)],
-                "offset": location["offset"],
-                "region": ""
-            }
+        return{
+            "position": location["position"] + self._offsets[self._direction(index)],
+            "offset": location["offset"],
+            "region": ""
+        }
 
     def to_coordinate(self, pos_m:dict):
         """Convert a position model to a coordinate.
@@ -98,20 +97,19 @@ class MultiLocus(object):
         """
         region = pos_m["region"]
 
-        if region == "":
-            index = min(
-                len(self._offsets),
-                max(0, bisect_right(self._offsets, pos_m["position"]) - 1)
-            )
-            pos_m["position"] = pos_m["position"] - self._offsets[index]
-            return self._loci[self._direction(index)].to_coordinate(pos_m)
-
-        elif region == "u":
+        if region == "u":
             if self._inverted:
                 return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
             return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
 
-        else:
+        if region == "d":
             if self._inverted:
                 return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
             return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
+
+        index = min(
+            len(self._offsets),
+            max(0, bisect_right(self._offsets, pos_m["position"]) - 1)
+        )
+        pos_m["position"] = pos_m["position"] - self._offsets[index]
+        return self._loci[self._direction(index)].to_coordinate(pos_m)
