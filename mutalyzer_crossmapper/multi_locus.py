@@ -91,7 +91,7 @@ class MultiLocus(object):
     def to_coordinate(self, pos_m:dict):
         """Convert a position model to a coordinate.
 
-        :arg dict position: Position model with 'position','offset' and 'region' keys.
+        :arg dict pos_m: Position model with 'position','offset' and 'region' keys.
 
         :returns int: Coordinate.
         """

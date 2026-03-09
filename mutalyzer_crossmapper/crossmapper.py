@@ -15,7 +15,7 @@ class Genomic(object):
     def genomic_to_coordinate(self, pos_m):
         """Convert a genomic position (g./m./o.) to a coordinate.
 
-        :arg dict position: Genomic position model.
+        :arg dict pos_m: Genomic position model.
 
         :returns int: Coordinate.
         """
@@ -48,7 +48,7 @@ class NonCoding(Genomic):
     def noncoding_to_coordinate(self, pos_m):
         """Convert a noncoding position (n./r.) to a coordinate.
 
-        :arg dict postion_m: Noncoding position model.
+        :arg dict pos_m: Noncoding position model.
 
         :returns int: Coordinate.
         """
