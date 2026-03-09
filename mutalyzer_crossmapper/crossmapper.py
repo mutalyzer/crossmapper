@@ -8,18 +8,18 @@ class Genomic(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Genomic position.
+        :returns dict: Genomic position model.
         """
         return {"position": coordinate + 1}
 
-    def genomic_to_coordinate(self, position_m):
+    def genomic_to_coordinate(self, pos_m):
         """Convert a genomic position (g./m./o.) to a coordinate.
 
-        :arg int position: Genomic position model.
+        :arg dict position: Genomic position model.
 
         :returns int: Coordinate.
         """
-        return position_m["position"] - 1
+        return pos_m["position"] - 1
 
 
 class NonCoding(Genomic):
@@ -45,16 +45,16 @@ class NonCoding(Genomic):
             pos_m["position"] = pos_m["position"] + 1
         return pos_m
 
-    def noncoding_to_coordinate(self, position_m):
+    def noncoding_to_coordinate(self, pos_m):
         """Convert a noncoding position (n./r.) to a coordinate.
 
         :arg dict postion_m: Noncoding position model.
 
         :returns int: Coordinate.
         """
-        if position_m["region"] == "":
-            position_m["position"] = position_m["position"] - 1
-        return self._noncoding.to_coordinate(position_m)
+        if pos_m["region"] == "":
+            pos_m["position"] = pos_m["position"] - 1
+        return self._noncoding.to_coordinate(pos_m)
 
 
 class Coding(NonCoding):
