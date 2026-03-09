@@ -24,13 +24,13 @@ class Locus(object):
                 return {"position": self._end, "offset": self.boundary[0] - coordinate}
             return {"position": self.boundary[1] - coordinate, "offset": 0}
 
-        if coordinate < self.boundary[0]:           # upstream of an exon
+        if coordinate < self.boundary[0]:
             return {"position": 0, "offset": coordinate - self.boundary[0]}
-        if coordinate > self.boundary[1]:           # downstream of an exon
+        if coordinate > self.boundary[1]:
             return {"position": self._end, "offset": coordinate - self.boundary[1]}
         return {"position": coordinate - self.boundary[0], "offset": 0}
 
-    def to_coordinate(self, position_m):
+    def to_coordinate(self, pos_m):
         """Convert a position model to a coordinate.
 
         :arg dict position: Position model with 'position' and 'offset' keys.
@@ -38,5 +38,5 @@ class Locus(object):
         :returns int: Coordinate.
         """
         if self._inverted:
-            return self.boundary[1] - position_m["position"] - position_m["offset"]
-        return self.boundary[0] + position_m["position"] + position_m["offset"]
+            return self.boundary[1] - pos_m["position"] - pos_m["offset"]
+        return self.boundary[0] + pos_m["position"] + pos_m["offset"]
