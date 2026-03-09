@@ -54,61 +54,64 @@ class MultiLocus(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Position model.
+        :returns dict: Position model 'position', 'offset' and 'region' keys.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
         region = "u" if outside < 0 else "d" if outside > 0 else ""
         location = self._loci[index].to_position(coordinate)
-        # UTR
+
         if outside:
             return {
                 "position": abs(location["offset"]),
                 "offset": 0,
                 "region": region
             }
-        # in exons
-        if location["offset"] == 0: # in an exon
+
+        if location["offset"] == 0:
             return {
                 "position": location["position"] + self._offsets[self._direction(index)],
                 "offset": 0,
                 "region": ""
             }
-        elif location["offset"] < 0: # before an exon
+
+        elif location["offset"] < 0:
             return {
                 "position": self._offsets[self._direction(index)],
                 "offset": location["offset"],
                 "region": ""
             }
-        else: # after an exon
+
+        else:
             return{
                 "position": location["position"] + self._offsets[self._direction(index)],
                 "offset": location["offset"],
                 "region": ""
             }
 
-    def to_coordinate(self, position_m:dict):
+    def to_coordinate(self, pos_m:dict):
         """Convert a position model to a coordinate.
 
-        :arg dict position: Position.
+        :arg dict position: Position model with 'position','offset' and 'region' keys.
 
         :returns int: Coordinate.
         """
-        region = position_m["region"]
+        region = pos_m["region"]
+
         if region == "":
             index = min(
                 len(self._offsets),
-                max(0, bisect_right(self._offsets, position_m["position"]) - 1)
+                max(0, bisect_right(self._offsets, pos_m["position"]) - 1)
             )
-            position_m["position"] = position_m["position"] - self._offsets[index]
-            return self._loci[self._direction(index)].to_coordinate(position_m)
+            pos_m["position"] = pos_m["position"] - self._offsets[index]
+            return self._loci[self._direction(index)].to_coordinate(pos_m)
 
         elif region == "u":
             if self._inverted:
-                return abs(position_m["position"]) + self._locations[-1][1] + position_m["offset"] - 1
-            return self._locations[0][0] - abs(position_m["position"]) + position_m["offset"]
+                return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
+            return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
 
-        else: # d
+        else:
             if self._inverted:
-                return self._locations[0][0] - abs(position_m["position"]) + position_m["offset"]
-            return abs(position_m["position"]) + self._locations[-1][1] + position_m["offset"] - 1
+                return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
+            return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
