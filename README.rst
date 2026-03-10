@@ -44,6 +44,14 @@ Please see ReadTheDocs_ for the latest documentation.
 Quick Start
 ===========
 
+An example below uses the following transcript data:
+
+.. code-block:: python
+
+    >>>_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
+    >>>_cds = (32, 43)
+
+
 Genomic Class
 -------------
 
@@ -61,6 +69,7 @@ Genomic positions follow the HGVS ``g`` coordinate system. They are represented 
     }
 
 Where:
+
 - **position**: a positive integer
 
 Genomic Position Conversion
@@ -94,6 +103,7 @@ Noncoding positions follow the HGVS ``n`` coordinate system. They are represente
     }
 
 Where:
+
 - **position**: a positive integer
 - **offset**: an integer indicating the offset relative to the position (negative for upstream, positive for downstream)
 - **region**: a string describing the region type (``""`` for standard, ``"u"`` for upstream, ``"d"`` for downstream)
@@ -104,8 +114,7 @@ NonCoding Position Conversion
 .. code-block:: python
 
     >>> from mutalyzer_crossmapper import NonCoding
-    >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-    >>> crossmap = NonCoding(exons)
+    >>> crossmap = NonCoding(_exons)
     >>> crossmap.coordinate_to_noncoding(35)
     {"position": 14, "offset": 1, "region": ""}
     >>> crossmap.noncoding_to_coordinate({"position": 14, "offset": 1, "region": ""})
@@ -135,9 +144,10 @@ Coding positions follow the HGVS ``c`` coordinate system. They are represented a
     }
 
 Where:
+
 - **position**: a positive integer
 - **offset**: an integer indicating the offset relative to the position
-- **region**: a string describing the region type (``""`` for standard coding positions, ``"-"`` for 5' UTR, ``"*"`` for 3' UTR, ``"u"`` for upstream, ``"d"`` for downstream)
+- **region**: a string describing the region type (``""`` for standard coding positions, ``"-"`` for 5' UTR, ``"*"`` for 3' UTR, ``"u"`` for upstream and ``"d"`` for downstream)
 
 Coding Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,8 +155,7 @@ Coding Position Conversion
 .. code-block:: python
 
     >>> from mutalyzer_crossmapper import Coding
-    >>> cds = (32, 43)
-    >>> crossmap = Coding(exons, cds)
+    >>> crossmap = Coding(_exons, _cds)
     >>> crossmap.coordinate_to_coding(31)
     {"position": -1, "offset": 0, "region": "-"}
     >>> crossmap.coding_to_coordinate({"position": -1, "offset": 0, "region": "-"})
