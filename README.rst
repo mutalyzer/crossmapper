@@ -54,6 +54,7 @@ as dictionaries:
     {"position": int}
 
 Where:
+
 - **position**: a positive integer
 
 **Genomic Position Conversion**
@@ -71,8 +72,7 @@ On top of the functionality provided by the ``Genomic`` class, the
 positions and coordinates.
 
 **NonCoding Position Model**
-Noncoding positions follow the HGVS `n` coordinate system. They are represented
-as dictionaries:
+Noncoding positions follow the HGVS `n` coordinate system. They are represented as dictionaries:
 .. code:: json
    {
     "position": int,
@@ -80,6 +80,7 @@ as dictionaries:
     "region": str
    }
 Where:
+
 - **position**: a positive interger
 - **offset**: an interger indicating the offset relative to the position (e.g.,
 negative for upstream or positive for downstream)
@@ -97,7 +98,7 @@ noncoding positions, `"u"` for upstream and `"d"` for downstream.)
     >>> crossmap.noncoding_to_coordinate({"position": 14, "offset": 1, "region": ""})
     35
 
-***Notes***
+**Notes**
 - Add the flag ``inverted=True`` to the constructor when the transcript resides
 on the reverse complement strand.
 
@@ -115,6 +116,7 @@ dictionaries:
     "region": str
    }
 Where:
+
 - **position**: a positive interger
 - **offset**: an interger indicating the offset relative to the position (e.g.,
 negative for upstream or positive for downstream)
@@ -133,10 +135,8 @@ for downstream.)
     >>> crossmap.coding_to_coordinate({"position": -1, "offset": 0, "region": "-"})
     31
 
-***Notes***
-- Again, the flag ``inverted=True`` can be used for transcripts that reside on
-the reverse complement strand.
-
+**Notes**
+- Again, the flag ``inverted=True`` can be used for transcripts that reside on the reverse complement strand.
 
 **Protein Position Model**
 Protein positions follow the HGVS `p`` coordinate system. They are represented
@@ -149,6 +149,7 @@ as dictionaries:
     "region": str
 }
 Where:
+
 - **position**: the amino acid position (1-based)
 - **position_in_codon**: the codon nucleotide index (1, 2, or 3)
 - **offset**: an integer indicating offset relative to the codon
