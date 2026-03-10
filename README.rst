@@ -84,21 +84,9 @@ Genomic Position Conversion
     >>> crossmap.genomic_to_coordinate({"position": 1})
     0
 Here is the mapping of coordinates to genomic positions:
-Here are example mappings for the transcript:
+.. raw:: html
 
-.. note::
-
-   These examples use the following data:
-
-   .. code-block:: python
-
-       _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-       _cds = (32, 43)
-
----
-
-Genomic Positions
-=================
+   <div style="overflow-x:auto;">
 
 .. csv-table:: Coordinate to Genomic Position
    :header: "Coordinate", "Position"
@@ -123,6 +111,10 @@ Genomic Positions
    17, 18
    18, 19
    19, 20
+
+.. raw:: html
+
+   </div>
 
 NonCoding Class
 ---------------
