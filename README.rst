@@ -138,9 +138,10 @@ Notes
 
 Here is the mapping of coordinates to noncoding positions:
 
-.. code-block:: text
+.. csv-table::
+   :class: table-scroll
+   :header: "Coordinate", "Position", "Offset", "Region"
 
-   Coordinate, Position, Offset, Region
    "0", "5","0", "u"
    "1", "4","0", "u"
    "2", "3","0", "u"
