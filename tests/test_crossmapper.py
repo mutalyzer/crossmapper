@@ -65,7 +65,10 @@ def test_NonCoding_degenerate():
     # Boundary between upstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate, 4,
-        [{"position": 1, "offset": 0, "region":"u"}])
+        [
+            {"position": 1, "offset": 0, "region":"u"},
+            {"position": 0, "offset": -1, "region":"u"}
+            ])
 
     # Boundary between downstream and transcript.
     degenerate_equal(
@@ -234,7 +237,7 @@ def test_Coding_no_utr5():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, #(1, -1, 0, -1)
+        crossmap.coding_to_coordinate,
         {'position': 1, 'offset': 0, 'region': 'u'}) # serialize result : u1
     invariant(
         crossmap.coordinate_to_coding, 10,
@@ -249,7 +252,7 @@ def test_Coding_no_utr5_inverted():
     # Direct transition from upstream to CDS.
     invariant(
         crossmap.coordinate_to_coding, 20,
-        crossmap.coding_to_coordinate, #(1, -1, 0, -1)
+        crossmap.coding_to_coordinate,
         {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 19,
@@ -295,16 +298,16 @@ def test_Coding_small_utr5():
     # Transition from upstream to 5' UTR to CDS.
     invariant(
         crossmap.coordinate_to_coding, 9,
-        crossmap.coding_to_coordinate, #(-1, -1, -1, -1)
+        crossmap.coding_to_coordinate,
         {'position': 1, 'offset': 0, 'region': 'u'})
     invariant(
         crossmap.coordinate_to_coding, 10,
-        crossmap.coding_to_coordinate, #(-1, 0, -1, 0))
+        crossmap.coding_to_coordinate,
         {'position': 1, 'offset': 0, 'region': '-'}
     )
     invariant(
         crossmap.coordinate_to_coding, 11,
-        crossmap.coding_to_coordinate, #(1, 0, 0, 0))
+        crossmap.coding_to_coordinate,
         {'position': 1, 'offset': 0, 'region': ''})
 
 
@@ -372,13 +375,29 @@ def test_Coding_degenerate():
     degenerate_equal(
         crossmap.coding_to_coordinate, 9,
         [
-            {'position': 1, 'offset': 8, 'region': 'u'},
-            {'position': 8, 'offset': 1, 'region': 'u'},
-            {'position': -1, 'offset': 10, 'region': 'u'}
+            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 2, 'offset': 1, 'region': 'u'},
+            {'position': 0, 'offset': -1, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': '-'},
+            {'position': 2, 'offset': 0, 'region': '-'},
+            {'position': 1, 'offset': -2, 'region': ''},
         ])
     degenerate_equal(
         crossmap.coding_to_coordinate, 20,
-        [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
+        [
+            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 8, 'offset': -7, 'region': 'd'},
+            {'position': 0, 'offset': -1, 'region': 'd'},
+            {'position': 2, 'offset': 0, 'region': '*'},
+            {'position': 1, 'offset': 1, 'region': '*'},
+            {'position': 8, 'offset': 2, 'region': ''},
+        ]
+    )
+
+
+#TODO: Add tests for silently degenerate,
+#   position value <= 0
+#   offset value > intron length
 
 
 def test_Coding_inverted_degenerate():
@@ -387,26 +406,46 @@ def test_Coding_inverted_degenerate():
 
     degenerate_equal(
         crossmap.coding_to_coordinate, 20,
-        [(-1, -1, -1, -1), (-2, 0, -1, -1), (1, -2, 0, -1), (1, -10, 1, -1)])
+        [
+            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 2, 'offset': 1, 'region': 'u'},
+            {'position': 0, 'offset': -1, 'region': 'u'},
+            {'position': 1, 'offset': -2, 'region': ''},
+            {'position': 1, 'offset': -1, 'region': '-'},
+            {'position': 2, 'offset': 0, 'region': '-'}
+        ]
+    )
     degenerate_equal(
         crossmap.coding_to_coordinate, 9,
-        [(1, 1, 1, 1), (2, 0, 1, 1), (8, 2, 0, 1), (-1, 10, -1, 1)])
+        [
+            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 2, 'offset': -1, 'region': 'd'},
+            {'position': 1, 'offset': 1, 'region': '*'},
+            {'position': 1, 'offset': 1, 'region': '*'},
+            {'position': 10, 'offset': 0, 'region': ''},
+        ]
+    )
 
 
 def test_Coding_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20)], (11, 19))
 
-    assert crossmap.coordinate_to_coding(9, True) == (-2, 0, -1, -1)
-    assert crossmap.coordinate_to_coding(20, True) == (2, 0, 1, 1)
+    for i in range(0, 30):
+        print(i, crossmap.coordinate_to_coding(i), crossmap.coordinate_to_coding(i, True))
+
+    assert crossmap.coordinate_to_coding(9, True) == {'position': 2, 'offset': 0, 'region': '-'}
+    assert crossmap.coordinate_to_coding(20, True) == {'position': 2, 'offset': 0, 'region': '*'}
 
 
 def test_Coding_inverted_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20)], (11, 19), True)
+    for i in range(0, 30):
+        print(i, crossmap.coordinate_to_coding(i), crossmap.coordinate_to_coding(i, True))
 
-    assert crossmap.coordinate_to_coding(20, True) == (-2, 0, -1, -1)
-    assert crossmap.coordinate_to_coding(9, True) == (2, 0, 1, 1)
+    assert crossmap.coordinate_to_coding(20, True) == {'position': 2, 'offset': 0, 'region': '-'}
+    assert crossmap.coordinate_to_coding(9, True) == {'position': 2, 'offset': 0, 'region': '*'}
 
 
 def test_Coding_degenerate_no_return():
@@ -431,32 +470,55 @@ def test_Coding_no_utr_degenerate():
 
     degenerate_equal(
         crossmap.coding_to_coordinate, 9,
-        [(1, -1, 0, -1), (-1, 0, -1, -1), (1, -2, 1, -1)])
+        [
+            {'position': 1, 'offset': 0, 'region': '-'},
+            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': ''},
+        ]
+    )
     degenerate_equal(
         crossmap.coding_to_coordinate, 11,
-        [(1, 1, 0, 1), (1, 0, 1, 1), (-1, 2, -1, 1)])
-
+        [
+            {'position': 1, 'offset': 0, 'region': '*'},
+            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 1, 'offset': 1, 'region': ''}
+        ]
+    )
 
 def test_Coding_inverted_no_utr_degenerate():
     """UTRs may be missing."""
     crossmap = Coding([(10, 11)], (10, 11), True)
 
+        # [(1, -1, 0, -1), (-1, 0, -1, -1), (1, -2, 1, -1)])
     degenerate_equal(
         crossmap.coding_to_coordinate, 11,
-        [(1, -1, 0, -1), (-1, 0, -1, -1), (1, -2, 1, -1)])
+        [
+            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 2, 'offset': 1, 'region': 'u'},
+            {'position': 1, 'offset': 0, 'region': '-'},
+            {'position': 1, 'offset': 0, 'region': '*'},
+        ]
+)
     degenerate_equal(
         crossmap.coding_to_coordinate, 9,
-        [(1, 1, 0, 1), (1, 0, 1, 1), (-1, 2, -1, 1)])
-
+        [
+            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 1, 'offset': 0, 'region': '*'},
+            {'position': 1, 'offset': -1, 'region': ''},
+        ]
+    )
 
 def test_Coding_no_utr_degenerate_return():
     """UTRs may be missing."""
     crossmap = Coding([(10, 11)], (10, 11))
 
-    assert crossmap.coordinate_to_coding(8, True) == (-2, 0, -1, -2)
-    assert crossmap.coordinate_to_coding(9, True) == (-1, 0, -1, -1)
-    assert crossmap.coordinate_to_coding(11, True) == (1, 0, 1, 1)
-    assert crossmap.coordinate_to_coding(12, True) == (2, 0, 1, 2)
+    print(crossmap.coordinate_to_coding(11), crossmap.coordinate_to_coding(11, True))
+    print(crossmap.coordinate_to_coding(12), crossmap.coordinate_to_coding(12, True))
+
+    assert crossmap.coordinate_to_coding(8, True) == {'position': 2, 'offset': 0, 'region': '-'}#(-2, 0, -1, -2)
+    assert crossmap.coordinate_to_coding(9, True) == {'position': 1, 'offset': 0, 'region': '-'}#(-1, 0, -1, -1)
+    assert crossmap.coordinate_to_coding(11, True) == {'position': 1, 'offset': 0, 'region': '*'}#(1, 0, 1, 1)
+    assert crossmap.coordinate_to_coding(12, True) == {'position': 2, 'offset': 0, 'region': '*'}#(2, 0, 1, 2)
 
 
 def test_Coding_inverted_no_utr_degenerate_return():
