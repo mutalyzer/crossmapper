@@ -138,10 +138,9 @@ Notes
 
 Here is the mapping of coordinates to noncoding positions:
 
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "Offset", "Region"
+.. code-block:: text
 
+   Coordinate, Position, Offset, Region
    "0", "5","0", "u"
    "1", "4","0", "u"
    "2", "3","0", "u"
@@ -224,6 +223,7 @@ Here is the mapping of coordinates to noncoding positions:
    "79", "8","0", "d"
 
 
+
 Coding Class
 ------------
 
@@ -267,7 +267,7 @@ Notes
 
 Here is the mapping of coordinates to coding positions:
 
-.. csv-table:: My Scrollable Table
+.. csv-table::
    :class: table-scroll
    :header: "Coordinate", "Position", "Offset", "Region"
 
