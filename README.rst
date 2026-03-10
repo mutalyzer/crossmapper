@@ -144,34 +144,34 @@ Here is the mapping of coordinates to noncoding positions:
 
    <div style="overflow-x:auto;">
 
-   .. csv-table:: Coordinate Mapping
-      :header: "Coordinate", "Position", "Offset", "Region"
+.. csv-table:: Coordinate Mapping to Noncoding
+   :header: "Coordinate", "Position", "Offset", "Region"
 
-      0, 5, 0, u
-      1, 4, 0, u
-      2, 3, 0, u
-      3, 2, 0, u
-      4, 1, 0, u
-      5, 1, 0, ""
-      6, 2, 0, ""
-      7, 3, 0, ""
-      8, 3, 1, ""
-      9, 3, 2, ""
-      10, 3, 3, ""
-      11, 4, -3, ""
-      12, 4, -2, ""
-      13, 4, -1, ""
-      14, 4, 0, ""
-      15, 5, 0, ""
-      16, 6, 0, ""
-      17, 7, 0, ""
-      18, 8, 0, ""
-      19, 9, 0, ""
-      20, 9, 1, ""
-      ...
-      79, 8, 0, d
+   0, 5, 0, u
+   1, 4, 0, u
+   2, 3, 0, u
+   3, 2, 0, u
+   4, 1, 0, u
+   5, 1, 0, ""
+   6, 2, 0, ""
+   7, 3, 0, ""
+   8, 3, 1, ""
+   9, 3, 2, ""
+   10, 3, 3, ""
+   11, 4, -3, ""
+   12, 4, -2, ""
+   13, 4, -1, ""
+   14, 4, 0, ""
+   15, 5, 0, ""
+   16, 6, 0, ""
+   17, 7, 0, ""
+   18, 8, 0, ""
+   19, 9, 0, ""
+   20, 9, 1, ""
+   ...
+   79, 8, 0, d
 
-   .. raw:: html
+.. raw:: html
 
    </div>
 
@@ -218,7 +218,11 @@ Notes
 
 Here is the mapping of coordinates to coding positions:
 
-.. csv-table:: Coordinate Mapping
+.. raw:: html
+
+   <div style="overflow-x:auto;">
+
+.. csv-table:: Coordinate Mapping to Coding
    :header: "Coordinate", "Position", "Offset", "Region"
 
    0, 5, 0, u
@@ -301,6 +305,10 @@ Here is the mapping of coordinates to coding positions:
    77, 6, 0, d
    78, 7, 0, d
    79, 8, 0, d
+
+.. raw:: html
+
+   </div>
 
 Protein
 -------
