@@ -138,6 +138,10 @@ Notes
 
 Here is the mapping of coordinates to noncoding positions:
 
+.. raw:: html
+
+    <div style="overflow-x:auto;">
+
 .. csv-table:: Coordinate Mapping
    :header: "Coordinate", "Position", "Offset", "Region"
 
@@ -222,6 +226,8 @@ Here is the mapping of coordinates to noncoding positions:
    78, 7, 0, d
    79, 8, 0, d
 
+.. raw:: html
+    </div>
 
 Coding Class
 ------------
