@@ -54,7 +54,7 @@ as dictionaries:
     {"position": int}
 
 Where:
-- ``position`` is a positive integer
+- **position**: a positive integer
 
 **Genomic Position Conversion**
 .. code:: python
@@ -80,10 +80,10 @@ as dictionaries:
     "region": str
    }
 Where:
-- `position` is a positive interger
-- `offset` is an interger indicating the offset relative to the position (e.g.,
+- **position**: a positive interger
+- **offset**: an interger indicating the offset relative to the position (e.g.,
 negative for upstream or positive for downstream)
-- `region` uses string describing the region type (empty string `""` for standard
+- **region**: a string describing the region type (empty string `""` for standard
 noncoding positions, `"u"` for upstream and `"d"` for downstream.)
 
 **NonCoding Position Conversion**
@@ -115,10 +115,10 @@ dictionaries:
     "region": str
    }
 Where:
-- `position` is a positive interger
-- `offset` is an interger indicating the offset relative to the position (e.g.,
+- **position**: a positive interger
+- **offset**: an interger indicating the offset relative to the position (e.g.,
 negative for upstream or positive for downstream)
-- `region` uses string describing the region type (empty string `""` for standard
+- **region**: a string describing the region type (empty string `""` for standard
 coding positions, `"-"` for 5' UTR, `"*"` for 3' UTR, `"u"` for upstream and `"d"`
 for downstream.)
 
