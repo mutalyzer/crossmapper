@@ -138,13 +138,11 @@ Notes
 
 Here is the mapping of coordinates to noncoding positions:
 
-Here is the mapping of coordinates to noncoding positions:
-
 .. raw:: html
 
-   <div style="overflow-x:auto;">
+   <div style="max-height:300px; overflow-y:auto;">
 
-.. csv-table:: Coordinate Mapping to Noncoding
+.. csv-table::
    :header: "Coordinate", "Position", "Offset", "Region"
 
    0, 5, 0, u
@@ -220,7 +218,7 @@ Here is the mapping of coordinates to coding positions:
 
 .. raw:: html
 
-   <div style="overflow-x:auto;">
+   <div style="max-height:300px; overflow-y:auto;">
 
 .. csv-table:: Coordinate Mapping to Coding
    :header: "Coordinate", "Position", "Offset", "Region"
