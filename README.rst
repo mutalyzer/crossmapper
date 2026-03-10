@@ -44,10 +44,13 @@ Please see ReadTheDocs_ for the latest documentation.
 Quick Start
 ===========
 
+Genomic Class
+-------------
+
 The ``Genomic`` class provides an interface for conversions between genomic positions and coordinates.
 
 Genomic Position Model
----------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 Genomic positions follow the HGVS ``g`` coordinate system. They are represented as dictionaries:
 
@@ -58,11 +61,10 @@ Genomic positions follow the HGVS ``g`` coordinate system. They are represented 
     }
 
 Where:
-
 - **position**: a positive integer
 
 Genomic Position Conversion
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: python
 
@@ -92,7 +94,6 @@ Noncoding positions follow the HGVS ``n`` coordinate system. They are represente
     }
 
 Where:
-
 - **position**: a positive integer
 - **offset**: an integer indicating the offset relative to the position (negative for upstream, positive for downstream)
 - **region**: a string describing the region type (``""`` for standard, ``"u"`` for upstream, ``"d"`` for downstream)
@@ -134,7 +135,6 @@ Coding positions follow the HGVS ``c`` coordinate system. They are represented a
     }
 
 Where:
-
 - **position**: a positive integer
 - **offset**: an integer indicating the offset relative to the position
 - **region**: a string describing the region type (``""`` for standard coding positions, ``"-"`` for 5' UTR, ``"*"`` for 3' UTR, ``"u"`` for upstream, ``"d"`` for downstream)
@@ -157,8 +157,11 @@ Notes
 
 - The flag ``inverted=True`` can be used for transcripts on the reverse complement strand.
 
+Protein
+-------
+
 Protein Position Model
----------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 Protein positions follow the HGVS ``p`` coordinate system. They are represented as dictionaries:
 
@@ -179,7 +182,7 @@ Where:
 - **region**: a string describing the region type (``""`` for standard positions)
 
 Protein Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Conversions between protein positions and coordinates:
 
