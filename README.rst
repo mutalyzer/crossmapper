@@ -45,7 +45,7 @@ Quick start
 -----------
 The `Genomic` class provides an interface to conversions between genomic positions and coordinates.
 
-***Genomic Position Model***
+**Genomic Position Model**
 Genomic positions follow the HGVS ``g`` coordinate system. They are represented
 as dictionaries:
 
@@ -56,7 +56,7 @@ as dictionaries:
 Where:
 - ``position`` is a positive integer
 
-***Genomic Position Conversion***
+**Genomic Position Conversion**
 .. code:: python
 
     >>> from mutalyzer_crossmapper import Genomic
@@ -70,7 +70,7 @@ On top of the functionality provided by the ``Genomic`` class, the
 ``NonCoding`` class provides an interface to conversions between noncoding
 positions and coordinates.
 
-***NonCoding Position Model***
+**NonCoding Position Model**
 Noncoding positions follow the HGVS `n` coordinate system. They are represented
 as dictionaries:
 .. code:: json
@@ -86,7 +86,7 @@ negative for upstream or positive for downstream)
 - `region` uses string describing the region type (empty string `""` for standard
 noncoding positions, `"u"` for upstream and `"d"` for downstream.)
 
-***NonCoding Position Conversion***
+**NonCoding Position Conversion**
 .. code:: python
 
     >>> from mutalyzer_crossmapper import NonCoding
@@ -97,7 +97,7 @@ noncoding positions, `"u"` for upstream and `"d"` for downstream.)
     >>> crossmap.noncoding_to_coordinate({"position": 14, "offset": 1, "region": ""})
     35
 
-****Notes****
+***Notes***
 - Add the flag ``inverted=True`` to the constructor when the transcript resides
 on the reverse complement strand.
 
@@ -105,7 +105,7 @@ On top of the functionality provided by the ``NonCoding`` class, the ``Coding``
 class provides an interface to conversions between coding positions and
 coordinates as well as conversions between protein positions and coordinates.
 
-***Coding Position Model***
+**Coding Position Model**
 Coding positions follow the HGVS `c`` coordinate system. They are represented as
 dictionaries:
 .. code:: json
@@ -122,7 +122,7 @@ negative for upstream or positive for downstream)
 coding positions, `"-"` for 5' UTR, `"*"` for 3' UTR, `"u"` for upstream and `"d"`
 for downstream.)
 
-***Coding Position Conversion***
+**Coding Position Conversion**
 .. code:: python
 
     >>> from mutalyzer_crossmapper import Coding
@@ -133,12 +133,12 @@ for downstream.)
     >>> crossmap.coding_to_coordinate({"position": -1, "offset": 0, "region": "-"})
     31
 
-****Notes****
+***Notes***
 - Again, the flag ``inverted=True`` can be used for transcripts that reside on
 the reverse complement strand.
 
 
-***Protein Position Model***
+**Protein Position Model**
 Protein positions follow the HGVS `p`` coordinate system. They are represented
 as dictionaries:
 .. code:: json
@@ -154,7 +154,7 @@ Where:
 - **offset**: an integer indicating offset relative to the codon
 - **region**: a string describing the region type (empty string `""`` for standard positions)
 
-***Protein Position Conversion***
+**Protein Position Conversion**
 
 Conversions between protein positions and coordinates are done as follows.
 .. code:: python
