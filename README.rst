@@ -138,6 +138,8 @@ Notes
 
 Here is the mapping of coordinates to noncoding positions:
 
+Here is the mapping of coordinates to noncoding positions:
+
 .. raw:: html
 
    <div style="overflow-x:auto;">
@@ -171,8 +173,7 @@ Here is the mapping of coordinates to noncoding positions:
 
    .. raw:: html
 
-        </div>
-
+   </div>
 
 Coding Class
 ------------
