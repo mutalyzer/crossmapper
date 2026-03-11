@@ -300,7 +300,7 @@ def test_Coding_no_utr5_inverted():
         crossmap.coordinate_to_coding,
         19,
         crossmap.coding_to_coordinate,
-        {"position": 2, "offset": 0, "region": "-"},
+        {"position": 1 , "offset": 0, "region": ""},
     )
 
 
@@ -313,7 +313,7 @@ def test_Coding_no_utr3():
         crossmap.coordinate_to_coding,
         19,
         crossmap.coding_to_coordinate,
-        {"position": 9, "offset": 0, "region": "*"},
+        {"position": 5, "offset": 0, "region": ""},
     )
     invariant(
         crossmap.coordinate_to_coding,
@@ -508,10 +508,7 @@ def test_Coding_degenerate_return():
 def test_Coding_inverted_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20)], (11, 19), True)
-    for i in range(0, 30):
-        print(
-            i, crossmap.coordinate_to_coding(i), crossmap.coordinate_to_coding(i, True)
-        )
+
 
     assert crossmap.coordinate_to_coding(20, True) == {
         "position": 2,
@@ -571,6 +568,8 @@ def test_Coding_inverted_no_utr_degenerate():
         [
             {"position": 1, "offset": 0, "region": "u"},
             {"position": 2, "offset": 1, "region": "u"},
+            {"position": 1, "offset": 0, "region": "-"},
+
         ],
     )
     degenerate_equal(
@@ -617,7 +616,7 @@ def test_Coding_inverted_no_utr_degenerate_return():
     crossmap = Coding([(10, 11)], (10, 11), True)
 
     assert crossmap.coordinate_to_coding(11, True) == {
-        "position": 3,
+        "position": 1,
         "offset": 0,
         "region": "-",
     }

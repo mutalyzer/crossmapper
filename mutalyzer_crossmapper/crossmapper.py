@@ -68,18 +68,20 @@ class Coding(NonCoding):
         NonCoding.__init__(self, locations, inverted)
 
         b0 = self._noncoding.to_position(cds[0])
-        b1 = self._noncoding.to_position(cds[1])
+        b1 = self._noncoding.to_position(cds[1]-1)
         e0 = self._noncoding.to_position(locations[0][0])
         e1 = self._noncoding.to_position(locations[-1][1]-1)
 
         if self._inverted:
-            self._coding = (b1["position"] + b1["offset"] + 1, b0["position"] + b0["offset"] + 1)
+            self._coding = (b1["position"] + b1["offset"], b0["position"] + b0["offset"] + 1)
             self._cds_len = abs((b0["position"] + b0["offset"]) - (b1["position"] + b1["offset"]))
-            self._exons_end = e0["position"]
+            self._exons_end = e1["position"]
+            self._exons_start = e0["position"]
         else:
-            self._coding = (b0["position"] + b0["offset"], b1["position"] + b1["offset"])
+            self._coding = (b0["position"] + b0["offset"], b1["position"] + b1["offset"] +1)
             self._cds_len = abs((b1["position"] + b1["offset"]) - (b0["position"] + b0["offset"]))
             self._exons_end = e1["position"]
+            self._exons_start = e0["position"]
 
     def _coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a coding position (c./r.).
@@ -89,7 +91,6 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         noncoding_pos_m = self._noncoding.to_position(coordinate)
-
         location = noncoding_pos_m["position"]
         if noncoding_pos_m["region"] == "":
             if location < self._coding[0]:
@@ -124,10 +125,16 @@ class Coding(NonCoding):
         pos_m = self._coordinate_to_coding(coordinate)
         if degenerate:
             if pos_m["region"] == "u":
-                pos_m["position"] = pos_m["position"] + self._coding[0]
+                if self._inverted:
+                    pos_m["position"] = pos_m["position"] + self._exons_start - self._coding[1] + 1
+                else:
+                    pos_m["position"] = pos_m["position"] + self._coding[0]
                 pos_m["region"] = "-"
             if pos_m["region"] == "d":
-                pos_m["position"] = pos_m["position"] + self._exons_end - self._coding[1] + 1
+                if self._inverted:
+                    pos_m["position"] = pos_m["position"] + self._coding[0]
+                else:
+                    pos_m["position"] = pos_m["position"] + self._exons_end - self._coding[1] + 1
                 pos_m["region"] = "*"
         return pos_m
 
@@ -159,17 +166,31 @@ class Coding(NonCoding):
             }
         # add checks for degenerate results?
         elif region == "-":
-            noncoding_pos_m = {
-                "position": self._coding[0] - pos_m["position"],
-                "offset": pos_m["offset"],
-                "region": ""
-            }
+            if pos_m["position"] > self._coding[0]: #degenerate result
+                noncoding_pos_m = {
+                    "position": pos_m["position"] - self._coding[0],
+                    "offset": pos_m["offset"],
+                    "region": "u"
+                }
+            else:
+                noncoding_pos_m = {
+                    "position": self._coding[0] - pos_m["position"],
+                    "offset": pos_m["offset"],
+                    "region": ""
+                }
         else: # *
-            noncoding_pos_m = {
-                "position": self._coding[1] + pos_m["position"] - 1,
-                "offset": pos_m["offset"],
-                "region": ""
-            }
+            if pos_m["position"] > self._coding[1]:
+                noncoding_pos_m = {
+                    "position": pos_m["position"] - self._coding[1],
+                    "offset": pos_m["offset"],
+                    "region": "d"
+                }
+            else:
+                noncoding_pos_m = {
+                    "position": self._coding[1] + pos_m["position"] - 1,
+                    "offset": pos_m["offset"],
+                    "region": ""
+                }
         return self._noncoding.to_coordinate(noncoding_pos_m)
 
 
