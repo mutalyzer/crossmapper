@@ -477,6 +477,7 @@ def test_Coding_inverted_degenerate():
             {"position": 1, "offset": 0, "region": "u"},
             {"position": 2, "offset": 1, "region": "u"},
             {"position": 0, "offset": -1, "region": "u"},
+            {"position": 2, "offset": 0, "region": "-"},
         ],
     )
     degenerate_equal(
@@ -485,6 +486,7 @@ def test_Coding_inverted_degenerate():
         [
             {"position": 1, "offset": 0, "region": "d"},
             {"position": 2, "offset": -1, "region": "d"},
+            {"position": 2, "offset": 0, "region": "*"},
         ],
     )
 
@@ -546,6 +548,7 @@ def test_Coding_no_utr_degenerate():
         [
             {"position": 2, "offset": 1, "region": "u"},
             {"position": 1, "offset": 0, "region": "u"},
+            {"position": 1, "offset": 0, "region": "-"},
         ],
     )
     degenerate_equal(
@@ -554,6 +557,7 @@ def test_Coding_no_utr_degenerate():
         [
             {"position": 1, "offset": 0, "region": "d"},
             {"position": 2, "offset": -1, "region": "d"},
+            {"position": 1, "offset": 0, "region": "*"},
         ],
     )
 
@@ -578,6 +582,8 @@ def test_Coding_inverted_no_utr_degenerate():
         [
             {"position": 1, "offset": 0, "region": "d"},
             {"position": 2, "offset": -1, "region": "d"},
+            {"position": 1, "offset": 0, "region": "*"},
+            {"position": 1, "offset": 1, "region": ""},
         ],
     )
 
@@ -585,9 +591,6 @@ def test_Coding_inverted_no_utr_degenerate():
 def test_Coding_no_utr_degenerate_return():
     """UTRs may be missing."""
     crossmap = Coding([(10, 11)], (10, 11))
-
-    print(crossmap.coordinate_to_coding(11), crossmap.coordinate_to_coding(11, True))
-    print(crossmap.coordinate_to_coding(12), crossmap.coordinate_to_coding(12, True))
 
     assert crossmap.coordinate_to_coding(8, True) == {
         "position": 2,
