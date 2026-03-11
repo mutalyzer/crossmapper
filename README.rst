@@ -64,9 +64,7 @@ Genomic positions follow the HGVS ``g`` coordinate system. They are represented 
 
 .. code-block:: json
 
-    {
-        "position": 1
-    }
+    {"position": 1}
 
 Where:
 
@@ -211,15 +209,15 @@ Protein
 Protein Position Model
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Protein positions follow the HGVS ``p`` coordinate system. They are represented as dictionaries:
+Protein positions follow the HGVS ``p`` coordinate system. They are represented as dictionaries. Here is an example of ``p.1`` in HGVS.
 
 .. code-block:: json
 
     {
-        "position": int,
-        "position_in_codon": int,
-        "offset": int,
-        "region": str
+        "position": 1,
+        "position_in_codon": 3,
+        "offset": 3,
+        "region": ''
     }
 
 Where:
@@ -227,7 +225,7 @@ Where:
 - **position**: the amino acid position (1-based)
 - **position_in_codon**: the codon nucleotide index (1, 2, or 3)
 - **offset**: an integer indicating offset relative to the codon
-- **region**: a string describing the region type (``""`` for standard positions)
+- **region**: a string describing the region type (``''`` for standard positions)
 
 Protein Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -236,10 +234,10 @@ Conversions between protein positions and coordinates:
 
 .. code-block:: python
 
-    >>> crossmap.coordinate_to_protein(41)
-    {"position": 2, "position_in_codon": 2, "offset": 1, "region": ""}
-    >>> crossmap.protein_to_coordinate({"position": 2, "position_in_codon": 2, "offset": 1, "region": ""})
-    41
+    >>> crossmap.coordinate_to_protein(37)
+    {"position": 1, "position_in_codon": 3, "offset": 3, "region": ""}
+    >>> crossmap.protein_to_coordinate({"position": 1, "position_in_codon": 3, "offset": 3, "region": ""})
+    37
 
 
 .. _numbering: http://varnomen.hgvs.org/bg-material/numbering/
