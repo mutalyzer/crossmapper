@@ -60,17 +60,17 @@ The ``Genomic`` class provides an interface for conversions between genomic posi
 Genomic Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Genomic positions follow the HGVS ``g`` coordinate system. They are represented as dictionaries:
+Genomic positions follow the HGVS ``g`` coordinate system. They are represented as dictionaries. Below is an example of `g.1` in HGVS.
 
 .. code-block:: json
 
     {
-        "position": int
+        "position": 1
     }
 
 Where:
 
-- **position**: a positive integer
+- **position**: a positive integer(>0)
 
 Genomic Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,17 +83,6 @@ Genomic Position Conversion
     {"position": 1}
     >>> crossmap.genomic_to_coordinate({"position": 1})
     0
-Here is the mapping of coordinates to genomic positions:
-
-.. csv-table:: Coordinate to Genomic Position (0-4)
-   :header: "Coordinate", "Position"
-
-   0, 1
-   1, 2
-   2, 3
-   3, 4
-   4, 5
-   ...
 
 NonCoding Class
 ---------------
@@ -103,21 +92,21 @@ The ``NonCoding`` class provides conversions between noncoding positions and coo
 NonCoding Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Noncoding positions follow the HGVS ``n`` coordinate system. They are represented as dictionaries:
+Noncoding positions follow the HGVS ``n`` coordinate system. They are represented as dictionaries. Below is an example of ``n.14+1`` in HGVS.
 
 .. code-block:: json
 
     {
-        "position": int,
-        "offset": int,
-        "region": str
+        "position": 10,
+        "offset": -5,
+        "region": ''
     }
 
 Where:
 
-- **position**: a positive integer
+- **position**: a positive integer (>0)
 - **offset**: an integer indicating the offset relative to the position (negative for upstream, positive for downstream)
-- **region**: a string describing the region type (``""`` for standard, ``"u"`` for upstream, ``"d"`` for downstream)
+- **region**: a string describing the region type (``''`` for standard, ``'u'`` for upstream, ``'d'`` for downstream)
 
 NonCoding Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,10 +115,10 @@ NonCoding Position Conversion
 
     >>> from mutalyzer_crossmapper import NonCoding
     >>> crossmap = NonCoding(_exons)
-    >>> crossmap.coordinate_to_noncoding(35)
-    {"position": 14, "offset": 1, "region": ""}
-    >>> crossmap.noncoding_to_coordinate({"position": 14, "offset": 1, "region": ""})
-    35
+    >>> crossmap.coordinate_to_noncoding(25)
+    {"position": 10, "offset": -5, "region": ""}
+    >>> crossmap.noncoding_to_coordinate({"position": 10, "offset": -5, "region": ''})
+    25
 
 Notes
 ~~~~~
@@ -140,88 +129,18 @@ Here is the mapping of coordinates to noncoding positions:
 
 .. csv-table::
    :class: table-scroll
-   :header: "Coordinate", "Position", "Offset", "Region"
+   :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
 
-   "0", "5","0", "u"
-   "1", "4","0", "u"
-   "2", "3","0", "u"
-   "3", "2","0", "u"
-   "4", "1","0", "u"
-   "5", "1","0", ""
-   "6", "2","0", ""
-   "7", "3","0", ""
-   "8", "3","1", ""
-   "9", "3","2", ""
-   "10", "3","3", ""
-   "11", "4","-3", ""
-   "12", "4","-2", ""
-   "13", "4","-1", ""
-   "14", "4","0", ""
-   "15", "5","0", ""
-   "16", "6","0", ""
-   "17", "7","0", ""
-   "18", "8","0", ""
-   "19", "9","0", ""
-   "20", "9","1", ""
-   "21", "9","2", ""
-   "22", "9","3", ""
-   "23", "9","4", ""
-   "24", "9","5", ""
-   "25", "10","-5", ""
-   "26", "10","-4", ""
-   "27", "10","-3", ""
-   "28", "10","-2", ""
-   "29", "10","-1", ""
-   "30", "10","0", ""
-   "31", "11","0", ""
-   "32", "12","0", ""
-   "33", "13","0", ""
-   "34", "14","0", ""
-   "35", "14","1", ""
-   "36", "14","2", ""
-   "37", "14","3", ""
-   "38", "15","-2", ""
-   "39", "15","-1", ""
-   "40", "15","0", ""
-   "41", "16","0", ""
-   "42", "17","0", ""
-   "43", "18","0", ""
-   "44", "18","1", ""
-   "45", "18","2", ""
-   "46", "18","3", ""
-   "47", "19","-3", ""
-   "48", "19","-2", ""
-   "49", "19","-1", ""
-   "50", "19","0", ""
-   "51", "20","0", ""
-   "52", "20","1", ""
-   "53", "20","2", ""
-   "54", "20","3", ""
-   "55", "20","4", ""
-   "56", "20","5", ""
-   "57", "20","6", ""
-   "58", "20","7", ""
-   "59", "20","8", ""
-   "60", "20","9", ""
-   "61", "21","-9", ""
-   "62", "21","-8", ""
-   "63", "21","-7", ""
-   "64", "21","-6", ""
-   "65", "21","-5", ""
-   "66", "21","-4", ""
-   "67", "21","-3", ""
-   "68", "21","-2", ""
-   "69", "21","-1", ""
-   "70", "21","0", ""
-   "71", "22","0", ""
-   "72", "1","0", "d"
-   "73", "2","0", "d"
-   "74", "3","0", "d"
-   "75", "4","0", "d"
-   "76", "5","0", "d"
-   "77", "6","0", "d"
-   "78", "7","0", "d"
-   "79", "8","0", "d"
+   "4", "1","0", "u", "n.u1"
+   "5", "1","0", "", "n.1"
+   ...
+   "24", "9","5", "", "n.9+5"
+   "25", "10","-5", "", "n.10-5"
+   ...
+   "71", "22","0", "", "n.22"
+   "72", "1","0", "d", "n.d1"
+   ...
+   "79", "8","0", "d", "n.d8"
 
 
 
