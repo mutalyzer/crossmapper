@@ -116,7 +116,7 @@ NonCoding Position Conversion
     >>> from mutalyzer_crossmapper import NonCoding
     >>> crossmap = NonCoding(_exons)
     >>> crossmap.coordinate_to_noncoding(25)
-    {"position": 10, "offset": -5, "region": ""}
+    {"position": 10, "offset": -5, "region": ''}
     >>> crossmap.noncoding_to_coordinate({"position": 10, "offset": -5, "region": ''})
     25
 
@@ -131,13 +131,13 @@ Here is the mapping of coordinates to noncoding positions:
    :class: table-scroll
    :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
 
-   "4", "1","0", "u", "n.u1"
-   "5", "1","0", "", "n.1"
-   "24", "9","5", "", "n.9+5"
-   "25", "10","-5", "", "n.10-5"
-   "71", "22","0", "", "n.22"
-   "72", "1","0", "d", "n.d1"
-   "79", "8","0", "d", "n.d8"
+   "4", "1","0", "'u'", "n.u1"
+   "5", "1","0", "''", "n.1"
+   "24", "9","5", "''", "n.9+5"
+   "25", "10","-5", "''", "n.10-5"
+   "71", "22","0", "''", "n.22"
+   "72", "1","0", "'d'", "n.d1"
+   "79", "8","0", "'d'", "n.d8"
 
 
 
@@ -188,19 +188,19 @@ Here is the mapping of coordinates to coding positions:
    :class: table-scroll
    :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
 
-   "4", "1","0", "u", "c.u1"
+   "4", "1","0", "'u'", "c.u1"
    "5", "11","0", '-', "c.-11"
    "24", "3","5", '-', "c.-3+5"
    "25", "2","-5", '-', "c.-2-5"
    "31", "1","0", '-', "c.-1"
-   "32", "1","0", "", "c.1"
-   "37", "3","3", "", "c.3+3"
-   "38", "4","-2", "", "c.4-2"
+   "32", "1","0", "''", "c.1"
+   "37", "3","3", "''", "c.3+3"
+   "38", "4","-2", "''", "c.4-2"
    "43", "1","0", '*', "c.*1"
    "60", "3","9", '*', "c.*3+9"
    "61", "4","-9", '*', "c.*4+9"
    "71", "5","0", '*', "c.*5"
-   "79", "8","0", "d", "c.d8"
+   "79", "8","0", "'d'", "c.d8"
 
 
 
