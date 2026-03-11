@@ -31,6 +31,12 @@ def test_NonCoding():
     # Boundary between upstream and transcript.
     invariant(
         crossmap.coordinate_to_noncoding,
+        3,
+        crossmap.noncoding_to_coordinate,
+        {"position": 2, "offset": 0, "region": "u"},
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
         4,
         crossmap.noncoding_to_coordinate,
         {"position": 1, "offset": 0, "region": "u"},
