@@ -97,7 +97,7 @@ Noncoding positions follow the HGVS ``n`` coordinate system. They are represente
     {
         "position": 10,
         "offset": -5,
-        "region": ''
+        "region": ""
     }
 
 Where:
@@ -217,7 +217,7 @@ Protein positions follow the HGVS ``p`` coordinate system. They are represented 
         "position": 1,
         "position_in_codon": 3,
         "offset": 3,
-        "region": ''
+        "region": ""
     }
 
 Where:
@@ -238,6 +238,27 @@ Conversions between protein positions and coordinates:
     {"position": 1, "position_in_codon": 3, "offset": 3, "region": ""}
     >>> crossmap.protein_to_coordinate({"position": 1, "position_in_codon": 3, "offset": 3, "region": ""})
     37
+
+
+Here is the mapping of coordinates to coding positions:
+
+.. csv-table::
+   :class: table-scroll
+   :header: "Coordinate", "Position", "position_in_codon", "Offset", "Region", "HGVS" 
+
+   "0", "4", "2", "0", "'u'", 
+   "4", "4", "2", "0", "'u'",
+   "5", "4", "2", "0", '-',
+   "6", "4", "3", "0", '-',
+   "7", "3", "1", "0", '-',
+   "31", "1", "3", "0", '-',
+   "32", "1", "1", "0", "''", "p.1"
+   "42", "2", "3", "0", "''", "p.2"
+   "43", "1", "1", "0", '*',
+   "44", "1", "1", "1", '*',
+   "79", "2", "2", "0", "'d'",
+
+
 
 
 .. _numbering: http://varnomen.hgvs.org/bg-material/numbering/
