@@ -240,7 +240,7 @@ Conversions between protein positions and coordinates:
     37
 
 
-Here is the mapping of coordinates to coding positions:
+Here is the mapping of coordinates to protein positions:
 
 .. csv-table::
    :class: table-scroll
