@@ -487,12 +487,9 @@ def test_Coding_inverted_degenerate():
         20,
         [
             {"position": 1, "offset": 0, "region": "u"},
-            {"position": 2, "offset": 1, "region": "u"},
-            {"position": 0, "offset": -1, "region": "u"},
-            {"position": 1, "offset": -2, "region": ""},
-            {"position": 2, "offset": -3, "region": ""},
             {"position": 2, "offset": 0, "region": "-"},
-            {"position": 1, "offset": -1, "region": "-"},
+            {"position": 1, "offset": -2, "region": ""},
+            {"position": 1, "offset": -10, "region": "*"},
         ],
     )
     degenerate_equal(
@@ -500,10 +497,10 @@ def test_Coding_inverted_degenerate():
         9,
         [
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 2, "offset": -1, "region": "d"},
-            {"position": 8, "offset": 2, "region": ""},
-            {"position": 7, "offset": 3, "region": ""},
             {"position": 2, "offset": 0, "region": "*"},
+            {"position": 8, "offset": 2, "region": ""},
+            {"position": 1, "offset": 10, "region": "-"},
+
         ],
     )
 
@@ -563,12 +560,9 @@ def test_Coding_no_utr_degenerate():
         crossmap.coding_to_coordinate,
         9,
         [
-            {"position": 2, "offset": 1, "region": "u"},
             {"position": 1, "offset": 0, "region": "u"},
             {"position": 1, "offset": 0, "region": "-"},
-            {"position": 2, "offset": 1, "region": "-"},
-            {"position": 1, "offset": -1, "region": ""},
-            {"position": 2, "offset": -2, "region": ""},
+            {"position": 1, "offset": -2, "region": "*"},
         ],
     )
     degenerate_equal(
@@ -576,11 +570,8 @@ def test_Coding_no_utr_degenerate():
         11,
         [
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 2, "offset": -1, "region": "d"},
             {"position": 1, "offset": 0, "region": "*"},
-            {"position": 2, "offset": -1, "region": "*"},
-            {"position": 3, "offset": -2, "region": "*"},
-            {"position": 1, "offset": 1, "region": ""},
+            {"position": 1, "offset": 2, "region": "-"},
         ],
     )
 
@@ -594,10 +585,8 @@ def test_Coding_inverted_no_utr_degenerate():
         11,
         [
             {"position": 1, "offset": 0, "region": "u"},
-            {"position": 2, "offset": 1, "region": "u"},
             {"position": 1, "offset": 0, "region": "-"},
-            {"position": 2, "offset": 1, "region": "-"},
-            {"position": 1, "offset": -1, "region": ""},
+            {"position": 1, "offset": -2, "region": "*"},
         ],
     )
     degenerate_equal(
@@ -605,9 +594,8 @@ def test_Coding_inverted_no_utr_degenerate():
         9,
         [
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 2, "offset": -1, "region": "d"},
             {"position": 1, "offset": 0, "region": "*"},
-            {"position": 1, "offset": 1, "region": ""},
+            {"position": 1, "offset": 2, "region": "-"},
         ],
     )
 
