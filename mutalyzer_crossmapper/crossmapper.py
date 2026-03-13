@@ -104,12 +104,11 @@ class Coding(NonCoding):
                     "offset": noncoding_pos_m["offset"],
                     "region": "*"
                 }
-            else:
-                return {
-                    "position": location - self._coding[0] + 1,
-                    "offset": noncoding_pos_m["offset"],
-                    "region": ""
-                }
+            return {
+                "position": location - self._coding[0] + 1,
+                "offset": noncoding_pos_m["offset"],
+                "region": ""
+            }
         else:
             return noncoding_pos_m
 
