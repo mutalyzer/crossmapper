@@ -76,12 +76,10 @@ class Coding(NonCoding):
             self._coding = (b1["position"] + b1["offset"], b0["position"] + b0["offset"] + 1)
             self._cds_len = (b0["position"] + b0["offset"]) - (b1["position"] + b1["offset"])
             self._exons = (e1["position"], e0["position"])
-            self._exons_start = e0["position"]
         else:
             self._coding = (b0["position"] + b0["offset"], b1["position"] + b1["offset"] +1)
             self._cds_len = (b1["position"] + b1["offset"]) - (b0["position"] + b0["offset"])
             self._exons = (e0["position"], e1["position"])
-            self._exons_start = e0["position"]
 
     def _coordinate_to_coding(self, coordinate):
         """Convert a coordinate to a coding position (c./r.).
