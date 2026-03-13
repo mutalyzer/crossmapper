@@ -150,18 +150,8 @@ class Coding(NonCoding):
         position = pos_m["position"]
         offset = pos_m["offset"]
 
-        if region == "u":
-            noncoding_pos_m = {
-                "position": position - offset,
-                "offset": 0,
-                "region": "u"
-            }
-        elif region == "d":
-            noncoding_pos_m = {
-                "position": position + offset,
-                "offset": 0,
-                "region": "d"
-            }
+        if region in ["u", "d"]:
+            return self._noncoding.to_coordinate(pos_m)
         elif region == "":
             noncoding_pos_m = {
                 "position": position + self._coding[0] -1,
