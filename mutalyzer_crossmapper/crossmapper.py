@@ -251,11 +251,6 @@ class Coding(NonCoding):
                 {"position": 3 * pos_m["position"] - pos_m["position_in_codon"] + 1,
                  "offset": pos_m["offset"],
                  "region": pos_m["region"]})
-        if pos_m["region"] == "*":
-                    return self.coding_to_coordinate(
-                        {"position": 3 * pos_m["position"] + pos_m["position_in_codon"] - 3,
-                        "offset": pos_m["offset"],
-                        "region": pos_m["region"]})
         return self.coding_to_coordinate(
                 {"position": 3 * pos_m["position"] + pos_m["position_in_codon"] - 3,
                  "offset": pos_m["offset"],
