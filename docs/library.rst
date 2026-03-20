@@ -147,22 +147,22 @@ In the following table, we show a number of annotated examples.
    * - 5
      - 1
      - 0
-     - 
+     -
      - ``n.1``
    * - 24
      - 9
      - 5
-     - 
+     -
      - ``n.9+5``
    * - 25
      - 10
      - -5
-     - 
+     -
      - ``n.10-5``
    * - 71
      - 22
      - 0
-     - 
+     -
      - ``n.22``
    * - 72
      - 1
@@ -278,17 +278,17 @@ In the following table, we show a number of annotated examples.
    * - 32
      - 1
      - 0
-     - 
+     -
      - ``c.1``
    * - 37
      - 3
      - 3
-     - 
+     -
      - ``c.3+3``
    * - 38
      - 4
      - -2
-     - 
+     -
      - ``c.4-2``
    * - 43
      - 1
@@ -365,74 +365,73 @@ table, we show a number of annotated examples.
      - 2
      - 0
      - ``u``
-     - 
+     -
    * - 4
      - 4
      - 2
      - 0
      - ``u``
-     - 
+     -
    * - 5
      - 4
      - 2
      - 0
      - ``-``
-     - 
+     -
    * - 6
      - 4
      - 3
      - 0
      - ``-``
-     - 
+     -
    * - 7
      - 3
      - 1
      - 0
      - ``-``
-     - 
+     -
    * - 31
      - 1
      - 3
      - 0
      - ``-``
-     - 
+     -
    * - 32
      - 1
      - 1
      - 0
-     - 
+     -
      - ``p.1``
    * - 33
      - 1
      - 2
      - 0
-     - 
+     -
      - ``p.1``
    * - 42
      - 2
      - 3
      - 0
-     - 
+     -
      - ``p.2``
    * - 43
      - 1
      - 1
      - 0
      - ``*``
-     - 
+     -
    * - 44
      - 1
      - 1
      - 1
      - ``*``
-     - 
+     -
    * - 79
      - 2
      - 2
      - 0
      - ``d``
-     - 
-
+     -
 
 
 See section :doc:`api/crossmap` for a detailed description.
@@ -471,7 +470,7 @@ The ``Coding`` class makes use of a number of basic classes described in this
 section.
 
 The ``Locus`` class
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 The ``Locus`` class is used to deal with offsets with respect to a single
 locus.
