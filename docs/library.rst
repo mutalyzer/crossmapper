@@ -8,7 +8,7 @@ The ``Genomic`` class
 ---------------------
 
 The ``Genomic`` class provides an interface to conversions between genomic
-(``g.``, ``m``, ``n``) positions and coordinates.
+(``g.``, ``m.``, ``n.``) positions and coordinates.
 
 Genomic Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -22,7 +22,7 @@ They are represented as 1-key dictionaries. Below is an example of ``g.1`` in HG
 
 Where:
 
-- **position**: a positive integer(>0)
+- **position**: a positive integer repersenting a base position(>0)
 
 Genomic Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -55,7 +55,7 @@ systems should be done via a coordinate.
 NonCoding Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Noncoding positions follow the HGVS ``n`` coordinate system. They are represented
+Noncoding positions follow the HGVS ``n.`` coordinate system. They are represented
 as 3-key dictionaries. Below is an example of ``n.14+1`` in HGVS.
 
 .. code-block:: python
@@ -200,9 +200,10 @@ represented as 3-key dictionaries. Here is an example of ``c.*1+3``.
 Where:
 
 - **position**: an interger representing a transcript position (>0)
-- **offset**: an integer indicating the offset relative to the position
-- **region**: a string describing the region type (`''` for standard coding positions,
-  `'-'` for 5' UTR, `'*'` for 3' UTR, `'u'` for upstream and ``'d'`` for downstream)
+- **offset**: an integer indicating the offset relative to the position (negative for upstream,
+  positive for downstream)
+- **region**: a string describing the region type (``''`` for standard coding positions,
+  ``'-'`` for 5' UTR, ``'*'`` for 3' UTR, ``'u'`` for upstream and ``'d'`` for downstream)
 
 Coding Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,7 +231,8 @@ position ``c.-1``. We can convert between these two as follows.
 
 The ``coordinate_to_coding()`` function accepts an optional ``degenerate``
 argument. When set to ``True``, positions outside of the transcript are no
-longer described using the ``'u'`` or ``'d'`` notation.
+longer described using the ``'u'`` or ``'d'`` notation, ``'-'`` and ``'*'``
+are used instead.
 
 .. code:: python
 
@@ -299,7 +301,7 @@ In the following table, we show a number of annotated examples.
      - 4
      - -9
      - ``*``
-     - ``c.*4+9``
+     - ``c.*4-9``
    * - 71
      - 5
      - 0
@@ -365,37 +367,37 @@ table, we show a number of annotated examples.
      - 2
      - 0
      - ``u``
-     -
+     - invalid
    * - 4
      - 4
      - 2
      - 0
      - ``u``
-     -
+     - invalid
    * - 5
      - 4
      - 2
      - 0
      - ``-``
-     -
-   * - 6
-     - 4
-     - 3
-     - 0
-     - ``-``
-     -
+     - invalid
    * - 7
      - 3
      - 1
      - 0
      - ``-``
-     -
+     - invalid
+   * - 8
+     - 3
+     - 1
+     - 1
+     - ``-``
+     - invalid
    * - 31
      - 1
      - 3
      - 0
      - ``-``
-     -
+     - invalid
    * - 32
      - 1
      - 1
@@ -419,19 +421,19 @@ table, we show a number of annotated examples.
      - 1
      - 0
      - ``*``
-     -
+     - invalid
    * - 44
      - 1
      - 1
      - 1
      - ``*``
-     -
+     - invalid
    * - 79
      - 2
      - 2
      - 0
      - ``d``
-     -
+     - invalid
 
 
 See section :doc:`api/crossmap` for a detailed description.
@@ -474,6 +476,9 @@ The ``Locus`` class
 
 The ``Locus`` class is used to deal with offsets with respect to a single
 locus.
+**Note:** the ``position`` values in the position dictionaries are **0-based**,
+so the first base of the locus corresponds to ``{'position': 0, 'offset': 0}``.
+This differs from HGVS numbering, which is **1-based**.
 
 .. code:: python
 
@@ -488,7 +493,9 @@ for the semantics.
 .. code:: python
 
     >>> locus.to_position(9)
-    {'position':1, 'offset':-1}
+    {'position':0, 'offset':-1}
+    >>> locus.to_coordinate({'position':0, 'offset':-1})
+    {'position':0, 'offset':-1}
 
 For loci that reside on the reverse complement strand, the optional
 ``inverted`` constructor parameter should be set to ``True``.
@@ -499,20 +506,27 @@ The ``MultiLocus`` class
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``MultiLocus`` class is used to deal with offsets with respect to multiple
-loci.
+loci. Its positions is
 
 .. code:: python
 
     >>> from mutalyzer_crossmapper import MultiLocus
     >>> multilocus = MultiLocus([(10, 20), (40, 50)])
 
-The interface to this class is similar to that of the ``Locus`` class.
+The interface to this class is similar to that of the ``Locus`` class. Functions
+``to_position()`` and ``to_coordinate()`` work with a 3-key dictionary.
+
+**Note:** again, the ``position`` values in the position dictionaries are **0-based**.
 
 .. code:: python
 
     >>> multilocus.to_position(22)
-    {'position':10, 'offset':3, 'region':''}
+    {'position':9, 'offset':3, 'region':''}
+    >>> multilocus.to_coordinate({'position':9, 'offset':3, 'region':''})
+    22
     >>> multilocus.to_position(38)
-    {'position':11, 'offset':-2, 'region':''}
+    {'position':10, 'offset':-2, 'region':''}
+    >>> multilocus.to_coordinate({'position':10, 'offset':-2, 'region':''}
+    38
 
 See section :doc:`api/multi_locus` for a detailed description.
