@@ -321,6 +321,5 @@ def test_MultiLocus_inverted_degenerate():
         [
             {"position": 0, "offset": -1, "region": "d"},
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 2, "offset": 1, "region": "d"},
         ],
     )

@@ -68,24 +68,10 @@ class MultiLocus(object):
                 "region": region
             }
 
-        if location["offset"] == 0:
-            return {
-                "position": location["position"] + self._offsets[self._direction(index)],
-                "offset": 0,
-                "region": ""
-            }
-
-        if location["offset"] < 0:
-            return {
-                "position": self._offsets[self._direction(index)],
-                "offset": location["offset"],
-                "region": ""
-            }
-
-        return{
+        return {
             "position": location["position"] + self._offsets[self._direction(index)],
             "offset": location["offset"],
-            "region": ""
+            "region": region
         }
 
     def to_coordinate(self, pos_m:dict):
@@ -97,13 +83,11 @@ class MultiLocus(object):
         """
         region = pos_m["region"]
 
-        if region == "u":
+        if pos_m["region"] in ("u", "d"):
+            is_upstream = region == "u"
             if self._inverted:
-                return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
-            return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
-
-        if region == "d":
-            if self._inverted:
+                is_upstream = not is_upstream
+            if is_upstream:
                 return self._locations[0][0] - abs(pos_m["position"]) + pos_m["offset"]
             return abs(pos_m["position"]) + self._locations[-1][1] + pos_m["offset"] - 1
 
@@ -111,5 +95,5 @@ class MultiLocus(object):
             len(self._offsets),
             max(0, bisect_right(self._offsets, pos_m["position"]) - 1)
         )
-        pos_m["position"] = pos_m["position"] - self._offsets[index]
-        return self._loci[self._direction(index)].to_coordinate(pos_m)
+        locus_pos_m = {**pos_m, "position": pos_m["position"] - self._offsets[index]}
+        return self._loci[self._direction(index)].to_coordinate(locus_pos_m)
