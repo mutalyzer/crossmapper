@@ -105,8 +105,8 @@ def test_NonCoding_degenerate():
         crossmap.noncoding_to_coordinate,
         4,
         [
-            {"position": 1, "offset": 0, "region": "u"},
             {"position": 1, "offset": -1, "region": ""},
+            {"position": 1, "offset": 0, "region": "u"},
         ],
     )
 
@@ -116,6 +116,7 @@ def test_NonCoding_degenerate():
         72,
         [
             {"position": 1, "offset": 0, "region": "d"},
+            {"position": 22, "offset": 1, "region": ""},
             {"position": 23, "offset": 0, "region": ""},
         ],
     )
@@ -131,7 +132,8 @@ def test_NonCoding_inverted_degenerate():
         72,
         [
             {"position": 1, "offset": -1, "region": ""},
-            {"position": 1, "offset": 0, "region": "u"},],
+            {"position": 1, "offset": 0, "region": "u"},
+        ],
     )
 
     # Boundary between downstream and transcript.
@@ -140,7 +142,9 @@ def test_NonCoding_inverted_degenerate():
         4,
         [
             {"position": 1, "offset": 0, "region": "d"},
-            {"position": 22, "offset": 1, "region": ""},],
+            {"position": 23, "offset": 0, "region": ""},
+            {"position": 22, "offset": 1, "region": ""},
+        ],
     )
 
 
@@ -464,16 +468,21 @@ def test_Coding_degenerate():
             {"position": 2, "offset": 0, "region": "-"},
             {"position": 1, "offset": -2, "region": ""},
             {"position": 1, "offset": -10, "region": "*"},
+            {"position": 2, "offset": -11, "region": "*"},
+            {"position": 3, "offset": 1, "region": "-"},
+            {"position": 4, "offset": 2, "region": "-"},
         ],
     )
     degenerate_equal(
         crossmap.coding_to_coordinate,
         20,
         [
-            {"position": 1, "offset": 1, "region": "*"},
+            {"position": 1, "offset": 0, "region": "d"},
             {"position": 2, "offset": 0, "region": "*"},
             {"position": 8, "offset": 2, "region": ""},
             {"position": 1, "offset": 10, "region": "-"},
+            {"position": 2, "offset": 11, "region": "-"},
+            {"position": 7, "offset": 3, "region": ""},
         ],
     )
 
@@ -490,6 +499,8 @@ def test_Coding_inverted_degenerate():
             {"position": 2, "offset": 0, "region": "-"},
             {"position": 1, "offset": -2, "region": ""},
             {"position": 1, "offset": -10, "region": "*"},
+            {"position": 1, "offset": -11, "region": "d"},
+            {"position": 2, "offset": -3, "region": ""},
         ],
     )
     degenerate_equal(
@@ -500,6 +511,8 @@ def test_Coding_inverted_degenerate():
             {"position": 2, "offset": 0, "region": "*"},
             {"position": 8, "offset": 2, "region": ""},
             {"position": 1, "offset": 10, "region": "-"},
+            {"position": 1, "offset": 11, "region": "u"},
+            {"position": 2, "offset": 12, "region": "u"},
 
         ],
     )
@@ -563,6 +576,8 @@ def test_Coding_no_utr_degenerate():
             {"position": 1, "offset": 0, "region": "u"},
             {"position": 1, "offset": 0, "region": "-"},
             {"position": 1, "offset": -2, "region": "*"},
+            {"position": 1, "offset": -1, "region": ""},
+            {"position": 1, "offset": -2, "region": "d"},
         ],
     )
     degenerate_equal(
@@ -572,6 +587,8 @@ def test_Coding_no_utr_degenerate():
             {"position": 1, "offset": 0, "region": "d"},
             {"position": 1, "offset": 0, "region": "*"},
             {"position": 1, "offset": 2, "region": "-"},
+            {"position": 1, "offset": 1, "region": ""},
+            {"position": 1, "offset": 2, "region": "u"},
         ],
     )
 
@@ -587,6 +604,8 @@ def test_Coding_inverted_no_utr_degenerate():
             {"position": 1, "offset": 0, "region": "u"},
             {"position": 1, "offset": 0, "region": "-"},
             {"position": 1, "offset": -2, "region": "*"},
+            {"position": 1, "offset": -1, "region": ""},
+            {"position": 1, "offset": -2, "region": "d"},
         ],
     )
     degenerate_equal(
@@ -596,6 +615,8 @@ def test_Coding_inverted_no_utr_degenerate():
             {"position": 1, "offset": 0, "region": "d"},
             {"position": 1, "offset": 0, "region": "*"},
             {"position": 1, "offset": 2, "region": "-"},
+            {"position": 1, "offset": 1, "region": ""},
+            {"position": 1, "offset": 2, "region": "u"},
         ],
     )
 
