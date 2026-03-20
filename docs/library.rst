@@ -137,43 +137,43 @@ In the following table, we show a number of annotated examples.
    * - 0
      - 5
      - 0
-     - ``u``
-     - ``n.u5``
+     - u``
+     - n.u5``
    * - 4
      - 1
      - 0
-     - ``u``
-     - ``n.u1``
+     - u``
+     - n.u1``
    * - 5
      - 1
      - 0
-     - ``
-     - ``n.1``
+     - 
+     - n.1``
    * - 24
      - 9
      - 5
-     - ``
-     - ``n.9+5``
+     - 
+     - n.9+5``
    * - 25
      - 10
      - -5
-     - ``
-     - ``n.10-5``
+     - 
+     - n.10-5``
    * - 71
      - 22
      - 0
-     - ``
-     - ``n.22``
+     - 
+     - n.22``
    * - 72
      - 1
      - 0
-     - ``d``
-     - ``n.d1``
+     - d``
+     - n.d1``
    * - 79
      - 8
      - 0
-     - ``d``
-     - ``n.d8``
+     - d``
+     - n.d8``
 
 See section :doc:`api/crossmap` for a detailed description.
 
@@ -253,63 +253,63 @@ In the following table, we show a number of annotated examples.
    * - 0
      - 5
      - 0
-     - ``u``
-     - ``c.u5``
+     - u``
+     - c.u5``
    * - 4
      - 1
      - 0
-     - ``u``
-     - ``c.u1``
+     - u``
+     - c.u1``
    * - 5
      - 11
      - 0
-     - ``-``
-     - ``c.-11``
+     - -``
+     - c.-11``
    * - 24
      - 3
      - 5
-     - ``-``
-     - ``c.-3+5``
+     - -``
+     - c.-3+5``
    * - 31
      - 1
      - 0
-     - ``-``
-     - ``c.-1``
+     - -``
+     - c.-1``
    * - 32
      - 1
      - 0
-     - ``
-     - ``c.1``
+     - 
+     - c.1``
    * - 37
      - 3
      - 3
-     - ``
-     - ``c.3+3``
+     - 
+     - c.3+3``
    * - 38
      - 4
      - -2
-     - ``
-     - ``c.4-2``
+     - 
+     - c.4-2``
    * - 43
      - 1
      - 0
-     - ``*``
-     - ``c.*1``
+     - *``
+     - c.*1``
    * - 61
      - 4
      - -9
-     - ``*``
-     - ``c.*4+9``
+     - *``
+     - c.*4+9``
    * - 71
      - 5
      - 0
-     - ``*``
-     - ``c.*5``
+     - *``
+     - c.*5``
    * - 79
      - 8
      - 0
-     - ``d``
-     - ``c.d8``
+     - d``
+     - c.d8``
 
 
 Protein
@@ -343,14 +343,14 @@ position "p.2". We can convert between these to as follows.
 
     >>> crossmap.coordinate_to_protein(41)
     {'position':2, 'position_in_codon':2, 'offset':0, 'region':''}
-    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, offset':0, 'region':''})
+    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
     41
 
 Note that the protein position only corresponds with the HGVS "p." notation
 when the offset equals ``0`` and the region equals ``1``. In the following
 table, we show a number of annotated examples.
 
-.. list-table::Coordinates to Protein Positions mapping
+.. list-table:: Coordinates to Protein Positions mapping
    :header-rows: 1
 
    * - Coordinate
@@ -363,74 +363,74 @@ table, we show a number of annotated examples.
      - 4
      - 2
      - 0
-     - ``u``
-     - ``
+     - u``
+     - 
    * - 4
      - 4
      - 2
      - 0
-     - ``u``
-     - ``
+     - u``
+     - 
    * - 5
      - 4
      - 2
      - 0
-     - ``-``
-     - ``
+     - -``
+     - 
    * - 6
      - 4
      - 3
      - 0
-     - ``-``
-     - ``
+     - -``
+     - 
    * - 7
      - 3
      - 1
      - 0
-     - ``-``
-     - ``
+     - -``
+     - 
    * - 31
      - 1
      - 3
      - 0
-     - ``-``
-     - ``
+     - -``
+     - 
    * - 32
      - 1
      - 1
      - 0
-     - ``
-     - ``p.1``
+     - 
+     - p.1``
    * - 33
      - 1
      - 2
      - 0
-     - ``
-     - ``p.1``
+     - 
+     - p.1``
    * - 42
      - 2
      - 3
      - 0
-     - ``
-     - ``p.2``
+     - 
+     - p.2``
    * - 43
      - 1
      - 1
      - 0
-     - ``*``
-     - ``
+     - *``
+     - 
    * - 44
      - 1
      - 1
      - 1
-     - ``*``
-     - ``
+     - *``
+     - 
    * - 79
      - 2
      - 2
      - 0
-     - ``d``
-     - ``
+     - d``
+     - 
 
 
 
