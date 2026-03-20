@@ -96,7 +96,7 @@ position "n.14+1". We can convert between these two as follows.
     >>> crossmap.noncoding_to_coordinate({'position':14, 'offset':1, 'region':''})
     {'position':14, 'offset':1, 'region':''}
 
-When the coordinate is upstream or downstream of the transcript,  we use ``'u`` to
+When the coordinate is upstream or downstream of the transcript,  we use ``'u'`` to
 present upstream and ``'d'`` to present downstream.
 
 .. code:: python
@@ -152,17 +152,17 @@ In the following table, we show a number of annotated examples.
    * - 24
      - 9
      - 5
-     - ````
+     - ``
      - ``n.9+5``
    * - 25
      - 10
      - -5
-     - ````
+     - ``
      - ``n.10-5``
    * - 71
      - 22
      - 0
-     - ````
+     - ``
      - ``n.22``
    * - 72
      - 1
