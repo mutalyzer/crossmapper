@@ -14,9 +14,9 @@ Genomic Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 Genomic positions follow the HGVS genomic coordinate system.
-They are represented as 1-key dictionaries. Below is an example of `g.1` in HGVS.
+They are represented as 1-key dictionaries. Below is an example of ``g.1`` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {'position':1}
 
@@ -58,7 +58,7 @@ NonCoding Position Model
 Noncoding positions follow the HGVS ``n`` coordinate system. They are represented
 as 3-key dictionaries. Below is an example of ``n.14+1`` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 14,
@@ -86,8 +86,8 @@ NonCoding Position Conversion
 Now the functions ``coordinate_to_noncoding()`` and ``noncoding_to_coordinate()``
 can be used.
 
-In our example, the HGVS position "g.36" (coordinate ``35``) is equivalent to
-position "n.14+1". We can convert between these two as follows.
+In our example, the HGVS position ``g.36`` (coordinate `35`) is equivalent to
+position ``n.14+1``. We can convert between these two as follows.
 
 .. code:: python
 
@@ -96,7 +96,7 @@ position "n.14+1". We can convert between these two as follows.
     >>> crossmap.noncoding_to_coordinate({'position':14, 'offset':1, 'region':''})
     {'position':14, 'offset':1, 'region':''}
 
-When the coordinate is upstream or downstream of the transcript,  we use ``'u`` to
+When the coordinate is upstream or downstream of the transcript,  we use ``'u'`` to
 present upstream and ``'d'`` to present downstream.
 
 .. code:: python
@@ -112,8 +112,8 @@ present upstream and ``'d'`` to present downstream.
 
 
 For transcripts that reside on the reverse complement strand, the ``inverted``
-parameter should be set to ``True``. In our example, HGVS position "g.36"
-(coordinate ``35``) is now equivalent to position "n.9-1".
+parameter should be set to ``True``. In our example, HGVS position ``g.36``
+(coordinate `35`) is now equivalent to position ``n.9-1``.
 
 .. code:: python
 
@@ -124,18 +124,56 @@ parameter should be set to ``True``. In our example, HGVS position "g.36"
     35
 
 In the following table, we show a number of annotated examples.
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
 
-   "0", "5", "0", `u`, `n.u5`
-   "4", "1", "0", `u`, `n.u1`
-   "5", "1", "0", `""`, `n.1`
-   "24", "9", "5", `""`, `n.9+5`
-   "25", "10", "-5", `""`, `n.10-5`
-   "71", "22", "0", `""`, `n.22`
-   "72", "1", "0", `d`, `n.d1`
-   "79", "8", "0", `d`, `n.d8`
+.. _table_noncoding:
+.. list-table:: Coordinates to Noncoding Positions mapping.
+   :header-rows: 1
+
+   * - coordinate
+     - position
+     - offset
+     - region
+     - HGVS
+   * - 0
+     - 5
+     - 0
+     - ``u``
+     - ``n.u5``
+   * - 4
+     - 1
+     - 0
+     - ``u``
+     - ``n.u1``
+   * - 5
+     - 1
+     - 0
+     -
+     - ``n.1``
+   * - 24
+     - 9
+     - 5
+     -
+     - ``n.9+5``
+   * - 25
+     - 10
+     - -5
+     -
+     - ``n.10-5``
+   * - 71
+     - 22
+     - 0
+     -
+     - ``n.22``
+   * - 72
+     - 1
+     - 0
+     - ``d``
+     - ``n.d1``
+   * - 79
+     - 8
+     - 0
+     - ``d``
+     - ``n.d8``
 
 See section :doc:`api/crossmap` for a detailed description.
 
@@ -151,7 +189,7 @@ Coding Position Model
 Coding positions follow the HGVS ``c`` coordinate system. They are
 represented as 3-key dictionaries. Here is an example of ``c.*1+3``.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 1,
@@ -180,8 +218,8 @@ On top of the functionality provided by the ``NonCoding`` class, the functions
 ``coordinate_to_coding()`` and ``coding_to_coordinate()`` can be used. These
 functions use a 3-key dictionary to represent a coding position.
 
-In our example, the HGVS position "g.32" (coordinate ``31``) is equivalent to
-position "c.-1". We can convert between these two as follows.
+In our example, the HGVS position ``g.32`` (coordinate `31`) is equivalent to
+position ``c.-1``. We can convert between these two as follows.
 
 .. code:: python
 
@@ -203,22 +241,75 @@ longer described using the ``'u'`` or ``'d'`` notation.
 
 In the following table, we show a number of annotated examples.
 
-.. csv-table::
-   :class:
-   :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
+.. _table_coding:
+.. list-table:: Coordinates to Coding Positions mapping
+   :header-rows: 1
 
-   "0", "5", "0", `u`, `c.u5`
-   "4", "1", "0", `u`, `c.u1`
-   "5", "11", "0", `-`, `c.-11`
-   "24", "3", "5", `-`, `c.-3+5`
-   "31", "1", "0", `-`, `c.-1`
-   "32", "1", "0", `""`, `c.1`
-   "37", "3", "3", `""`, `c.3+3`
-   "38", "4", "-2", `""`, `c.4-2`
-   "43", "1", "0", `*`, `c.*1`
-   "61", "4", "-9", `*`, `c.*4+9`
-   "71", "5", "0", `*`, `c.*5`
-   "79", "8", "0", `d`, `c.d8`
+   * - coordinate
+     - position
+     - offset
+     - region
+     - HGVS
+   * - 0
+     - 5
+     - 0
+     - ``u``
+     - ``c.u5``
+   * - 4
+     - 1
+     - 0
+     - ``u``
+     - ``c.u1``
+   * - 5
+     - 11
+     - 0
+     - ``-``
+     - ``c.-11``
+   * - 24
+     - 3
+     - 5
+     - ``-``
+     - ``c.-3+5``
+   * - 31
+     - 1
+     - 0
+     - ``-``
+     - ``c.-1``
+   * - 32
+     - 1
+     - 0
+     -
+     - ``c.1``
+   * - 37
+     - 3
+     - 3
+     -
+     - ``c.3+3``
+   * - 38
+     - 4
+     - -2
+     -
+     - ``c.4-2``
+   * - 43
+     - 1
+     - 0
+     - ``*``
+     - ``c.*1``
+   * - 61
+     - 4
+     - -9
+     - ``*``
+     - ``c.*4+9``
+   * - 71
+     - 5
+     - 0
+     - ``*``
+     - ``c.*5``
+   * - 79
+     - 8
+     - 0
+     - ``d``
+     - ``c.d8``
 
 
 Protein
@@ -228,7 +319,7 @@ Additionally, the functions ``coordinate_to_protein()`` and
 ``protein_to_coordinate()`` can be used. These functions use a 4-key dictionary
 to represent a protein position. Here is an example of ``p.1`` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 1,
@@ -245,37 +336,102 @@ Where:
 - **region**: a string describing the region type (``''`` for standard positions)
 
 
-In our example the HGVS position "g.42" (coordinate ``41``) corresponds with
-position "p.2". We can convert between these to as follows.
+In our example the HGVS position ``g.42`` (coordinate `41`) corresponds with
+position ``p.2``. We can convert between these to as follows.
 
 .. code:: python
 
     >>> crossmap.coordinate_to_protein(41)
     {'position':2, 'position_in_codon':2, 'offset':0, 'region':''}
-    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, offset':0, 'region':''})
+    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
     41
 
 Note that the protein position only corresponds with the HGVS "p." notation
 when the offset equals ``0`` and the region equals ``1``. In the following
 table, we show a number of annotated examples.
 
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "position_in_codon", "Offset", "Region", "HGVS"
+.. _table_protein:
+.. list-table:: Coordinates to Protein Positions mapping
+   :header-rows: 1
 
-   "0", "4", "2", "0", `u`, ``
-   "4", "4", "2", "0", `u`, ``
-   "5", "4", "2", "0", `-`, ``
-   "6", "4", "3", "0", `-`, ``
-   "7", "3", "1", "0", `-`, ``
-   "31", "1", "3", "0", `-`, ``
-   "32", "1", "1", "0", ``, `p.1`
-   "33", "1", "2", "0", ``, `p.1`
-   "42", "2", "3", "0", ``, `p.2`
-   "43", "1", "1", "0", `*`, ``
-   "44", "1", "1", "1", `*`, ``
-   "79", "2", "2", "0", `d`, ``
-
+   * - coordinate
+     - position
+     - position_in_codon
+     - offset
+     - region
+     - HGVS
+   * - 0
+     - 4
+     - 2
+     - 0
+     - ``u``
+     -
+   * - 4
+     - 4
+     - 2
+     - 0
+     - ``u``
+     -
+   * - 5
+     - 4
+     - 2
+     - 0
+     - ``-``
+     -
+   * - 6
+     - 4
+     - 3
+     - 0
+     - ``-``
+     -
+   * - 7
+     - 3
+     - 1
+     - 0
+     - ``-``
+     -
+   * - 31
+     - 1
+     - 3
+     - 0
+     - ``-``
+     -
+   * - 32
+     - 1
+     - 1
+     - 0
+     -
+     - ``p.1``
+   * - 33
+     - 1
+     - 2
+     - 0
+     -
+     - ``p.1``
+   * - 42
+     - 2
+     - 3
+     - 0
+     -
+     - ``p.2``
+   * - 43
+     - 1
+     - 1
+     - 0
+     - ``*``
+     -
+   * - 44
+     - 1
+     - 1
+     - 1
+     - ``*``
+     -
+   * - 79
+     - 2
+     - 2
+     - 0
+     - ``d``
+     -
 
 
 See section :doc:`api/crossmap` for a detailed description.
@@ -314,7 +470,7 @@ The ``Coding`` class makes use of a number of basic classes described in this
 section.
 
 The ``Locus`` class
-^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~
 
 The ``Locus`` class is used to deal with offsets with respect to a single
 locus.
