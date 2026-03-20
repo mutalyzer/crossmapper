@@ -54,7 +54,7 @@ positions and coordinates.
     >>> crossmap = Genomic()
     >>> crossmap.coordinate_to_genomic(0)
     1
-    >>> crossmap.genomic_to_coordinate({'position': 1})
+    >>> crossmap.genomic_to_coordinate({'position':1})
     0
 
 On top of the functionality provided by the ``Genomic`` class, the
@@ -97,7 +97,7 @@ Conversions between protein positions and coordinates are done as follows.
 
     >>> crossmap.coordinate_to_protein(41)
     {'position':2, 'position_in_codon': 2, 'offset':0, 'region':''}
-    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon': 2, 'offset':0, 'region':''})
+    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
     41
 
 
