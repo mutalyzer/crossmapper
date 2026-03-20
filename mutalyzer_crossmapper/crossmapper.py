@@ -3,7 +3,7 @@ from .multi_locus import MultiLocus
 
 class Genomic(object):
     """Genomic crossmap object."""
-    def coordinate_to_genomic(self, coordinate):
+    def coordinate_to_genomic(self, coordinate: int) -> dict:
         """Convert a coordinate to a genomic position (g./m./o.).
 
         :arg int coordinate: Coordinate.
@@ -12,7 +12,7 @@ class Genomic(object):
         """
         return {'position': coordinate + 1}
 
-    def genomic_to_coordinate(self, pos_m):
+    def genomic_to_coordinate(self, pos_m: dict) -> int:
         """Convert a genomic position (g./m./o.) to a coordinate.
 
         :arg dict pos_m: Genomic position model.
@@ -24,7 +24,7 @@ class Genomic(object):
 
 class NonCoding(Genomic):
     """NonCoding crossmap object."""
-    def __init__(self, locations, inverted=False):
+    def __init__(self, locations: list[tuple[int, int]], inverted: bool = False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -33,7 +33,7 @@ class NonCoding(Genomic):
 
         self._noncoding = MultiLocus(locations, inverted)
 
-    def coordinate_to_noncoding(self, coordinate):
+    def coordinate_to_noncoding(self, coordinate: int) -> dict:
         """Convert a coordinate to a noncoding position (n./r.).
 
         :arg int coordinate: Coordinate.
@@ -45,7 +45,7 @@ class NonCoding(Genomic):
             pos_m['position'] = pos_m['position'] + 1
         return pos_m
 
-    def noncoding_to_coordinate(self, pos_m):
+    def noncoding_to_coordinate(self, pos_m: dict) -> int:
         """Convert a noncoding position (n./r.) to a coordinate.
 
         :arg dict pos_m: Noncoding position model.
@@ -60,7 +60,7 @@ class NonCoding(Genomic):
 
 class Coding(NonCoding):
     """Coding crossmap object."""
-    def __init__(self, locations, cds, inverted=False):
+    def __init__(self, locations: list[tuple[int,int]], cds: tuple[int,int], inverted : bool=False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg tuple cds: Locus location.
@@ -80,7 +80,7 @@ class Coding(NonCoding):
             self._coding = (b0['position'] + b0['offset'], b1['position'] + b1['offset'] +1)
             self._exons = (e0['position'], e1['position'])
 
-    def _degenerate_position(self, pos_m):
+    def _degenerate_position(self, pos_m: dict) -> dict:
         """Degenerate a coding position model (c./r.).
 
         :arg dict pos_m: Coding position model.
@@ -106,7 +106,7 @@ class Coding(NonCoding):
             degenerated_pos_m['region'] = '*'
         return degenerated_pos_m
 
-    def _normalize_position(self, pos_m):
+    def _normalize_position(self, pos_m: dict) -> dict:
         """Normalize a coding position model (c./r.).
 
         :arg dict pos_m: Coding position model.
@@ -121,7 +121,7 @@ class Coding(NonCoding):
             coordinate = coordinate + pos_m['offset']
         return self.coordinate_to_coding(coordinate)
 
-    def _coordinate_to_coding(self, coordinate):
+    def _coordinate_to_coding(self, coordinate: int) -> dict:
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
@@ -153,7 +153,7 @@ class Coding(NonCoding):
             'region': ''
         }
 
-    def coordinate_to_coding(self, coordinate, degenerate=False):
+    def coordinate_to_coding(self, coordinate: tuple[int, int], degenerate: bool=False) -> dict:
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
@@ -168,7 +168,7 @@ class Coding(NonCoding):
 
         return pos_m
 
-    def _coding_to_coordinate(self, pos_m):
+    def _coding_to_coordinate(self, pos_m: dict) -> int:
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg dict pos_m: Coding position model (c./r.).
@@ -191,7 +191,7 @@ class Coding(NonCoding):
 
         return self._noncoding.to_coordinate(noncoding_pos_m)
 
-    def coding_to_coordinate(self, pos_m):
+    def coding_to_coordinate(self, pos_m: dict) -> int:
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg dict pos_m: Coding position model (c./r.).
@@ -202,7 +202,7 @@ class Coding(NonCoding):
 
         return self._coding_to_coordinate(normalized_pos_m)
 
-    def coordinate_to_protein(self, coordinate):
+    def coordinate_to_protein(self, coordinate: int) -> dict:
         """Convert a coordinate to a protein position (p.).
 
         :arg int coordinate: Coordinate.
@@ -227,7 +227,7 @@ class Coding(NonCoding):
                 'position_in_codon': (position + 2) % 3 + 1,
                 **{k: v for k, v in pos.items() if k != 'position'}}
 
-    def protein_to_coordinate(self, pos_m):
+    def protein_to_coordinate(self, pos_m: dict) -> int:
         """Convert a protein position (p.) to a coordinate.
 
         :arg dict position: Protein position model(p.).

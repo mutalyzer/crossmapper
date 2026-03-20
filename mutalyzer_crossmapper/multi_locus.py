@@ -5,7 +5,7 @@ from .location import nearest_location
 from .locus import Locus
 
 
-def _offsets(locations, orientation):
+def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
     """For each location, calculate the length of the preceding locations.
 
     :arg list locations: List of locations.
@@ -19,7 +19,7 @@ def _offsets(locations, orientation):
 
 class MultiLocus(object):
     """MultiLocus object."""
-    def __init__(self, locations:list, inverted=False):
+    def __init__(self, locations: list[tuple[int, int]], inverted=False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -31,12 +31,12 @@ class MultiLocus(object):
         self._orientation = -1 if inverted else 1
         self._offsets = _offsets(locations, self._orientation)
 
-    def _direction(self, index):
+    def _direction(self, index: int) -> int:
         if self._inverted:
             return len(self._offsets) - index - 1
         return index
 
-    def outside(self, coordinate:int):
+    def outside(self, coordinate: int) -> int:
         """Calculate the offset relative to this MultiLocus.
 
         :arg int coordinate: Coordinate.
@@ -49,7 +49,7 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate:int):
+    def to_position(self, coordinate: int) -> dict:
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
@@ -74,7 +74,7 @@ class MultiLocus(object):
             'region': region
         }
 
-    def to_coordinate(self, pos_m:dict):
+    def to_coordinate(self, pos_m: dict) -> int:
         """Convert a position model to a coordinate.
 
         :arg dict pos_m: Position model with 'position','offset' and 'region' keys.
