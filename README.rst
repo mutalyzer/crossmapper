@@ -27,239 +27,78 @@ HGVS position crossmapper
 This library provides an interface to convert (cross map) between different
 HGVS numbering_ systems.
 
-Converting between the transcript oriented c. or n. and the genomic oriented g.
+Converting between the transcript oriented ``c.`` or ``n.`` and the genomic oriented ``g.``
 numbering systems can be difficult, especially when the transcript in question
-resides on the complement strand.
+resides on the complement strand. This library provides functions to convert between any HGVS
+numbering system to standard (0-based) coordinates and vice versa.
 
 **Features:**
 
-- Support for genomic positions to standard coordinates and vice versa.
-- Support for noncoding positions to standard coordinates and vice versa.
-- Support for coding positions to standard coordinates and vice versa.
-- Support for protein positions to standard coordinates and vice versa.
-- Basic classes for loci that can be used for genomic loci other than genes.
+- Support for genomic (``g.``, ``m.``, ``o.``) positions to standard coordinates and vice versa.
+- Support for noncoding (``n.``, ``r.``) positions to standard coordinates and vice versa.
+- Support for coding (``c.``, ``r.``) positions to standard coordinates and vice versa.
+- Support for protein (``p.``) positions to standard coordinates and vice versa.
+- Basic classes that can be used for loci other than genes or transcripts.
 
 Please see ReadTheDocs_ for the latest documentation.
 
-Quick Start
-===========
+Quick start
+-----------
 
-An example below uses the following transcript data:
+The ``Genomic`` class provides an interface to conversions between genomic
+positions and coordinates.
 
-.. code-block:: python
-
-    >>>_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-    >>>_cds = (32, 43)
-
-
-Genomic Class
--------------
-
-The ``Genomic`` class provides an interface for conversions between genomic positions and coordinates.
-
-Genomic Position Model
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Genomic positions follow the HGVS ``g`` coordinate system. They are represented as dictionaries. Below is an example of `g.1` in HGVS.
-
-.. code-block:: json
-
-    {"position": 1}
-
-Where:
-
-- **position**: a positive integer(>0)
-
-Genomic Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
+.. code:: python
 
     >>> from mutalyzer_crossmapper import Genomic
     >>> crossmap = Genomic()
     >>> crossmap.coordinate_to_genomic(0)
-    {"position": 1}
-    >>> crossmap.genomic_to_coordinate({"position": 1})
+    1
+    >>> crossmap.genomic_to_coordinate({'position':1})
     0
 
-NonCoding Class
----------------
+On top of the functionality provided by the ``Genomic`` class, the
+``NonCoding`` class provides an interface to conversions between noncoding
+positions and coordinates.
 
-The ``NonCoding`` class provides conversions between noncoding positions and coordinates.
-
-NonCoding Position Model
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Noncoding positions follow the HGVS ``n`` coordinate system. They are represented as dictionaries. Below is an example of ``n.14+1`` in HGVS.
-
-.. code-block:: json
-
-    {
-        "position": 10,
-        "offset": -5,
-        "region": ""
-    }
-
-Where:
-
-- **position**: a positive integer (>0)
-- **offset**: an integer indicating the offset relative to the position (negative for upstream, positive for downstream)
-- **region**: a string describing the region type (``''`` for standard, ``'u'`` for upstream, ``'d'`` for downstream)
-
-NonCoding Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
+.. code:: python
 
     >>> from mutalyzer_crossmapper import NonCoding
-    >>> crossmap = NonCoding(_exons)
-    >>> crossmap.coordinate_to_noncoding(25)
-    {"position": 10, "offset": -5, "region": ''}
-    >>> crossmap.noncoding_to_coordinate({"position": 10, "offset": -5, "region": ""})
-    25
+    >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
+    >>> crossmap = NonCoding(exons)
+    >>> crossmap.coordinate_to_noncoding(35)
+    {'position':14, 'offset':1, 'region':''}
+    >>> crossmap.noncoding_to_coordinate({'position':14, 'offset':1, 'region':''})
+    35
 
-Notes
-~~~~~
+Add the flag ``inverted=True`` to the constructor when the transcript resides
+on the reverse complement strand.
 
-- Add the flag ``inverted=True`` to the constructor when the transcript resides on the reverse complement strand.
+On top of the functionality provided by the ``NonCoding`` class, the ``Coding``
+class provides an interface to conversions between coding positions and
+coordinates as well as conversions between protein positions and coordinates.
 
-Here is the mapping of coordinates to noncoding positions:
-
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
-
-   "0", "5", "0", "u", "c.u5"
-   "4", "1", "0", "u", "n.u1"
-   "5", "1", "0", "", "n.1"
-   "24", "9", "5", "", "n.9+5"
-   "25", "10", "-5", "", "n.10-5"
-   "71", "22", "0", "", "n.22"
-   "72", "1", "0", "d", "n.d1"
-   "79", "8", "0", "d", "n.d8"
-
-
-
-Coding Class
-------------
-
-The ``Coding`` class provides conversions between coding positions and coordinates, as well as protein positions.
-
-Coding Position Model
-~~~~~~~~~~~~~~~~~~~~
-
-Coding positions follow the HGVS ``c`` coordinate system. They are represented as dictionaries. Here is an example of ``c.*1+3``.
-
-.. code-block:: json
-
-    {
-        "position": 1,
-        "offset": 3,
-        "region": "*"
-    }
-
-Where:
-
-- **position**: a positive integer
-- **offset**: an integer indicating the offset relative to the position
-- **region**: a string describing the region type (`""` for standard coding positions, `'-'` for 5' UTR, `'*'` for 3' UTR, `'u'` for upstream and ``"d"`` for downstream)
-
-Coding Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code-block:: python
+.. code:: python
 
     >>> from mutalyzer_crossmapper import Coding
-    >>> crossmap = Coding(_exons, _cds)
-    >>> crossmap.coordinate_to_coding(46)
-    {"position": 1, "offset": 3, "region": '*'}
-    >>> crossmap.coding_to_coordinate({"position": 1, "offset": 3, "region": "*"})
-    46
+    >>> cds = (32, 43)
+    >>> crossmap = Coding(exons, cds)
+    >>> crossmap.coordinate_to_coding(31)
+    {'position':1, 'offset':0, 'region':'-'}
+    >>> crossmap.coding_to_coordinate({'position':1, 'offset':0, 'region':'-'})
+    31
 
-Notes
-~~~~~
+Again, the flag ``inverted=True`` can be used for transcripts that reside on
+the reverse complement strand.
 
-- The flag ``inverted=True`` can be used for transcripts on the reverse complement strand.
+Conversions between protein positions and coordinates are done as follows.
 
-Here is the mapping of coordinates to coding positions:
+.. code:: python
 
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "Offset", "Region", "HGVS"
-
-   "0", "5", "0", "u", "c.u5"
-   "4", "1", "0", "u", "c.u1"
-   "5", "11", "0", "\-", "c.-11"
-   "24", "3", "5", "\-", "c.-3+5"
-   "25", "2", "-5", "\-", "c.-2-5"
-   "31", "1", "0", "\-", "c.-1"
-   "32", "1", "0", "", "c.1"
-   "37", "3", "3", "", "c.3+3"
-   "38", "4", "-2", "", "c.4-2"
-   "43", "1", "0", "\*", "c.*1"
-   "60", "3", "9", "\*", "c.*3+9"
-   "61", "4", "-9", "\*", "c.*4+9"
-   "71", "5", "0", "\*", "c.*5"
-   "79", "8", "0", "d", "c.d8"
-
-
-
-
-Protein
--------
-
-Protein Position Model
-~~~~~~~~~~~~~~~~~~~~~~
-
-Protein positions follow the HGVS ``p`` coordinate system. They are represented as dictionaries. Here is an example of ``p.1`` in HGVS.
-
-.. code-block:: json
-
-    {
-        "position": 1,
-        "position_in_codon": 3,
-        "offset": 3,
-        "region": ""
-    }
-
-Where:
-
-- **position**: the amino acid position (1-based)
-- **position_in_codon**: the codon nucleotide index (1, 2, or 3)
-- **offset**: an integer indicating offset relative to the codon
-- **region**: a string describing the region type (``''`` for standard positions)
-
-Protein Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Conversions between protein positions and coordinates:
-
-.. code-block:: python
-
-    >>> crossmap.coordinate_to_protein(37)
-    {"position": 1, "position_in_codon": 3, "offset": 3, "region": ""}
-    >>> crossmap.protein_to_coordinate({"position": 1, "position_in_codon": 3, "offset": 3, "region": ""})
-    37
-
-
-Here is the mapping of coordinates to protein positions:
-
-.. csv-table::
-   :class: table-scroll
-   :header: "Coordinate", "Position", "position_in_codon", "Offset", "Region", "HGVS"
-
-   "0", "4", "2", "0", "u",
-   "4", "4", "2", "0", "u",
-   "5", "4", "2", "0", "\-",
-   "6", "4", "3", "0", "\-",
-   "7", "3", "1", "0", "\-",
-   "31", "1", "3", "0", "\-",
-   "32", "1", "1", "0", "", "p.1"
-   "42", "2", "3", "0", "", "p.2"
-   "43", "1", "1", "0", "\*",
-   "44", "1", "1", "1", "\*",
-   "79", "2", "2", "0", "d",
-
+    >>> crossmap.coordinate_to_protein(41)
+    {'position':2, 'position_in_codon': 2, 'offset':0, 'region':''}
+    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
+    41
 
 
 
