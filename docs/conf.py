@@ -7,5 +7,8 @@ project = _get_metadata('Name')
 release = _get_metadata('Version')
 
 autoclass_content = 'both'
-extensions = ['sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx'
+    ]
 master_doc = 'index'
