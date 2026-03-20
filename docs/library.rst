@@ -16,7 +16,7 @@ Genomic Position Model
 Genomic positions follow the HGVS genomic coordinate system.
 They are represented as 1-key dictionaries. Below is an example of `g.1` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {'position':1}
 
