@@ -130,7 +130,7 @@ class Coding(NonCoding):
         """
         noncoding_pos_m = self._noncoding.to_position(coordinate)
 
-        if noncoding_pos_m['region'] in ['u', 'd']:
+        if noncoding_pos_m['region'] in ('u', 'd'):
             return noncoding_pos_m
 
         location = noncoding_pos_m['position']
@@ -178,7 +178,7 @@ class Coding(NonCoding):
         position = pos_m['position']
         region = pos_m['region']
 
-        if region in ['u', 'd']:
+        if region in ('u', 'd'):
             return self._noncoding.to_coordinate(pos_m)
 
         noncoding_pos_m = {'offset': pos_m['offset'], 'region': ''}

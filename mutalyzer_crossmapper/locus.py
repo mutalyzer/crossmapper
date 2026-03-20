@@ -19,16 +19,16 @@ class Locus(object):
         """
         if self._inverted:
             if coordinate > self.boundary[1]:
-                return {"position": 0, "offset": self.boundary[1] - coordinate}
+                return {'position': 0, 'offset': self.boundary[1] - coordinate}
             if coordinate < self.boundary[0]:
-                return {"position": self._end, "offset": self.boundary[0] - coordinate}
-            return {"position": self.boundary[1] - coordinate, "offset": 0}
+                return {'position': self._end, 'offset': self.boundary[0] - coordinate}
+            return {'position': self.boundary[1] - coordinate, 'offset': 0}
 
         if coordinate < self.boundary[0]:
-            return {"position": 0, "offset": coordinate - self.boundary[0]}
+            return {'position': 0, 'offset': coordinate - self.boundary[0]}
         if coordinate > self.boundary[1]:
-            return {"position": self._end, "offset": coordinate - self.boundary[1]}
-        return {"position": coordinate - self.boundary[0], "offset": 0}
+            return {'position': self._end, 'offset': coordinate - self.boundary[1]}
+        return {'position': coordinate - self.boundary[0], 'offset': 0}
 
     def to_coordinate(self, pos_m):
         """Convert a position model to a coordinate.
@@ -38,5 +38,5 @@ class Locus(object):
         :returns int: Coordinate.
         """
         if self._inverted:
-            return self.boundary[1] - pos_m["position"] - pos_m["offset"]
-        return self.boundary[0] + pos_m["position"] + pos_m["offset"]
+            return self.boundary[1] - pos_m['position'] - pos_m['offset']
+        return self.boundary[0] + pos_m['position'] + pos_m['offset']
