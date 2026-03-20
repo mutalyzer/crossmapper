@@ -158,7 +158,7 @@ In the following table, we show a number of annotated examples.
      - 10
      - -5
      - 
-     - n.10-5``
+     - ``n.10-5``
    * - 71
      - 22
      - 0
@@ -293,8 +293,8 @@ In the following table, we show a number of annotated examples.
    * - 43
      - 1
      - 0
-     - *``
-     - c.*1``
+     - ``*``
+     - ``c.*1``
    * - 61
      - 4
      - -9
@@ -350,6 +350,7 @@ Note that the protein position only corresponds with the HGVS "p." notation
 when the offset equals ``0`` and the region equals ``1``. In the following
 table, we show a number of annotated examples.
 
+.. _table_protein:
 .. list-table:: Coordinates to Protein Positions mapping
    :header-rows: 1
 
