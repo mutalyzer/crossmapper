@@ -58,7 +58,7 @@ NonCoding Position Model
 Noncoding positions follow the HGVS ``n`` coordinate system. They are represented
 as 3-key dictionaries. Below is an example of ``n.14+1`` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 14,
@@ -151,7 +151,7 @@ Coding Position Model
 Coding positions follow the HGVS ``c`` coordinate system. They are
 represented as 3-key dictionaries. Here is an example of ``c.*1+3``.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 1,
@@ -228,7 +228,7 @@ Additionally, the functions ``coordinate_to_protein()`` and
 ``protein_to_coordinate()`` can be used. These functions use a 4-key dictionary
 to represent a protein position. Here is an example of ``p.1`` in HGVS.
 
-.. code-block:: json
+.. code-block:: python
 
     {
         'position': 1,
