@@ -115,7 +115,7 @@ NonCoding Position Conversion
     >>> crossmap = NonCoding(_exons)
     >>> crossmap.coordinate_to_noncoding(25)
     {"position": 10, "offset": -5, "region": ''}
-    >>> crossmap.noncoding_to_coordinate({"position": 10, "offset": -5, "region": ''})
+    >>> crossmap.noncoding_to_coordinate({"position": 10, "offset": -5, "region": ""})
     25
 
 Notes
@@ -173,7 +173,7 @@ Coding Position Conversion
     >>> crossmap = Coding(_exons, _cds)
     >>> crossmap.coordinate_to_coding(46)
     {"position": 1, "offset": 3, "region": '*'}
-    >>> crossmap.coding_to_coordinate({"position": 1, "offset": 3, "region": '*'})
+    >>> crossmap.coding_to_coordinate({"position": 1, "offset": 3, "region": "*"})
     46
 
 Notes
