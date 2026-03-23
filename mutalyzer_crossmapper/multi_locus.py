@@ -59,17 +59,17 @@ class MultiLocus(object):
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
-        location = self._loci[index].to_position(coordinate)
+        locus_pos_m = self._loci[index].to_position(coordinate)
 
         if outside:
             return {
-                'position': abs(location['offset']),
+                'position': abs(locus_pos_m['offset']),
                 'offset': 0,
                 'region': region
             }
         return {
-            'position': location['position'] + self._offsets[self._direction(index)],
-            'offset': location['offset'],
+            'position': locus_pos_m['position'] + self._offsets[self._direction(index)],
+            'offset': locus_pos_m['offset'],
             'region': region
         }
 
