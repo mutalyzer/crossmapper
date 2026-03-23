@@ -22,7 +22,7 @@ They are represented as 1-key dictionaries. Below is an example of ``g.1`` in HG
 
 Where:
 
-- **position**: a positive integer repersenting a base position(>0)
+- **position**: an integer repersenting a base position (>0)
 
 Genomic Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -32,7 +32,7 @@ Genomic Position Conversion
     >>> from mutalyzer_crossmapper import Genomic
     >>> crossmap = Genomic()
 
-The functions ``coordinate_to_genomic()`` and ``genomic_to_coordinate`` can be
+The functions ``coordinate_to_genomic()`` and ``genomic_to_coordinate()`` can be
 used to convert to and from genomic positions.
 
 .. code:: python
@@ -181,7 +181,7 @@ The ``Coding`` class
 --------------------
 
 The ``Coding`` class provides an interface to all conversions between
-coding (``c.``, ``r.``) rpositioning systems and coordinates. Conversions between
+coding (``c.``, ``r.``) positions and coordinates. Conversions between
 positioning systems should be done via a coordinate.
 
 Coding Position Model
@@ -307,6 +307,11 @@ In the following table, we show a number of annotated examples.
      - 0
      - ``*``
      - ``c.*5``
+   * - 72
+     - 1
+     - 0
+     - ``d``
+     - ``c.d1``
    * - 79
      - 8
      - 0
@@ -348,8 +353,8 @@ position ``p.2``. We can convert between these to as follows.
     >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
     41
 
-Note that the protein position only corresponds with the HGVS "p." notation
-when the offset equals ``0`` and the region equals ``1``. In the following
+**Note:** protein position only corresponds with the HGVS "p." notation
+when the offset equals ``0`` and the region equals ``''``. In the following
 table, we show a number of annotated examples.
 
 .. _table_protein:
@@ -380,18 +385,6 @@ table, we show a number of annotated examples.
      - 0
      - ``-``
      - invalid
-   * - 7
-     - 3
-     - 1
-     - 0
-     - ``-``
-     - invalid
-   * - 8
-     - 3
-     - 1
-     - 1
-     - ``-``
-     - invalid
    * - 31
      - 1
      - 3
@@ -408,6 +401,18 @@ table, we show a number of annotated examples.
      - 1
      - 2
      - 0
+     -
+     - ``p.1``
+   * - 34
+     - 1
+     - 3
+     - 0
+     -
+     - ``p.1``
+   * - 35
+     - 1
+     - 3
+     - 1
      -
      - ``p.1``
    * - 42
@@ -476,9 +481,6 @@ The ``Locus`` class
 
 The ``Locus`` class is used to deal with offsets with respect to a single
 locus.
-**Note:** the ``position`` values in the position dictionaries are **0-based**,
-so the first base of the locus corresponds to ``{'position': 0, 'offset': 0}``.
-This differs from HGVS numbering, which is **1-based**.
 
 .. code:: python
 
@@ -489,6 +491,10 @@ This class provides the functions ``to_position()`` and ``to_coordinate()`` for
 converting from a locus position to a coordinate and vice versa. These
 functions work with a 2-key dictionary, see the section about `The NonCoding class`_
 for the semantics.
+
+**Note:** the ``position`` values in the position dictionaries are **0-based**,
+so the first base of the locus corresponds to ``{'position': 0, 'offset': 0}``.
+This differs from HGVS numbering, which is **1-based**.
 
 .. code:: python
 
