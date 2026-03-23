@@ -137,12 +137,12 @@ In the following table, we show a number of annotated examples.
    * - 0
      - 5
      - 0
-     - ``u``
+     - ``'u'``
      - ``n.u5``
    * - 4
      - 1
      - 0
-     - ``u``
+     - ``'u'``
      - ``n.u1``
    * - 5
      - 1
@@ -167,12 +167,12 @@ In the following table, we show a number of annotated examples.
    * - 72
      - 1
      - 0
-     - ``d``
+     - ``'d'``
      - ``n.d1``
    * - 79
      - 8
      - 0
-     - ``d``
+     - ``'d'``
      - ``n.d8``
 
 See section :doc:`api/crossmap` for a detailed description.
@@ -255,27 +255,27 @@ In the following table, we show a number of annotated examples.
    * - 0
      - 5
      - 0
-     - ``u``
+     - ``'u'``
      - ``c.u5``
    * - 4
      - 1
      - 0
-     - ``u``
+     - ``'u'``
      - ``c.u1``
    * - 5
      - 11
      - 0
-     - ``-``
+     - ``'-'``
      - ``c.-11``
    * - 24
      - 3
      - 5
-     - ``-``
+     - ``'-'``
      - ``c.-3+5``
    * - 31
      - 1
      - 0
-     - ``-``
+     - ``'-'``
      - ``c.-1``
    * - 32
      - 1
@@ -295,27 +295,27 @@ In the following table, we show a number of annotated examples.
    * - 43
      - 1
      - 0
-     - ``*``
+     - ``'*'``
      - ``c.*1``
    * - 61
      - 4
      - -9
-     - ``*``
+     - ``'*'``
      - ``c.*4-9``
    * - 71
      - 5
      - 0
-     - ``*``
+     - ``'*'``
      - ``c.*5``
    * - 72
      - 1
      - 0
-     - ``d``
+     - ``'d'``
      - ``c.d1``
    * - 79
      - 8
      - 0
-     - ``d``
+     - ``'d'``
      - ``c.d8``
 
 
@@ -371,25 +371,25 @@ table, we show a number of annotated examples.
      - 2
      - 2
      - 0
-     - ``u``
+     - ``'u'``
      - invalid
    * - 4
      - 1
      - 3
      - 0
-     - ``u``
+     - ``'u'``
      - invalid
    * - 5
      - 4
      - 2
      - 0
-     - ``-``
+     - ``'-'``
      - invalid
    * - 31
      - 1
      - 3
      - 0
-     - ``-``
+     - ``'-'``
      - invalid
    * - 32
      - 1
@@ -425,26 +425,26 @@ table, we show a number of annotated examples.
      - 1
      - 1
      - 0
-     - ``*``
+     - ``'*'``
      - invalid
    * - 44
      - 1
      - 1
      - 1
-     - ``*``
+     - ``'*'``
      - invalid
    * - 72
      - 1
      - 1
      - 0
-     - ``d``
+     - ``'d'``
      - invalid
 
    * - 79
      - 2
      - 2
      - 0
-     - ``d``
+     - ``'d'``
      - invalid
 
 
