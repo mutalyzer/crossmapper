@@ -77,7 +77,7 @@ class Coding(NonCoding):
             self._coding = (b1['position'] + b1['offset'], b0['position'] + b0['offset'] + 1)
             self._exons = (e1['position'], e0['position'])
         else:
-            self._coding = (b0['position'] + b0['offset'], b1['position'] + b1['offset'] +1)
+            self._coding = (b0['position'] + b0['offset'], b1['position'] + b1['offset'] + 1)
             self._exons = (e0['position'], e1['position'])
 
     def _degenerate_position(self, pos_m: dict) -> dict:
@@ -210,15 +210,10 @@ class Coding(NonCoding):
 
         :returns dict: Protein position model(p.).
         """
-        pos = self.coordinate_to_coding(coordinate, True)
-
-        if pos['region'] == 'u':
-            pos = self.coordinate_to_coding(coordinate + pos['position'])
-        elif pos['region'] == 'd':
-            pos = self.coordinate_to_coding(coordinate - pos['position'])
+        pos = self.coordinate_to_coding(coordinate)
 
         position = pos['position']
-        if pos['region'] == '-':
+        if pos['region'] in ('-', 'u'):
             return {
                 'position': abs(-position // 3),
                 'position_in_codon': -position % 3 + 1,
@@ -235,7 +230,7 @@ class Coding(NonCoding):
 
         :returns int: Coordinate.
         """
-        if pos_m['region'] == '-':
+        if pos_m['region'] in ('-', 'u'):
             return self.coding_to_coordinate(
                 {'position': 3 * pos_m['position'] - pos_m['position_in_codon'] + 1,
                  'offset': pos_m['offset'],

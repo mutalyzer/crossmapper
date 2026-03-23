@@ -368,14 +368,14 @@ table, we show a number of annotated examples.
      - region
      - HGVS
    * - 0
-     - 4
+     - 2
      - 2
      - 0
      - ``u``
      - invalid
    * - 4
-     - 4
-     - 2
+     - 1
+     - 3
      - 0
      - ``u``
      - invalid
@@ -433,6 +433,13 @@ table, we show a number of annotated examples.
      - 1
      - ``*``
      - invalid
+   * - 72
+     - 1
+     - 1
+     - 0
+     - ``d``
+     - invalid
+
    * - 79
      - 2
      - 2

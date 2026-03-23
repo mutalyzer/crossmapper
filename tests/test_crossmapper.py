@@ -667,6 +667,20 @@ def test_Coding_protein():
     """Protein positions."""
     crossmap = Coding(_exons, _cds)
 
+    # Boundary between upstream and 5' UTR
+    invariant(
+        crossmap.coordinate_to_protein,
+        4,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 3, 'offset': 0, 'region': 'u'}
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        5,
+        crossmap.protein_to_coordinate,
+        {'position': 4, 'position_in_codon': 2, 'offset': 0, 'region': '-'}
+    )
+
     # Boundary between 5' UTR and CDS
     invariant(
         crossmap.coordinate_to_protein,
@@ -707,4 +721,18 @@ def test_Coding_protein():
         43,
         crossmap.protein_to_coordinate,
         {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': '*'},
+    )
+
+    # Boundary between 3' UTR and downstream
+    invariant(
+        crossmap.coordinate_to_protein,
+        71,
+        crossmap.protein_to_coordinate,
+        {'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': '*'}
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        72,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': 'd'}
     )
