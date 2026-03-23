@@ -19,7 +19,7 @@ def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
 
 class MultiLocus(object):
     """MultiLocus object."""
-    def __init__(self, locations: list[tuple[int, int]], inverted=False) -> None:
+    def __init__(self, locations: list[tuple[int, int]], inverted: bool=False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -49,7 +49,7 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate: int) -> dict:
+    def to_position(self, coordinate: int) -> dict[str: int | str]:
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
@@ -67,7 +67,6 @@ class MultiLocus(object):
                 'offset': 0,
                 'region': region
             }
-
         return {
             'position': location['position'] + self._offsets[self._direction(index)],
             'offset': location['offset'],

@@ -88,10 +88,11 @@ class Coding(NonCoding):
         :returns dict: a generate coding position model.
         """
         region = pos_m['region']
-        position = pos_m['position']
+        if region not in ('u', 'd'):
+            return pos_m
 
         degenerated_pos_m = {'offset': pos_m['offset']}
-
+        position = pos_m['position']
         if region == 'u':
             if self._inverted:
                 degenerated_pos_m['position'] = position + self._exons[1] - self._coding[1] + 1
@@ -113,13 +114,13 @@ class Coding(NonCoding):
 
         :returns dict: a normalized coding postion model.
         """
-        initial_pos = {**pos_m, 'offset': 0}
-        coordinate = self._coding_to_coordinate(initial_pos)
+        base_pos = {**pos_m, 'offset': 0}
+        base_coordinate = self._coding_to_coordinate(base_pos)
         if self._inverted:
-            coordinate = coordinate - pos_m['offset']
+            base_coordinate = base_coordinate - pos_m['offset']
         else:
-            coordinate = coordinate + pos_m['offset']
-        return self.coordinate_to_coding(coordinate)
+            base_coordinate = base_coordinate + pos_m['offset']
+        return self.coordinate_to_coding(base_coordinate)
 
     def _coordinate_to_coding(self, coordinate: int) -> dict:
         """Convert a coordinate to a coding position (c./r.).
@@ -163,7 +164,7 @@ class Coding(NonCoding):
         """
         pos_m = self._coordinate_to_coding(coordinate)
 
-        if degenerate and pos_m['region'] in ('u', 'd'):
+        if degenerate:
             pos_m = self._degenerate_position(pos_m)
 
         return pos_m
@@ -209,7 +210,7 @@ class Coding(NonCoding):
 
         :returns dict: Protein position model(p.).
         """
-        pos = self.coordinate_to_coding(coordinate)
+        pos = self.coordinate_to_coding(coordinate, True)
 
         if pos['region'] == 'u':
             pos = self.coordinate_to_coding(coordinate + pos['position'])
