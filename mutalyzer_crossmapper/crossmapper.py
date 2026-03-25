@@ -45,7 +45,7 @@ class NonCoding(Genomic):
             pos_m['position'] = pos_m['position'] + 1
         return pos_m
 
-    def noncoding_to_coordinate(self, pos_m: dict) -> int:
+    def noncoding_to_coordinate(self, pos_m: dict, degenerate: bool=True) -> int:
         """Convert a noncoding position (n./r.) to a coordinate.
 
         :arg dict pos_m: Noncoding position model.
@@ -53,6 +53,11 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         multilocus_pos_m = {**pos_m}
+        if degenerate:
+            if multilocus_pos_m["region"] == '-':
+                multilocus_pos_m["region"] = 'u'
+            elif multilocus_pos_m["region"] == '*':
+                multilocus_pos_m['region'] = 'd'
         if multilocus_pos_m['region'] == '':
             multilocus_pos_m['position'] = pos_m['position'] - 1
         return self._noncoding.to_coordinate(multilocus_pos_m)
@@ -106,21 +111,6 @@ class Coding(NonCoding):
                 degenerate_pos_m['position'] = location + self._exons[1]- self._coding[1] + 1
             degenerate_pos_m['region'] = '*'
         return degenerate_pos_m
-
-    def _normalize_position(self, pos_m: dict) -> dict:
-        """Normalize a coding position model (c./r.).
-
-        :arg dict pos_m: Coding position model.
-
-        :returns dict: a normalized coding postion model.
-        """
-        base_pos = {**pos_m, 'offset': 0}
-        base_coordinate = self._coding_to_coordinate(base_pos)
-        if self._inverted:
-            base_coordinate = base_coordinate - pos_m['offset']
-        else:
-            base_coordinate = base_coordinate + pos_m['offset']
-        return self.coordinate_to_coding(base_coordinate)
 
     def _coordinate_to_coding(self, coordinate: int) -> dict:
         """Convert a coordinate to a coding position (c./r.).
@@ -199,9 +189,8 @@ class Coding(NonCoding):
 
         :returns int: Coordinate.
         """
-        normalized_pos_m = self._normalize_position(pos_m)
 
-        return self._coding_to_coordinate(normalized_pos_m)
+        return self._coding_to_coordinate(pos_m)
 
     def coordinate_to_protein(self, coordinate: int) -> dict:
         """Convert a coordinate to a protein position (p.).

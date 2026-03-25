@@ -82,13 +82,14 @@ class MultiLocus(object):
         """
         region = pos_m['region']
 
-        if pos_m['region'] in ('u', 'd'):
-            is_upstream = region == 'u'
+        if region == 'u':
             if self._inverted:
-                is_upstream = not is_upstream
-            if is_upstream:
-                return self._locations[0][0] - abs(pos_m['position']) + pos_m['offset']
-            return abs(pos_m['position']) + self._locations[-1][1] + pos_m['offset'] - 1
+                return self._locations[-1][1] + abs(pos_m['position']) - pos_m['offset'] - 1
+            return self._locations[0][0] - abs(pos_m['position']) + pos_m['offset']
+        elif region == 'd':
+            if self._inverted:
+                return self._locations[0][0] - abs(pos_m['position']) - pos_m['offset']
+            return self._locations[-1][1] + abs(pos_m['position']) + pos_m['offset'] - 1
 
         index = min(
             len(self._offsets),
