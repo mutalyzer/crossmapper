@@ -53,8 +53,8 @@ positions and coordinates.
     >>> from mutalyzer_crossmapper import Genomic
     >>> crossmap = Genomic()
     >>> crossmap.coordinate_to_genomic(0)
-    1
-    >>> crossmap.genomic_to_coordinate({'position':1})
+    {'position': 1}
+    >>> crossmap.genomic_to_coordinate({'position': 1})
     0
 
 On top of the functionality provided by the ``Genomic`` class, the
@@ -67,8 +67,8 @@ positions and coordinates.
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> crossmap = NonCoding(exons)
     >>> crossmap.coordinate_to_noncoding(35)
-    {'position':14, 'offset':1, 'region':''}
-    >>> crossmap.noncoding_to_coordinate({'position':14, 'offset':1, 'region':''})
+    {'position': 14, 'offset': 1, 'region': ''}
+    >>> crossmap.noncoding_to_coordinate({'position': 14, 'offset': 1, 'region': ''})
     35
 
 Add the flag ``inverted=True`` to the constructor when the transcript resides
@@ -84,7 +84,7 @@ coordinates as well as conversions between protein positions and coordinates.
     >>> cds = (32, 43)
     >>> crossmap = Coding(exons, cds)
     >>> crossmap.coordinate_to_coding(31)
-    {'position':1, 'offset':0, 'region':'-'}
+    {'position': 1, 'offset': 0, 'region': '-'}
     >>> crossmap.coding_to_coordinate({'position':1, 'offset':0, 'region':'-'})
     31
 
@@ -96,8 +96,8 @@ Conversions between protein positions and coordinates are done as follows.
 .. code:: python
 
     >>> crossmap.coordinate_to_protein(41)
-    {'position':2, 'position_in_codon': 2, 'offset':0, 'region':''}
-    >>> crossmap.protein_to_coordinate({'position':2, 'position_in_codon':2, 'offset':0, 'region':''})
+    {'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''}
+    >>> crossmap.protein_to_coordinate({'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''})
     41
 
 

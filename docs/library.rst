@@ -8,7 +8,7 @@ The ``Genomic`` class
 ---------------------
 
 The ``Genomic`` class provides an interface to conversions between genomic
-(``g.``, ``m.``, ``n.``) positions and coordinates.
+(``g.``, ``m.``, ``o.``) positions and coordinates.
 
 Genomic Position Model
 ~~~~~~~~~~~~~~~~~~~~~~~
