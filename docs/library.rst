@@ -71,8 +71,8 @@ Where:
 - **position**: an integer representing a transcript position (>0)
 - **offset**: an integer indicating the offset relative to the position (negative for upstream,
   positive for downstream)
-- **region**: a string describing the region type (empty for positions within a non-coding transcript, ``u`` for upstream,
-  ``d`` for downstream)
+- **region**: a string describing the region type (empty for positions within a non-coding 
+  transcript, ``u`` for upstream, ``d`` for downstream)
 
 NonCoding Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -112,7 +112,7 @@ present upstream and ``d`` to present downstream.
 
 The ``coordinate_to_noncoding()`` function accepts an optional ``degenerate``
 argument. When set to ``True``, positions outside of the transcript are no
-longer described using the ``u`` or ``d`` notation, ``-`` and ``*``are used
+longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
 instead.
 
 .. code:: python
@@ -242,7 +242,7 @@ position ``c.-1``. We can convert between these two as follows.
 
 The ``coordinate_to_coding()`` function accepts an optional ``degenerate``
 argument. When set to ``True``, positions outside of the transcript are no
-longer described using the ``u`` or ``d`` notation, ``-`` and ``*``are used
+longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
 instead. Note that the value of `position` is adjusted accordingly.
 
 .. code:: python
