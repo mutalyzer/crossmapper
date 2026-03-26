@@ -85,33 +85,6 @@ class Coding(NonCoding):
             self._coding = (b0['position'] + b0['offset'], b1['position'] + b1['offset'] + 1)
             self._exons = (e0['position'], e1['position'])
 
-    def _degenerate_position(self, pos_m: dict) -> dict:
-        """Degenerate a coding position model (c./r.).
-
-        :arg dict pos_m: Coding position model.
-
-        :returns dict: a generate coding position model.
-        """
-        region = pos_m['region']
-        if region not in ('u', 'd'):
-            return pos_m
-
-        degenerate_pos_m = {'offset': pos_m['offset']}
-        location = pos_m['position']
-        if region == 'u':
-            if self._inverted:
-                degenerate_pos_m['position'] = location + self._exons[1] - self._coding[1] + 1
-            else:
-                degenerate_pos_m['position'] = location + self._coding[0]
-            degenerate_pos_m['region'] = '-'
-        if region == 'd':
-            if self._inverted:
-                degenerate_pos_m['position'] = location + self._coding[0]
-            else:
-                degenerate_pos_m['position'] = location + self._exons[1]- self._coding[1] + 1
-            degenerate_pos_m['region'] = '*'
-        return degenerate_pos_m
-
     def _coordinate_to_coding(self, coordinate: int) -> dict:
         """Convert a coordinate to a coding position (c./r.).
 
@@ -154,10 +127,25 @@ class Coding(NonCoding):
         """
         pos_m = self._coordinate_to_coding(coordinate)
 
-        if degenerate:
-            pos_m = self._degenerate_position(pos_m)
+        region = pos_m['region']
+        if not degenerate or region =='':
+            return pos_m
 
-        return pos_m
+        degenerate_pos_m = {'offset': pos_m['offset']}
+        location = pos_m['position']
+        if region == 'u':
+            if self._inverted:
+                degenerate_pos_m['position'] = location + self._exons[1] - self._coding[1] + 1
+            else:
+                degenerate_pos_m['position'] = location + self._coding[0]
+            degenerate_pos_m['region'] = '-'
+        if region == 'd':
+            if self._inverted:
+                degenerate_pos_m['position'] = location + self._coding[0]
+            else:
+                degenerate_pos_m['position'] = location + self._exons[1]- self._coding[1] + 1
+            degenerate_pos_m['region'] = '*'
+        return degenerate_pos_m
 
     def _coding_to_coordinate(self, pos_m: dict) -> int:
         """Convert a coding position (c./r.) to a coordinate.
