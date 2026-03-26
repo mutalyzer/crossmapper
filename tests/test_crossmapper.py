@@ -154,6 +154,52 @@ def test_NonCoding_inverted_degenerate():
     )
 
 
+def test_NonCoding_degenerate_return():
+    crossmap = NonCoding(_exons)
+
+    assert crossmap.coordinate_to_noncoding(4, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-',
+    }
+
+    assert crossmap.coordinate_to_noncoding(72, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*',
+    }
+
+
+def test_NonCoding_inverted_degenerate_return():
+    crossmap = NonCoding(_exons, True)
+
+    assert crossmap.coordinate_to_noncoding(72, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-',
+    }
+
+    assert crossmap.coordinate_to_noncoding(4, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*',
+    }
+
+
+def test_NonCoding_degenerate_no_return():
+    """Degenerate internal positions do not exist."""
+    crossmap = NonCoding(_exons)
+
+    assert crossmap.coordinate_to_noncoding(25) == crossmap.coordinate_to_noncoding(25, True)
+
+
+def test_NonCoding_inverted_degenerate_no_return():
+    """Degenerate internal positions do not exist."""
+    crossmap = NonCoding(_exons, True)
+
+    assert crossmap.coordinate_to_noncoding(25) == crossmap.coordinate_to_noncoding(25, True)
+
+
 def test_Coding():
     """Forward oriented coding transcript."""
     crossmap = Coding(_exons, _cds)
@@ -543,7 +589,6 @@ def test_Coding_degenerate_return():
 def test_Coding_inverted_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20)], (11, 19), True)
-
 
     assert crossmap.coordinate_to_coding(20, True) == {
         'position': 2,

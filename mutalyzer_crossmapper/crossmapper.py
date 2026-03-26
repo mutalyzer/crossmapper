@@ -33,7 +33,7 @@ class NonCoding(Genomic):
 
         self._noncoding = MultiLocus(locations, inverted)
 
-    def coordinate_to_noncoding(self, coordinate: int) -> dict:
+    def coordinate_to_noncoding(self, coordinate: int, degenerate: bool=False) -> dict:
         """Convert a coordinate to a noncoding position (n./r.).
 
         :arg int coordinate: Coordinate.
@@ -41,11 +41,19 @@ class NonCoding(Genomic):
         :returns dict: Noncoding position model.
         """
         pos_m = self._noncoding.to_position(coordinate)
-        if pos_m['region'] == '':
+        region = pos_m['region']
+        if region == '':
             pos_m['position'] = pos_m['position'] + 1
+            return pos_m
+
+        if degenerate:
+            if region == 'u':
+                pos_m["region"] = '-'
+            elif region == 'd':
+                pos_m['region'] = '*'
         return pos_m
 
-    def noncoding_to_coordinate(self, pos_m: dict, degenerate: bool=True) -> int:
+    def noncoding_to_coordinate(self, pos_m: dict) -> int:
         """Convert a noncoding position (n./r.) to a coordinate.
 
         :arg dict pos_m: Noncoding position model.
@@ -53,13 +61,13 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         multilocus_pos_m = {**pos_m}
-        if degenerate:
-            if multilocus_pos_m["region"] == '-':
-                multilocus_pos_m["region"] = 'u'
-            elif multilocus_pos_m["region"] == '*':
-                multilocus_pos_m['region'] = 'd'
-        if multilocus_pos_m['region'] == '':
+        region = multilocus_pos_m['region']
+        if region == '':
             multilocus_pos_m['position'] = pos_m['position'] - 1
+        elif region == '-':
+            multilocus_pos_m['region'] = 'u'
+        elif region == '*':
+            multilocus_pos_m['region'] = 'd'
         return self._noncoding.to_coordinate(multilocus_pos_m)
 
 
