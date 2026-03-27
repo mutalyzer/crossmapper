@@ -1,18 +1,4 @@
-"""Crossmapper position conversion library.
-
-Definitions:
-
-- Coordinates are zero based, non-negative integers.
-- Locations are zero based right-open non-negative integer intervals,
-  consistent with Python's range() and sequence slicing functions.
-- Loci and exons are locations.
-- An exon list is a list of locations that, when flattened, is an increasing
-  sequence.
-- A position is a 2-tuple of which the first element is a one based non-zero
-  integer relative to an element in a location and the second element is an
-  integer offset relative to the first element.
-"""
-from pkg_resources import get_distribution
+from importlib.metadata import metadata
 
 from .crossmapper import Coding, Genomic, NonCoding
 from .location import nearest_location
@@ -20,14 +6,13 @@ from .locus import Locus
 from .multi_locus import MultiLocus
 
 
-def _get_metadata(name):
-    pkg = get_distribution('mutalyzer_crossmapper')
-
-    for line in pkg.get_metadata_lines(pkg.PKG_INFO):
-        if line.startswith('{}: '.format(name)):
-            return line.split(': ')[1]
-
-    return ''
+def _get_metadata(name: str) -> str:
+    """Get metadata from the package using importlib.metadata"""
+    try:
+        meta = metadata('mutalyzer_crossmapper')
+        return meta.get(name, '')
+    except Exception:
+        return ''
 
 
 _copyright_notice = 'Copyright (c) {} <{}>'.format(
