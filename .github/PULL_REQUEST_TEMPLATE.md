@@ -37,4 +37,4 @@ Provide any other important details below.
 :question:
 
 [1]: https://github.com/mutalyzer/crossmapper/pulls
-[2]: https://github.com/mutalyzer/crossmapper/blob/master/docs/CONTRIBUTING.md#code-style
+[2]: https://github.com/mutalyzer/crossmapper/blob/master/.github/CONTRIBUTING.md#code-style
