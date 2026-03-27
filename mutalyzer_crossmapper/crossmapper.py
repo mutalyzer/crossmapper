@@ -125,7 +125,7 @@ class Coding(NonCoding):
             'region': ''
         }
 
-    def coordinate_to_coding(self, coordinate: tuple[int, int], degenerate: bool=False) -> dict:
+    def coordinate_to_coding(self, coordinate: int, degenerate: bool=False) -> dict:
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
