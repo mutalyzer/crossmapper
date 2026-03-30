@@ -86,7 +86,7 @@ class MultiLocus(object):
             if self._inverted:
                 return self._locations[-1][1] + abs(pos_m['position']) - pos_m['offset']
             return self._locations[0][0] - abs(pos_m['position']) + pos_m['offset'] - 1
-        elif region == 'd':
+        if region == 'd':
             if self._inverted:
                 return self._locations[0][0] - abs(pos_m['position']) - pos_m['offset'] - 1
             return self._locations[-1][1] + abs(pos_m['position']) + pos_m['offset']
