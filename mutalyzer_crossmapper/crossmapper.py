@@ -3,7 +3,7 @@ from .multi_locus import MultiLocus
 
 class Genomic(object):
     """Genomic crossmap object."""
-    def coordinate_to_genomic(self, coordinate: int) -> dict:
+    def coordinate_to_genomic(self, coordinate: int) -> dict[str, int]:
         """Convert a coordinate to a genomic position (g./m./o.).
 
         :arg int coordinate: Coordinate.
@@ -12,7 +12,7 @@ class Genomic(object):
         """
         return {'position': coordinate + 1}
 
-    def genomic_to_coordinate(self, pos_m: dict) -> int:
+    def genomic_to_coordinate(self, pos_m: dict[str, int]) -> int:
         """Convert a genomic position (g./m./o.) to a coordinate.
 
         :arg dict pos_m: Genomic position model.
@@ -216,7 +216,7 @@ class Coding(NonCoding):
     def protein_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a protein position (p.) to a coordinate.
 
-        :arg dict position: Protein position model(p.).
+        :arg dict pos_m: Protein position model(p.).
 
         :returns int: Coordinate.
         """

@@ -530,7 +530,7 @@ The ``MultiLocus`` class
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The ``MultiLocus`` class is used to deal with offsets with respect to multiple
-loci. Its positions is
+loci.
 
 .. code:: python
 
