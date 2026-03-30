@@ -112,15 +112,6 @@ def test_NonCoding_degenerate():
         ],
     )
 
-    # # Boundary between exon and intron
-    # degenerate_equal(
-    #     crossmap.noncoding_to_coordinate,
-    #     29,
-    #     [
-
-    #     ]
-    # )
-
     # Boundary between downstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate,
@@ -375,7 +366,7 @@ def test_Coding_no_utr5_inverted():
         crossmap.coordinate_to_coding,
         19,
         crossmap.coding_to_coordinate,
-        {'position': 1 , 'offset': 0, 'region': ''},
+        {'position': 1, 'offset': 0, 'region': ''},
     )
 
 
@@ -521,6 +512,7 @@ def test_Coding_degenerate():
     """Degenerate upstream and downstream positions are silently corrected."""
     crossmap = Coding([(10, 20)], (11, 19))
 
+    # Degenerate position in upstream.
     degenerate_equal(
         crossmap.coding_to_coordinate,
         9,
