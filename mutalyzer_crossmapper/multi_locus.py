@@ -49,7 +49,7 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate: int) -> dict[str: int | str]:
+    def to_position(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a position.
 
         :arg int coordinate: Coordinate.
@@ -73,7 +73,7 @@ class MultiLocus(object):
             'region': region
         }
 
-    def to_coordinate(self, pos_m: dict) -> int:
+    def to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a position model to a coordinate.
 
         :arg dict pos_m: Position model with 'position','offset' and 'region' keys.
