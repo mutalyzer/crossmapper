@@ -112,6 +112,15 @@ def test_NonCoding_degenerate():
         ],
     )
 
+    # # Boundary between exon and intron
+    # degenerate_equal(
+    #     crossmap.noncoding_to_coordinate,
+    #     29,
+    #     [
+
+    #     ]
+    # )
+
     # Boundary between downstream and transcript.
     degenerate_equal(
         crossmap.noncoding_to_coordinate,

@@ -19,7 +19,7 @@ def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
 
 class MultiLocus(object):
     """MultiLocus object."""
-    def __init__(self, locations: list[tuple[int, int]], inverted: bool=False) -> None:
+    def __init__(self, locations: list[tuple[int, int]], inverted: bool = False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.

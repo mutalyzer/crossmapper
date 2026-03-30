@@ -1,6 +1,6 @@
 class Locus(object):
     """Locus object."""
-    def __init__(self, location: tuple[int, int], inverted: bool=False) -> None:
+    def __init__(self, location: tuple[int, int], inverted: bool = False) -> None:
         """
         :arg tuple location: Locus location.
         :arg bool inverted: Orientation.

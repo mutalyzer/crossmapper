@@ -24,7 +24,7 @@ class Genomic(object):
 
 class NonCoding(Genomic):
     """NonCoding crossmap object."""
-    def __init__(self, locations: list[tuple[int, int]], inverted: bool=False) -> None:
+    def __init__(self, locations: list[tuple[int, int]], inverted: bool = False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -33,7 +33,7 @@ class NonCoding(Genomic):
 
         self._noncoding = MultiLocus(locations, inverted)
 
-    def coordinate_to_noncoding(self, coordinate: int, degenerate: bool=False) -> dict:
+    def coordinate_to_noncoding(self, coordinate: int, degenerate: bool = False) -> dict:
         """Convert a coordinate to a noncoding position (n./r.).
 
         :arg int coordinate: Coordinate.
@@ -72,9 +72,9 @@ class Coding(NonCoding):
     """Coding crossmap object."""
     def __init__(
             self,
-            locations: list[tuple[int,int]],
-            cds: tuple[int,int],
-            inverted : bool=False
+            locations: list[tuple[int, int]],
+            cds: tuple[int, int],
+            inverted: bool = False
     ) -> None:
         """
         :arg list locations: List of locus locations.
@@ -127,7 +127,7 @@ class Coding(NonCoding):
             'region': ''
         }
 
-    def coordinate_to_coding(self, coordinate: int, degenerate: bool=False) -> dict:
+    def coordinate_to_coding(self, coordinate: int, degenerate: bool = False) -> dict:
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
