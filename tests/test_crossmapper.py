@@ -351,6 +351,28 @@ def test_Coding_no_utr5():
     )
 
 
+def test_Coding_no_intron():
+    crossmap = Coding([(10, 20), (20, 30)], (15, 25))
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        20,
+        crossmap.coding_to_coordinate,
+        {'position': 6, 'offset': 0, 'region': ''},
+    )
+
+
+def test_Coding_no_intron_inverted():
+    crossmap = Coding([(10, 20), (20, 30)], (15, 25), True)
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        20,
+        crossmap.coding_to_coordinate,
+        {'position': 5, 'offset': 0, 'region': ''},
+    )
+
+
 def test_Coding_no_utr5_inverted():
     """A 5' UTR may be missing."""
     crossmap = Coding([(10, 20)], (15, 20), True)
@@ -787,4 +809,79 @@ def test_Coding_protein():
         72,
         crossmap.protein_to_coordinate,
         {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': 'd'}
+    )
+
+
+def test_Coding_inverted_protein():
+    """Protein positions."""
+    crossmap = Coding(_exons, _cds, True)
+
+    # Boundary between upstream and 5' UTR
+    invariant(
+        crossmap.coordinate_to_protein,
+        4,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': 'd'}
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        5,
+        crossmap.protein_to_coordinate,
+        {'position': 4, 'position_in_codon': 2, 'offset': 0, 'region': '*'}
+    )
+
+    # Boundary between 5' UTR and CDS
+    invariant(
+        crossmap.coordinate_to_protein,
+        31,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': '*'},
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        32,
+        crossmap.protein_to_coordinate,
+        {'position': 2, 'position_in_codon': 3, 'offset': 0, 'region': ''},
+    )
+
+    # Intron boundary.
+    invariant(
+        crossmap.coordinate_to_protein,
+        34,
+        crossmap.protein_to_coordinate,
+        {'position': 2, 'position_in_codon': 1, 'offset': 0, 'region': ''},
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        35,
+        crossmap.protein_to_coordinate,
+        {'position': 2, 'position_in_codon': 1, 'offset': -1, 'region': ''},
+    )
+
+    # Boundary between CDS and 3' UTR.
+    invariant(
+        crossmap.coordinate_to_protein,
+        42,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': ''},
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        43,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 3, 'offset': 0, 'region': '-'},
+    )
+
+    # Boundary between 3' UTR and downstream
+    invariant(
+        crossmap.coordinate_to_protein,
+        71,
+        crossmap.protein_to_coordinate,
+        {'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': '-'}
+    )
+    invariant(
+        crossmap.coordinate_to_protein,
+        72,
+        crossmap.protein_to_coordinate,
+        {'position': 1, 'position_in_codon': 3, 'offset': 0, 'region': 'u'}
     )
