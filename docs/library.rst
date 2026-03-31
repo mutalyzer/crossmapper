@@ -22,7 +22,7 @@ They are represented as 1-key dictionaries. Below is an example of ``g.1`` in HG
 
 Where:
 
-- **position**: an integer representing a nucleotide position (>0)
+- **position**: an integer representing a nucleotide position (> 0)
 
 Genomic Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -68,7 +68,7 @@ as 3-key dictionaries. Below is an example of ``n.14+1`` in HGVS.
 
 Where:
 
-- **position**: an integer representing a transcript position (>0)
+- **position**: an integer representing a nucleotide position (> 0)
 - **offset**: an integer indicating the offset relative to the position (negative for upstream,
   positive for downstream)
 - **region**: a string describing the region type (empty for positions within a non-coding
@@ -86,7 +86,7 @@ NonCoding Position Conversion
 Now the functions ``coordinate_to_noncoding()`` and ``noncoding_to_coordinate()``
 can be used.
 
-In our example, the HGVS position ``g.36`` (coordinate `35`) is equivalent to
+In our example, the HGVS position ``g.36`` (coordinate *35*) is equivalent to
 position ``n.14+1``. We can convert between these two as follows.
 
 .. code:: python
@@ -96,8 +96,8 @@ position ``n.14+1``. We can convert between these two as follows.
     >>> crossmap.noncoding_to_coordinate({'position': 14, 'offset': 1, 'region': ''})
     35
 
-When the coordinate is upstream or downstream of the transcript,  we use ``u`` to
-present upstream and ``d`` to present downstream.
+When the coordinate is upstream or downstream of the transcript, we use ``u`` to
+denote upstream and ``d`` to denote downstream.
 
 .. code:: python
 
@@ -124,7 +124,7 @@ instead.
 
 For transcripts that reside on the reverse complement strand, the ``inverted``
 parameter should be set to ``True``. In our example, HGVS position ``g.36``
-(coordinate `35`) is now equivalent to position ``n.9-1``.
+(coordinate *35*) is now equivalent to position ``n.9-1``.
 
 .. code:: python
 
@@ -210,7 +210,7 @@ represented as 3-key dictionaries. Here is an example of ``c.*1+3``.
 
 Where:
 
-- **position**: an integer representing a transcript position (>0)
+- **position**: an integer representing a transcript position (> 0)
 - **offset**: an integer indicating the offset relative to the position (negative for upstream,
   positive for downstream)
 - **region**: a string describing the region type (empty for positions within coding DNA sequence,
@@ -230,7 +230,7 @@ On top of the functionality provided by the ``NonCoding`` class, the functions
 ``coordinate_to_coding()`` and ``coding_to_coordinate()`` can be used. These
 functions use a 3-key dictionary to represent a coding position.
 
-In our example, the HGVS position ``g.32`` (coordinate `31`) is equivalent to
+In our example, the HGVS position ``g.32`` (coordinate *31*) is equivalent to
 position ``c.-1``. We can convert between these two as follows.
 
 .. code:: python
@@ -335,7 +335,7 @@ Protein
 
 Additionally, the functions ``coordinate_to_protein()`` and
 ``protein_to_coordinate()`` can be used. These functions use a 4-key dictionary
-to represent a protein position. Here is one example of three posibilities
+to represent a protein position. Here is one example of three possibilities
 for ``p.1`` in HGVS.
 
 .. code-block:: python
@@ -349,13 +349,13 @@ for ``p.1`` in HGVS.
 
 Where:
 
-- **position**: an integer representing an amino acid position (>0)
-- **position_in_codon**: an integer indicating the nucleotide index within the codon (1, 2, or 3)
+- **position**: an integer representing an amino acid position (> 0)
+- **position_in_codon**: an integer indexing the position in a codon (1, 2, or 3)
 - **offset**: an integer indicating offset relative to the nucleotide specified by `position_in_codon` in the codon
-- **region**: a string describing the region type (empty for vaid amino acid positions)
+- **region**: a string describing the region type (empty for valid amino acid positions)
 
-In our example the HGVS position ``g.42`` (coordinate `41`) corresponds with
-position ``p.2``. We can convert between these to as follows.
+In our example, the HGVS position ``g.42`` (coordinate *41*) corresponds with
+position ``p.2``. We can convert between these two as follows.
 
 .. code:: python
 
