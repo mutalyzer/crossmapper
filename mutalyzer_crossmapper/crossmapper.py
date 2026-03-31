@@ -33,7 +33,11 @@ class NonCoding(Genomic):
 
         self._noncoding = MultiLocus(locations, inverted)
 
-    def coordinate_to_noncoding(self, coordinate: int, degenerate: bool = False) -> dict:
+    def coordinate_to_noncoding(
+                self,
+                coordinate: int,
+                degenerate: bool = False
+            ) -> dict[str, int | str]:
         """Convert a coordinate to a noncoding position (n./r.).
 
         :arg int coordinate: Coordinate.
@@ -41,17 +45,14 @@ class NonCoding(Genomic):
         :returns dict: Noncoding position model.
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
-        noncoding_pos_m = {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
-        region = noncoding_pos_m['region']
-        if region == '':
-            return noncoding_pos_m
-
+        pos_m = {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
+        region = pos_m['region']
         if degenerate:
             if region == 'u':
-                noncoding_pos_m['region'] = '-'
+                pos_m['region'] = '-'
             elif region == 'd':
-                noncoding_pos_m['region'] = '*'
-        return noncoding_pos_m
+                pos_m['region'] = '*'
+        return pos_m
 
     def noncoding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a noncoding position (n./r.) to a coordinate.
@@ -61,9 +62,9 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         multilocus_pos_m = {**pos_m, 'position': pos_m['position'] - 1}
-        if multilocus_pos_m['region'] == '-':
+        if pos_m['region'] == '-':
             multilocus_pos_m['region'] = 'u'
-        elif multilocus_pos_m['region'] == '*':
+        elif pos_m['region'] == '*':
             multilocus_pos_m['region'] = 'd'
         return self._noncoding.to_coordinate(multilocus_pos_m)
 
@@ -83,17 +84,25 @@ class Coding(NonCoding):
         """
         NonCoding.__init__(self, locations, inverted)
 
-        b0 = self._noncoding.to_position(cds[0])
-        b1 = self._noncoding.to_position(cds[1] - 1)
-        e0 = self._noncoding.to_position(locations[0][0])
-        e1 = self._noncoding.to_position(locations[-1][1] - 1)
+        cds_start = self._noncoding.to_position(cds[0])
+        cds_end = self._noncoding.to_position(cds[1] - 1)
+        exons_start = self._noncoding.to_position(locations[0][0])
+        exons_end = self._noncoding.to_position(locations[-1][1] - 1)
 
         if self._inverted:
-            self._coding = (b1['position'] + b1['offset'], b0['position'] + b0['offset'] + 1)
-            self._exons = (e1['position'], e0['position'] + 1)
+            self._coding = (
+                cds_end['position'] + cds_end['offset'],
+                cds_start['position'] + cds_start['offset'] + 1
+            )
+            # Used in degenerate option
+            self._exons_len = exons_start['position'] + 1
         else:
-            self._coding = (b0['position'] + b0['offset'], b1['position'] + b1['offset'] + 1)
-            self._exons = (e0['position'], e1['position'] + 1)
+            self._coding = (
+                cds_start['position'] + cds_start['offset'],
+                cds_end['position'] + cds_end['offset'] + 1
+            )
+            # Used in degenerate option
+            self._exons_len = exons_end['position'] + 1
 
     def _coordinate_to_coding(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a coding position (c./r.).
@@ -145,7 +154,7 @@ class Coding(NonCoding):
         location = pos_m['position']
         if region == 'u':
             if self._inverted:
-                degenerate_pos_m['position'] = location + self._exons[1] - self._coding[1]
+                degenerate_pos_m['position'] = location + self._exons_len - self._coding[1]
             else:
                 degenerate_pos_m['position'] = location + self._coding[0]
             degenerate_pos_m['region'] = '-'
@@ -153,7 +162,7 @@ class Coding(NonCoding):
             if self._inverted:
                 degenerate_pos_m['position'] = location + self._coding[0]
             else:
-                degenerate_pos_m['position'] = location + self._exons[1] - self._coding[1]
+                degenerate_pos_m['position'] = location + self._exons_len - self._coding[1]
             degenerate_pos_m['region'] = '*'
         return degenerate_pos_m
 
@@ -179,7 +188,6 @@ class Coding(NonCoding):
             multilocus_pos_m['position'] = self._coding[0] - location
         else:
             multilocus_pos_m['position'] = self._coding[1] + location - 1
-
         return self._noncoding.to_coordinate(multilocus_pos_m)
 
     def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
@@ -199,20 +207,20 @@ class Coding(NonCoding):
 
         :returns dict: Protein position model(p.).
         """
-        pos = self.coordinate_to_coding(coordinate)
+        pos_m = self.coordinate_to_coding(coordinate)
 
-        location = pos['position']
-        if pos['region'] in ('-', 'u'):
+        location = pos_m['position']
+        if pos_m['region'] in ('-', 'u'):
             return {
                 'position': abs(-location // 3),
                 'position_in_codon': -location % 3 + 1,
-                'region': pos['region'],
-                'offset': pos['offset']}
+                'region': pos_m['region'],
+                'offset': pos_m['offset']}
         return {
                 'position': (location + 2) // 3,
                 'position_in_codon': (location + 2) % 3 + 1,
-                'region': pos['region'],
-                'offset': pos['offset']}
+                'region': pos_m['region'],
+                'offset': pos_m['offset']}
 
     def protein_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a protein position (p.) to a coordinate.

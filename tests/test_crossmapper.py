@@ -373,6 +373,28 @@ def test_Coding_no_intron_inverted():
     )
 
 
+def test_Coding_one_base_intron():
+    crossmap = Coding([(10, 19), (20, 30)], (15, 25))
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        19,
+        crossmap.coding_to_coordinate,
+        {'position': 4, 'offset': 1, 'region': ''},
+    )
+
+
+def test_Coding_one_base_intron_inverted():
+    crossmap = Coding([(10, 19), (20, 30)], (15, 25), True)
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        19,
+        crossmap.coding_to_coordinate,
+        {'position': 5, 'offset': 1, 'region': ''},
+    )
+
+
 def test_Coding_no_utr5_inverted():
     """A 5' UTR may be missing."""
     crossmap = Coding([(10, 20)], (15, 20), True)
