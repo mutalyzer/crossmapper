@@ -70,13 +70,13 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         multilocus_pos_m = {**pos_m, 'position': pos_m['position'] - 1}
-        if pos_m['region'] == '-': # degenerate results
+        if pos_m['region'] == '-':  # degenerate results
             multilocus_pos_m['region'] = 'u'
-            multilocus_pos_m['position'] = abs(pos_m['offset']) -1
+            multilocus_pos_m['position'] = abs(pos_m['offset']) - 1
             multilocus_pos_m['offset'] = 0
-        if pos_m['region'] == '*': # degenerate results
+        if pos_m['region'] == '*':  # degenerate results
             multilocus_pos_m['region'] = 'd'
-            multilocus_pos_m['position'] = abs(pos_m['offset']) -1
+            multilocus_pos_m['position'] = abs(pos_m['offset']) - 1
             multilocus_pos_m['offset'] = 0
         return self._noncoding.to_coordinate(multilocus_pos_m)
 

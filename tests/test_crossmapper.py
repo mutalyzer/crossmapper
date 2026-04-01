@@ -120,7 +120,7 @@ def test_NonCoding_degenerate():
             {'position': 22, 'offset': 1, 'region': ''},
             {'position': 23, 'offset': 0, 'region': ''},
             {'position': 24, 'offset': -1, 'region': ''},
-            {'position': 22, 'offset': 1, 'region': '*'}, # standard degenerate result
+            {'position': 22, 'offset': 1, 'region': '*'},  # standard degenerate result
         ],
     )
 
