@@ -113,14 +113,14 @@ denote upstream and ``d`` to denote downstream.
 The ``coordinate_to_noncoding()`` function accepts an optional ``degenerate``
 argument. When set to ``True``, positions outside of the transcript are no
 longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
-instead.
+instead. The values in ``position`` and ``offset`` will change accordingly.
 
 .. code:: python
 
     >>> crossmap.coordinate_to_noncoding(2)
     {'position': 3, 'offset': 0, 'region': 'u'}
     >>> crossmap.coordinate_to_noncoding(2, True)
-    {'position': 3, 'offset': 0, 'region': '-'}
+    {'position': 1, 'offset': -3, 'region': '-'}
 
 For transcripts that reside on the reverse complement strand, the ``inverted``
 parameter should be set to ``True``. In our example, HGVS position ``g.36``
