@@ -107,8 +107,7 @@ def test_NonCoding_degenerate():
         [
             {'position': 1, 'offset': -1, 'region': ''},
             {'position': 1, 'offset': 0, 'region': 'u'},
-            {'position': 1, 'offset': 0, 'region': '-'},
-            {'position': 2, 'offset': 1, 'region': '-'},
+            {'position': 1, 'offset': -1, 'region': '-'},
         ],
     )
 
@@ -121,7 +120,7 @@ def test_NonCoding_degenerate():
             {'position': 22, 'offset': 1, 'region': ''},
             {'position': 23, 'offset': 0, 'region': ''},
             {'position': 24, 'offset': -1, 'region': ''},
-            {'position': 1, 'offset': 0, 'region': '*'},
+            {'position': 22, 'offset': 1, 'region': '*'}, # standard degenerate result
         ],
     )
 
@@ -137,7 +136,7 @@ def test_NonCoding_inverted_degenerate():
         [
             {'position': 1, 'offset': -1, 'region': ''},
             {'position': 1, 'offset': 0, 'region': 'u'},
-            {'position': 1, 'offset': 0, 'region': '-'},
+            {'position': 1, 'offset': -1, 'region': '-'},
         ],
     )
 
@@ -147,7 +146,7 @@ def test_NonCoding_inverted_degenerate():
         4,
         [
             {'position': 1, 'offset': 0, 'region': 'd'},
-            {'position': 1, 'offset': 0, 'region': '*'},
+            {'position': 22, 'offset': 1, 'region': '*'},
             {'position': 23, 'offset': 0, 'region': ''},
             {'position': 22, 'offset': 1, 'region': ''},
         ],
@@ -159,13 +158,13 @@ def test_NonCoding_degenerate_return():
 
     assert crossmap.coordinate_to_noncoding(4, True) == {
         'position': 1,
-        'offset': 0,
+        'offset': -1,
         'region': '-',
     }
 
     assert crossmap.coordinate_to_noncoding(72, True) == {
-        'position': 1,
-        'offset': 0,
+        'position': 22,
+        'offset': 1,
         'region': '*',
     }
 
@@ -175,13 +174,13 @@ def test_NonCoding_inverted_degenerate_return():
 
     assert crossmap.coordinate_to_noncoding(72, True) == {
         'position': 1,
-        'offset': 0,
+        'offset': -1,
         'region': '-',
     }
 
     assert crossmap.coordinate_to_noncoding(4, True) == {
-        'position': 1,
-        'offset': 0,
+        'position': 22,
+        'offset': 1,
         'region': '*',
     }
 

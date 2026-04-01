@@ -32,6 +32,10 @@ class NonCoding(Genomic):
         self._inverted = inverted
 
         self._noncoding = MultiLocus(locations, inverted)
+        if self._inverted:
+            self._exons_len = self._noncoding.to_position(locations[0][0])['position'] + 1
+        else:
+            self._exons_len = self._noncoding.to_position(locations[-1][1] - 1)['position'] + 1
 
     def coordinate_to_noncoding(
                 self,
@@ -50,8 +54,12 @@ class NonCoding(Genomic):
         if degenerate:
             if region == 'u':
                 pos_m['region'] = '-'
+                pos_m['offset'] = -pos_m['position']
+                pos_m['position'] = 1
             elif region == 'd':
                 pos_m['region'] = '*'
+                pos_m['offset'] = pos_m['position']
+                pos_m['position'] = self._exons_len
         return pos_m
 
     def noncoding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
@@ -62,10 +70,14 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         multilocus_pos_m = {**pos_m, 'position': pos_m['position'] - 1}
-        if pos_m['region'] == '-':
+        if pos_m['region'] == '-': # degenerate results
             multilocus_pos_m['region'] = 'u'
-        elif pos_m['region'] == '*':
+            multilocus_pos_m['position'] = abs(pos_m['offset']) -1
+            multilocus_pos_m['offset'] = 0
+        if pos_m['region'] == '*': # degenerate results
             multilocus_pos_m['region'] = 'd'
+            multilocus_pos_m['position'] = abs(pos_m['offset']) -1
+            multilocus_pos_m['offset'] = 0
         return self._noncoding.to_coordinate(multilocus_pos_m)
 
 
