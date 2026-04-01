@@ -165,16 +165,10 @@ class Coding(NonCoding):
         degenerate_pos_m = {**pos_m, 'offset': pos_m['offset']}
         location = pos_m['position']
         if region == 'u':
-            if self._inverted:
-                degenerate_pos_m['position'] = location + self._exons_len - self._coding[1]
-            else:
-                degenerate_pos_m['position'] = location + self._coding[0]
+            degenerate_pos_m['position'] = location + self._coding[0]
             degenerate_pos_m['region'] = '-'
         if region == 'd':
-            if self._inverted:
-                degenerate_pos_m['position'] = location + self._coding[0]
-            else:
-                degenerate_pos_m['position'] = location + self._exons_len - self._coding[1]
+            degenerate_pos_m['position'] = location + self._exons_len - self._coding[1]
             degenerate_pos_m['region'] = '*'
         return degenerate_pos_m
 

@@ -639,12 +639,42 @@ def test_Coding_inverted_degenerate_return():
         'offset': 0,
         'region': '-',
     }
+    assert crossmap.coordinate_to_coding(25, True) == {
+        'position': 7,
+        'offset': 0,
+        'region': '-',
+    }
     assert crossmap.coordinate_to_coding(9, True) == {
         'position': 2,
         'offset': 0,
         'region': '*',
     }
 
+
+def test_Coding_two_exons_inverted_degenerate_return():
+    """Degenerate upstream and downstream positions may be returned."""
+    crossmap = Coding([(10, 20), (30, 40)], (18, 37), True)
+
+    assert crossmap.coordinate_to_coding(5, True) == {
+        'position': 13,
+        'offset': 0,
+        'region': '*',
+    }
+    assert crossmap.coordinate_to_coding(25, True) == {
+        'position': 7,
+        'offset': 5,
+        'region': '',
+    }
+    assert crossmap.coordinate_to_coding(35, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '',
+    }
+    assert crossmap.coordinate_to_coding(38, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '-',
+    }
 
 def test_Coding_degenerate_no_return():
     """Degenerate internal positions do not exist."""
