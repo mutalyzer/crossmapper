@@ -178,7 +178,7 @@ class Coding(NonCoding):
             degenerate_pos_m['region'] = '*'
         return degenerate_pos_m
 
-    def _coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
+    def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg dict pos_m: Coding position model (c./r.).
@@ -201,16 +201,6 @@ class Coding(NonCoding):
         else:
             multilocus_pos_m['position'] = self._coding[1] + location - 1
         return self._noncoding.to_coordinate(multilocus_pos_m)
-
-    def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
-        """Convert a coding position (c./r.) to a coordinate.
-
-        :arg dict pos_m: Coding position model (c./r.).
-
-        :returns int: Coordinate.
-        """
-
-        return self._coding_to_coordinate(pos_m)
 
     def coordinate_to_protein(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a protein position (p.).
