@@ -60,13 +60,6 @@ class MultiLocus(object):
         outside = self._orientation * self.outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
         locus_pos_m = self._loci[index].to_position(coordinate)
-
-        if outside:
-            return {
-                'position': abs(locus_pos_m['offset']) - 1,
-                'offset': 0,
-                'region': region
-            }
         return {
             'position': locus_pos_m['position'] + self._offsets[self._direction(index)],
             'offset': locus_pos_m['offset'],
@@ -84,12 +77,12 @@ class MultiLocus(object):
 
         if region == 'u':
             if self._inverted:
-                return self._locations[-1][1] + abs(pos_m['position']) - pos_m['offset']
-            return self._locations[0][0] - abs(pos_m['position']) + pos_m['offset'] - 1
+                return self._locations[-1][1] - pos_m['offset'] - 1
+            return self._locations[0][0] + pos_m['offset']
         if region == 'd':
             if self._inverted:
-                return self._locations[0][0] - abs(pos_m['position']) - pos_m['offset'] - 1
-            return self._locations[-1][1] + abs(pos_m['position']) + pos_m['offset']
+                return self._locations[0][0] - pos_m['offset']
+            return self._locations[-1][1] + pos_m['offset'] - 1
 
         index = min(
             len(self._offsets),
