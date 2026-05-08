@@ -285,9 +285,8 @@ def test_MultiLocus_degenerate():
         multi_locus.to_coordinate,
         4,
         [
-            {'position': 0, 'offset': -1, 'region': ''},
-            {'position': -1, 'offset': 0, 'region': ''},
             {'position': 0, 'offset': -1, 'region': 'u'},
+            {'position': -1, 'offset': 0, 'region': ''},
         ],
     )
 
@@ -295,7 +294,7 @@ def test_MultiLocus_degenerate():
         multi_locus.to_coordinate,
         72,
         [
-            {'position': 21, 'offset': 1, 'region': ''},
+            {'position': 21, 'offset': 1, 'region': 'd'},
             {'position': 22, 'offset': 0, 'region': ''},
             {'position': 22, 'offset': 1, 'region': 'd'},
         ],

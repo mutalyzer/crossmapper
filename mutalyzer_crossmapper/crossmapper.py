@@ -44,6 +44,7 @@ class NonCoding(Genomic):
         :returns dict: Noncoding position model.
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
+        # print(multilocus_pos_m)
         return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
 
     def noncoding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
@@ -87,6 +88,7 @@ class Coding(NonCoding):
                 cds_start['position'] + cds_start['offset'],
                 cds_end['position'] + cds_end['offset'] + 1
             )
+        print(self._coding)
 
     def _coordinate_to_coding(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a coding position (c./r.).
@@ -96,9 +98,8 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
-        print(multilocus_pos_m)
+        # print(coordinate, multilocus_pos_m, )
         if multilocus_pos_m['region'] == 'u':
-            # print(self._coding)
 
             return {**multilocus_pos_m, 'position': self._coding[0]}
         if multilocus_pos_m['region'] == 'd':
@@ -133,6 +134,7 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         pos_m = self._coordinate_to_coding(coordinate)
+        # print(coordinate, "after",pos_m)
 
         region = pos_m['region']
         if not degenerate:
