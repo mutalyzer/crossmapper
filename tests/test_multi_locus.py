@@ -35,7 +35,7 @@ def test_MultiLocus():
         multi_locus.to_position,
         4,
         multi_locus.to_coordinate,
-        {'position': 0, 'offset': 0, 'region': 'u'},
+        {'position': 0, 'offset': -1, 'region': 'u'},
     )
 
     invariant(
@@ -94,7 +94,7 @@ def test_MultiLocus():
         multi_locus.to_position,
         72,
         multi_locus.to_coordinate,
-        {'position': 0, 'offset': 0, 'region': 'd'},
+        {'position': 21, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -107,7 +107,7 @@ def test_MultiLocus_inverted():
         multi_locus.to_position,
         72,
         multi_locus.to_coordinate,
-        {'position': 0, 'offset': 0, 'region': 'u'},
+        {'position': 0, 'offset': -1, 'region': 'u'},
     )
     invariant(
         multi_locus.to_position,
@@ -165,7 +165,7 @@ def test_MultiLocus_inverted():
         multi_locus.to_position,
         4,
         multi_locus.to_coordinate,
-        {'position': 0, 'offset': 0, 'region': 'd'},
+        {'position': 21, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -287,7 +287,7 @@ def test_MultiLocus_degenerate():
         [
             {'position': 0, 'offset': -1, 'region': ''},
             {'position': -1, 'offset': 0, 'region': ''},
-            {'position': 0, 'offset': 0, 'region': 'u'},
+            {'position': 0, 'offset': -1, 'region': 'u'},
         ],
     )
 
@@ -297,7 +297,7 @@ def test_MultiLocus_degenerate():
         [
             {'position': 21, 'offset': 1, 'region': ''},
             {'position': 22, 'offset': 0, 'region': ''},
-            {'position': 0, 'offset': 0, 'region': 'd'},
+            {'position': 22, 'offset': 1, 'region': 'd'},
         ],
     )
 
@@ -312,7 +312,7 @@ def test_MultiLocus_inverted_degenerate():
         [
             {'position': -1, 'offset': 0, 'region': ''},
             {'position': 0, 'offset': -1, 'region': ''},
-            {'position': 0, 'offset': 0, 'region': 'u'},
+            {'position': 0, 'offset': -1, 'region': 'u'},
         ],
     )
 
@@ -322,6 +322,6 @@ def test_MultiLocus_inverted_degenerate():
         [
             {'position': 21, 'offset': 1, 'region': ''},
             {'position': 22, 'offset': 0, 'region': ''},
-            {'position': 0, 'offset': 0, 'region': 'd'},
+            {'position': 21, 'offset': 1, 'region': 'd'},
         ],
     )

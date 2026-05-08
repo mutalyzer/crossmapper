@@ -33,13 +33,13 @@ def test_NonCoding():
         crossmap.coordinate_to_noncoding,
         3,
         crossmap.noncoding_to_coordinate,
-        {'position': 2, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -2, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_noncoding,
         4,
         crossmap.noncoding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_noncoding,
@@ -59,7 +59,7 @@ def test_NonCoding():
         crossmap.coordinate_to_noncoding,
         72,
         crossmap.noncoding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 22, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -72,7 +72,7 @@ def test_NonCoding_inverted():
         crossmap.coordinate_to_noncoding,
         72,
         crossmap.noncoding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_noncoding,
@@ -92,7 +92,7 @@ def test_NonCoding_inverted():
         crossmap.coordinate_to_noncoding,
         4,
         crossmap.noncoding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 22, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -106,8 +106,7 @@ def test_NonCoding_degenerate():
         4,
         [
             {'position': 1, 'offset': -1, 'region': ''},
-            {'position': 1, 'offset': 0, 'region': 'u'},
-            {'position': 1, 'offset': -1, 'region': '-'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
         ],
     )
 
@@ -116,7 +115,7 @@ def test_NonCoding_degenerate():
         crossmap.noncoding_to_coordinate,
         72,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 22, 'offset': 1, 'region': 'd'},
             {'position': 22, 'offset': 1, 'region': ''},
             {'position': 23, 'offset': 0, 'region': ''},
             {'position': 24, 'offset': -1, 'region': ''},
@@ -135,7 +134,7 @@ def test_NonCoding_inverted_degenerate():
         72,
         [
             {'position': 1, 'offset': -1, 'region': ''},
-            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
             {'position': 1, 'offset': -1, 'region': '-'},
         ],
     )
@@ -145,58 +144,12 @@ def test_NonCoding_inverted_degenerate():
         crossmap.noncoding_to_coordinate,
         4,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 22, 'offset': 1, 'region': 'd'},
             {'position': 22, 'offset': 1, 'region': '*'},
             {'position': 23, 'offset': 0, 'region': ''},
             {'position': 22, 'offset': 1, 'region': ''},
         ],
     )
-
-
-def test_NonCoding_degenerate_return():
-    crossmap = NonCoding(_exons)
-
-    assert crossmap.coordinate_to_noncoding(4, True) == {
-        'position': 1,
-        'offset': -1,
-        'region': '-',
-    }
-
-    assert crossmap.coordinate_to_noncoding(72, True) == {
-        'position': 22,
-        'offset': 1,
-        'region': '*',
-    }
-
-
-def test_NonCoding_inverted_degenerate_return():
-    crossmap = NonCoding(_exons, True)
-
-    assert crossmap.coordinate_to_noncoding(72, True) == {
-        'position': 1,
-        'offset': -1,
-        'region': '-',
-    }
-
-    assert crossmap.coordinate_to_noncoding(4, True) == {
-        'position': 22,
-        'offset': 1,
-        'region': '*',
-    }
-
-
-def test_NonCoding_degenerate_no_return():
-    """Degenerate internal positions do not exist."""
-    crossmap = NonCoding(_exons)
-
-    assert crossmap.coordinate_to_noncoding(25) == crossmap.coordinate_to_noncoding(25, True)
-
-
-def test_NonCoding_inverted_degenerate_no_return():
-    """Degenerate internal positions do not exist."""
-    crossmap = NonCoding(_exons, True)
-
-    assert crossmap.coordinate_to_noncoding(25) == crossmap.coordinate_to_noncoding(25, True)
 
 
 def test_Coding():
@@ -340,7 +293,7 @@ def test_Coding_no_utr5():
         crossmap.coordinate_to_coding,
         9,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_coding,
@@ -403,7 +356,7 @@ def test_Coding_no_utr5_inverted():
         crossmap.coordinate_to_coding,
         20,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_coding,
@@ -428,7 +381,7 @@ def test_Coding_no_utr3():
         crossmap.coordinate_to_coding,
         20,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 5, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -447,7 +400,7 @@ def test_Coding_no_utr3_inverted():
         crossmap.coordinate_to_coding,
         9,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 5, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -460,7 +413,7 @@ def test_Coding_small_utr5():
         crossmap.coordinate_to_coding,
         9,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_coding,
@@ -485,7 +438,7 @@ def test_Coding_small_utr5_inverted():
         crossmap.coordinate_to_coding,
         20,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'u'},
+        {'position': 1, 'offset': -1, 'region': 'u'},
     )
     invariant(
         crossmap.coordinate_to_coding,
@@ -522,7 +475,7 @@ def test_Coding_small_utr3():
         crossmap.coordinate_to_coding,
         20,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 1, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -547,7 +500,7 @@ def test_Coding_small_utr3_inverted():
         crossmap.coordinate_to_coding,
         9,
         crossmap.coding_to_coordinate,
-        {'position': 1, 'offset': 0, 'region': 'd'},
+        {'position': 1, 'offset': 1, 'region': 'd'},
     )
 
 
@@ -560,7 +513,7 @@ def test_Coding_degenerate():
         crossmap.coding_to_coordinate,
         9,
         [
-            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
             {'position': 2, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': ''},
             {'position': 1, 'offset': -10, 'region': '*'},
@@ -573,7 +526,7 @@ def test_Coding_degenerate():
         crossmap.coding_to_coordinate,
         20,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 9, 'offset': 1, 'region': 'd'},
             {'position': 2, 'offset': 0, 'region': '*'},
             {'position': 8, 'offset': 2, 'region': ''},
             {'position': 1, 'offset': 10, 'region': '-'},
@@ -591,7 +544,7 @@ def test_Coding_inverted_degenerate():
         crossmap.coding_to_coordinate,
         20,
         [
-            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
             {'position': 2, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': ''},
             {'position': 1, 'offset': -10, 'region': '*'},
@@ -698,7 +651,7 @@ def test_Coding_no_utr_degenerate():
         crossmap.coding_to_coordinate,
         9,
         [
-            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
             {'position': 1, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': '*'},
             {'position': 1, 'offset': -1, 'region': ''},

@@ -36,7 +36,6 @@ class NonCoding(Genomic):
     def coordinate_to_noncoding(
                 self,
                 coordinate: int,
-                degenerate: bool = False
             ) -> dict[str, int | str]:
         """Convert a coordinate to a noncoding position (n./r.).
 
@@ -45,14 +44,7 @@ class NonCoding(Genomic):
         :returns dict: Noncoding position model.
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
-        pos_m = {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
-        region = pos_m['region']
-        if degenerate:
-            if region == 'u':
-                pos_m['region'] = '-'
-            elif region == 'd':
-                pos_m['region'] = '*'
-        return pos_m
+        return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
 
     def noncoding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a noncoding position (n./r.) to a coordinate.
@@ -82,6 +74,8 @@ class Coding(NonCoding):
 
         cds_start = self._noncoding.to_position(cds[0])
         cds_end = self._noncoding.to_position(cds[1] - 1)
+        print("csd start", cds_start)
+        print("cds end:", cds_end)
 
         if self._inverted:
             self._coding = (
@@ -102,10 +96,13 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
+        print(multilocus_pos_m)
         if multilocus_pos_m['region'] == 'u':
+            # print(self._coding)
+
             return {**multilocus_pos_m, 'position': self._coding[0]}
         if multilocus_pos_m['region'] == 'd':
-            return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] - self._coding[1] +1}
+            return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] - self._coding[1] + 1}
 
         location = multilocus_pos_m['position']
         offset = multilocus_pos_m['offset']
@@ -138,14 +135,17 @@ class Coding(NonCoding):
         pos_m = self._coordinate_to_coding(coordinate)
 
         region = pos_m['region']
-        if not degenerate or region == '':
+        if not degenerate:
             return pos_m
-
         degenerate_pos_m = {**pos_m, 'offset': pos_m['offset']}
         if region == 'u':
             degenerate_pos_m['region'] = '-'
+            degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
+            degenerate_pos_m['offset'] = 0
         if region == 'd':
             degenerate_pos_m['region'] = '*'
+            degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
+            degenerate_pos_m['offset'] = 0
         return degenerate_pos_m
 
     def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
