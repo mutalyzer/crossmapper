@@ -102,25 +102,13 @@ denote upstream and ``d`` to denote downstream.
 .. code:: python
 
     >>> crossmap.coordinate_to_noncoding(2)
-    {'position': 3, 'offset': 0, 'region': 'u'}
-    >>> crossmap.noncoding_to_coordinate({'position': 3, 'offset': 0, 'region': 'u'})
+    {'position': 1, 'offset': -3, 'region': 'u'}
+    >>> crossmap.noncoding_to_coordinate({'position': 1, 'offset': -3, 'region': 'u'})
     2
     >>> crossmap.coordinate_to_noncoding(73)
-    {'position': 2, 'offset': 0, 'region': 'd'}
-    >>> crossmap.noncoding_to_coordinate({'position': 2, 'offset': 0, 'region': 'd'})
+    {'position': 22, 'offset': 2, 'region': 'd'}
+    >>> crossmap.noncoding_to_coordinate({'position': 22, 'offset': 2, 'region': 'd'})
     73
-
-The ``coordinate_to_noncoding()`` function accepts an optional ``degenerate``
-argument. When set to ``True``, positions outside of the transcript are no
-longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
-instead. The values in ``position`` and ``offset`` will change accordingly.
-
-.. code:: python
-
-    >>> crossmap.coordinate_to_noncoding(2)
-    {'position': 3, 'offset': 0, 'region': 'u'}
-    >>> crossmap.coordinate_to_noncoding(2, True)
-    {'position': 1, 'offset': -3, 'region': '-'}
 
 For transcripts that reside on the reverse complement strand, the ``inverted``
 parameter should be set to ``True``. In our example, HGVS position ``g.36``
@@ -146,13 +134,13 @@ In the following table, we show a number of annotated examples.
      - region
      - HGVS
    * - 0
-     - 5
-     - 0
+     - 1
+     - -5
      - ``u``
      - ``n.u5``
    * - 4
      - 1
-     - 0
+     - -1
      - ``u``
      - ``n.u1``
    * - 5
@@ -176,13 +164,13 @@ In the following table, we show a number of annotated examples.
      -
      - ``n.22``
    * - 72
+     - 22
      - 1
-     - 0
      - ``d``
      - ``n.d1``
    * - 79
+     - 22
      - 8
-     - 0
      - ``d``
      - ``n.d8``
 
@@ -243,12 +231,12 @@ position ``c.-1``. We can convert between these two as follows.
 The ``coordinate_to_coding()`` function accepts an optional ``degenerate``
 argument. When set to ``True``, positions outside of the transcript are no
 longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
-instead. Note that the value of ``position`` is adjusted accordingly.
+instead. Note that the values of ``position`` and ``offset`` are adjusted accordingly.
 
 .. code:: python
 
     >>> crossmap.coordinate_to_coding(4)
-    {'position': 1, 'offset': 0, 'region': 'u'}
+    {'position': 11, 'offset': -1, 'region': 'u'}
     >>> crossmap.coordinate_to_coding(4, True)
     {'position': 12, 'offset': 0, 'region': '-'}
 
@@ -264,13 +252,13 @@ In the following table, we show a number of annotated examples.
      - region
      - HGVS
    * - 0
-     - 5
-     - 0
+     - 11
+     - -5
      - ``u``
      - ``c.u5``
    * - 4
-     - 1
-     - 0
+     - 11
+     - -1
      - ``u``
      - ``c.u1``
    * - 5
@@ -319,13 +307,13 @@ In the following table, we show a number of annotated examples.
      - ``*``
      - ``c.*5``
    * - 72
+     - 5
      - 1
-     - 0
      - ``d``
      - ``c.d1``
    * - 79
+     - 5
      - 8
-     - 0
      - ``d``
      - ``c.d8``
 
@@ -379,15 +367,15 @@ table, we show a number of annotated examples.
      - region
      - HGVS
    * - 0
+     - 4
      - 2
-     - 2
-     - 0
+     - -5
      - ``u``
      -
    * - 4
-     - 1
-     - 3
-     - 0
+     - 4
+     - 2
+     - -1
      - ``u``
      -
    * - 5
@@ -445,16 +433,16 @@ table, we show a number of annotated examples.
      - ``*``
      -
    * - 72
+     - 2
+     - 2
      - 1
-     - 1
-     - 0
      - ``d``
      -
 
    * - 79
      - 2
      - 2
-     - 0
+     - 8
      - ``d``
      -
 
