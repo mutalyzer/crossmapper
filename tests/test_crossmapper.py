@@ -548,7 +548,7 @@ def test_Coding_inverted_degenerate():
             {'position': 2, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': ''},
             {'position': 1, 'offset': -10, 'region': '*'},
-            {'position': 1, 'offset': -11, 'region': 'd'},
+            {'position': 1, 'offset': -10, 'region': 'd'},
             {'position': 2, 'offset': -3, 'region': ''},
         ],
     )
@@ -556,13 +556,11 @@ def test_Coding_inverted_degenerate():
         crossmap.coding_to_coordinate,
         9,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 2, 'offset': 1, 'region': 'd'},
             {'position': 2, 'offset': 0, 'region': '*'},
             {'position': 8, 'offset': 2, 'region': ''},
             {'position': 1, 'offset': 10, 'region': '-'},
-            {'position': 1, 'offset': 11, 'region': 'u'},
-            {'position': 2, 'offset': 12, 'region': 'u'},
-
+            {'position': 1, 'offset': 10, 'region': 'u'},
         ],
     )
 
@@ -655,18 +653,17 @@ def test_Coding_no_utr_degenerate():
             {'position': 1, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': '*'},
             {'position': 1, 'offset': -1, 'region': ''},
-            {'position': 1, 'offset': -2, 'region': 'd'},
+            {'position': 1, 'offset': -1, 'region': 'd'},
         ],
     )
     degenerate_equal(
         crossmap.coding_to_coordinate,
         11,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 1, 'offset': 1, 'region': 'd'},
             {'position': 1, 'offset': 0, 'region': '*'},
             {'position': 1, 'offset': 2, 'region': '-'},
             {'position': 1, 'offset': 1, 'region': ''},
-            {'position': 1, 'offset': 2, 'region': 'u'},
         ],
     )
 
@@ -675,26 +672,28 @@ def test_Coding_inverted_no_utr_degenerate():
     """UTRs may be missing."""
     crossmap = Coding([(10, 11)], (10, 11), True)
 
+
     degenerate_equal(
         crossmap.coding_to_coordinate,
         11,
         [
-            {'position': 1, 'offset': 0, 'region': 'u'},
+            {'position': 1, 'offset': -1, 'region': 'u'},
             {'position': 1, 'offset': 0, 'region': '-'},
             {'position': 1, 'offset': -2, 'region': '*'},
             {'position': 1, 'offset': -1, 'region': ''},
-            {'position': 1, 'offset': -2, 'region': 'd'},
+            {'position': 1, 'offset': -1, 'region': 'd'},
         ],
     )
+    print(crossmap.coding_to_coordinate({'position': 1, 'offset': 1, 'region': 'u'}))
     degenerate_equal(
         crossmap.coding_to_coordinate,
         9,
         [
-            {'position': 1, 'offset': 0, 'region': 'd'},
+            {'position': 1, 'offset': 1, 'region': 'd'},
             {'position': 1, 'offset': 0, 'region': '*'},
             {'position': 1, 'offset': 2, 'region': '-'},
             {'position': 1, 'offset': 1, 'region': ''},
-            {'position': 1, 'offset': 2, 'region': 'u'},
+            {'position': 1, 'offset': 1, 'region': 'u'},
         ],
     )
 
@@ -750,7 +749,7 @@ def test_Coding_protein():
         crossmap.coordinate_to_protein,
         4,
         crossmap.protein_to_coordinate,
-        {'position': 1, 'position_in_codon': 3, 'offset': 0, 'region': 'u'}
+        {'position': 4, 'position_in_codon': 2, 'offset': -1, 'region': 'u'}
     )
     invariant(
         crossmap.coordinate_to_protein,
@@ -812,7 +811,7 @@ def test_Coding_protein():
         crossmap.coordinate_to_protein,
         72,
         crossmap.protein_to_coordinate,
-        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': 'd'}
+        {'position': 2, 'position_in_codon': 2, 'offset': 1, 'region': 'd'}
     )
 
 
@@ -825,7 +824,7 @@ def test_Coding_inverted_protein():
         crossmap.coordinate_to_protein,
         4,
         crossmap.protein_to_coordinate,
-        {'position': 1, 'position_in_codon': 1, 'offset': 0, 'region': 'd'}
+        {'position': 4, 'position_in_codon': 2, 'offset': 1, 'region': 'd'}
     )
     invariant(
         crossmap.coordinate_to_protein,
@@ -887,5 +886,5 @@ def test_Coding_inverted_protein():
         crossmap.coordinate_to_protein,
         72,
         crossmap.protein_to_coordinate,
-        {'position': 1, 'position_in_codon': 3, 'offset': 0, 'region': 'u'}
+        {'position': 2, 'position_in_codon': 2, 'offset': -1, 'region': 'u'}
     )

@@ -44,7 +44,6 @@ class NonCoding(Genomic):
         :returns dict: Noncoding position model.
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
-        # print(multilocus_pos_m)
         return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] + 1}
 
     def noncoding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
@@ -75,20 +74,27 @@ class Coding(NonCoding):
 
         cds_start = self._noncoding.to_position(cds[0])
         cds_end = self._noncoding.to_position(cds[1] - 1)
-        print("csd start", cds_start)
-        print("cds end:", cds_end)
+        exon_start = self._noncoding.to_position(locations[0][0])
+        exon_end = self._noncoding.to_position(locations[-1][1] -1)
 
         if self._inverted:
             self._coding = (
                 cds_end['position'] + cds_end['offset'],
                 cds_start['position'] + cds_start['offset'] + 1
             )
+            self._exons = (
+                exon_end['position'] + exon_end['offset'],
+                exon_start['position'] + exon_start['offset'] + 1,
+            )
         else:
             self._coding = (
                 cds_start['position'] + cds_start['offset'],
                 cds_end['position'] + cds_end['offset'] + 1
             )
-        print(self._coding)
+            self._exons = (
+                exon_start['position'] + exon_start['offset'],
+                exon_end['position'] + exon_end['offset'] + 1,
+            )
 
     def _coordinate_to_coding(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a coding position (c./r.).
@@ -98,15 +104,34 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         multilocus_pos_m = self._noncoding.to_position(coordinate)
-        # print(coordinate, multilocus_pos_m, )
-        if multilocus_pos_m['region'] == 'u':
-
-            return {**multilocus_pos_m, 'position': self._coding[0]}
-        if multilocus_pos_m['region'] == 'd':
-            return {**multilocus_pos_m, 'position': multilocus_pos_m['position'] - self._coding[1] + 1}
 
         location = multilocus_pos_m['position']
         offset = multilocus_pos_m['offset']
+        region = multilocus_pos_m['region']
+        if region=='u':
+            if self._coding[0] == 0:
+                return {
+                'position': 1,
+                'offset': offset,
+                'region': 'u'
+                }
+            return {
+                'position':self._coding[0],
+                'offset': offset,
+                'region': 'u'
+            }
+        if region == 'd':
+            if self._exons[1] == self._coding[1]:
+                return {
+                'position': self._coding[1] - self._coding[0],
+                'offset': offset,
+                'region': 'd'
+                }
+            return {
+                'position': location - self._coding[1] + 1,
+                'offset': offset,
+                'region': 'd'
+            }
         if location < self._coding[0]:
             return {
                 'position': self._coding[0] - location,
@@ -134,20 +159,25 @@ class Coding(NonCoding):
         :returns dict: Coding position model (c./r.).
         """
         pos_m = self._coordinate_to_coding(coordinate)
-        # print(coordinate, "after",pos_m)
 
         region = pos_m['region']
         if not degenerate:
             return pos_m
         degenerate_pos_m = {**pos_m, 'offset': pos_m['offset']}
         if region == 'u':
+            if self._coding[0] == 0:
+                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset']) - 1
+            else:
+                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
+            degenerate_pos_m['offset'] = 0
             degenerate_pos_m['region'] = '-'
-            degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
-            degenerate_pos_m['offset'] = 0
         if region == 'd':
-            degenerate_pos_m['region'] = '*'
-            degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
+            if self._exons[1] == self._coding[1] :
+                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset']) - 1
+            else:
+                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
             degenerate_pos_m['offset'] = 0
+            degenerate_pos_m['region'] = '*'
         return degenerate_pos_m
 
     def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
