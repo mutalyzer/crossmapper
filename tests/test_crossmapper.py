@@ -602,6 +602,110 @@ def test_Coding_inverted_degenerate_return():
     }
 
 
+def test_Coding_no_utr5_degenerate_return():
+    """A 5' UTR may be missing."""
+    crossmap = Coding([(10, 20)], (10, 15))
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': ''
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 6,
+        'offset': 0,
+        'region': '*'
+    }
+
+
+def test_Coding_no_utr5_inverted_degenerate_return():
+    """A 5' UTR may be missing."""
+    crossmap = Coding([(10, 20)], (10, 15), True)
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': ''
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 6,
+        'offset': 0,
+        'region': '-'
+    }
+
+
+def test_Coding_no_utr3_degenerate_return():
+    """A 3' UTR may be missing."""
+    crossmap = Coding([(10, 20)], (15, 20))
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 6,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': '-',
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': '',
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*',
+    }
+
+
+def test_Coding_no_utr3_inverted_degenerate_return():
+    """A 3' UTR may be missing."""
+    crossmap = Coding([(10, 20)], (15, 20), True)
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 6,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 5,
+        'offset': 0,
+        'region': '*',
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '',
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-',
+    }
+
+
 def test_Coding_two_exons_inverted_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20), (30, 40)], (18, 37), True)
@@ -626,6 +730,7 @@ def test_Coding_two_exons_inverted_degenerate_return():
         'offset': 0,
         'region': '-',
     }
+
 
 def test_Coding_degenerate_no_return():
     """Degenerate internal positions do not exist."""
@@ -684,7 +789,6 @@ def test_Coding_inverted_no_utr_degenerate():
             {'position': 1, 'offset': -1, 'region': 'd'},
         ],
     )
-    print(crossmap.coding_to_coordinate({'position': 1, 'offset': 1, 'region': 'u'}))
     degenerate_equal(
         crossmap.coding_to_coordinate,
         9,

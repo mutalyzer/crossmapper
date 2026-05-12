@@ -109,7 +109,7 @@ class Coding(NonCoding):
         offset = multilocus_pos_m['offset']
         region = multilocus_pos_m['region']
         if region=='u':
-            if self._coding[0] == 0:
+            if self._exons[0] == self._coding[0]:
                 return {
                 'position': 1,
                 'offset': offset,
@@ -166,14 +166,14 @@ class Coding(NonCoding):
         degenerate_pos_m = {**pos_m, 'offset': pos_m['offset']}
         if region == 'u':
             if self._coding[0] == 0:
-                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset']) - 1
+                degenerate_pos_m['position'] = abs(degenerate_pos_m['offset'])
             else:
                 degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
             degenerate_pos_m['offset'] = 0
             degenerate_pos_m['region'] = '-'
         if region == 'd':
             if self._exons[1] == self._coding[1] :
-                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset']) - 1
+                degenerate_pos_m['position'] = abs(degenerate_pos_m['offset'])
             else:
                 degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
             degenerate_pos_m['offset'] = 0
