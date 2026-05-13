@@ -706,6 +706,90 @@ def test_Coding_no_utr3_inverted_degenerate_return():
     }
 
 
+def test_Coding_small_utr5_degenerate_return():
+    """A 5' UTR may be of lenght one."""
+    crossmap = Coding([(10, 20)], (11, 15))
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(11, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': ''
+    }
+
+
+def test_Coding_small_utr5_inverted_degenerate_return():
+    """A 5' UTR may be of lenght one."""
+    crossmap = Coding([(10, 20)], (11, 15), True)
+
+    assert crossmap.coordinate_to_coding(9, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(10, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(11, True) == {
+        'position': 4,
+        'offset': 0,
+        'region': ''
+    }
+
+
+def test_Coding_small_utr3_degenerate_return():
+    """A 3' UTR may be of lenght one."""
+    crossmap = Coding([(10, 20)], (15, 19))
+
+    assert crossmap.coordinate_to_coding(18, True) == {
+        'position': 4,
+        'offset': 0,
+        'region': ''
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '*'
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '*'
+    }
+
+
+def test_Coding_small_utr3_inverted_degenerate_return():
+    """A 3' UTR may be of lenght one."""
+    crossmap = Coding([(10, 20)], (15, 19), True)
+
+    assert crossmap.coordinate_to_coding(18, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': ''
+    }
+    assert crossmap.coordinate_to_coding(19, True) == {
+        'position': 1,
+        'offset': 0,
+        'region': '-'
+    }
+    assert crossmap.coordinate_to_coding(20, True) == {
+        'position': 2,
+        'offset': 0,
+        'region': '-'
+    }
+
+
 def test_Coding_two_exons_inverted_degenerate_return():
     """Degenerate upstream and downstream positions may be returned."""
     crossmap = Coding([(10, 20), (30, 40)], (18, 37), True)
