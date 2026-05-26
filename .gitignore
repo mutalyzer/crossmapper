@@ -7,7 +7,3 @@ docs/_build/
 mutalyzer_crossmapper.egg-info/
 mutalyzer_crossmapper/__pycache__/
 tests/__pycache__/
-<<<<<<< Updated upstream
-=======
-tmp/
->>>>>>> Stashed changes
