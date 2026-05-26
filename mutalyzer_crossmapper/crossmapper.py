@@ -94,6 +94,7 @@ class Coding(NonCoding):
                 exon_start['position'] + exon_start['offset'],
                 exon_end['position'] + exon_end['offset'] + 1,
             )
+
     def _coordinate_to_coding(self, coordinate: int) -> dict[str, int | str]:
         """Convert a coordinate to a coding position (c./r.).
 

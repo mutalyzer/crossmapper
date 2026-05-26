@@ -861,7 +861,6 @@ def test_Coding_inverted_no_utr_degenerate():
     """UTRs may be missing."""
     crossmap = Coding([(10, 11)], (10, 11), True)
 
-
     degenerate_equal(
         crossmap.coding_to_coordinate,
         11,
