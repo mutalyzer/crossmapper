@@ -151,22 +151,21 @@ class Coding(NonCoding):
         region = pos_m['region']
         if not degenerate:
             return pos_m
-        degenerate_pos_m = {**pos_m, 'offset': pos_m['offset']}
         if region == 'u':
             if self._coding[0] == 0:
-                degenerate_pos_m['position'] = abs(degenerate_pos_m['offset'])
+                pos_m['position'] = abs(pos_m['offset'])
             else:
-                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
-            degenerate_pos_m['offset'] = 0
-            degenerate_pos_m['region'] = '-'
+                pos_m['position'] = pos_m['position'] + abs(pos_m['offset'])
+            pos_m['offset'] = 0
+            pos_m['region'] = '-'
         if region == 'd':
             if self._exons[1] == self._coding[1]:
-                degenerate_pos_m['position'] = abs(degenerate_pos_m['offset'])
+                pos_m['position'] = abs(pos_m['offset'])
             else:
-                degenerate_pos_m['position'] = degenerate_pos_m['position'] + abs(degenerate_pos_m['offset'])
-            degenerate_pos_m['offset'] = 0
-            degenerate_pos_m['region'] = '*'
-        return degenerate_pos_m
+                pos_m['position'] = pos_m['position'] + abs(pos_m['offset'])
+            pos_m['offset'] = 0
+            pos_m['region'] = '*'
+        return pos_m
 
     def coding_to_coordinate(self, pos_m: dict[str, int | str]) -> int:
         """Convert a coding position (c./r.) to a coordinate.
@@ -180,7 +179,6 @@ class Coding(NonCoding):
         multilocus_pos_m = {**pos_m}
 
         if region in ('u', 'd'):
-            multilocus_pos_m['position'] = location - 1
             return self._noncoding.to_coordinate(multilocus_pos_m)
 
         multilocus_pos_m['region'] = ''
@@ -188,7 +186,7 @@ class Coding(NonCoding):
             multilocus_pos_m['position'] = location + self._coding[0] - 1
         elif region == '-':
             multilocus_pos_m['position'] = self._coding[0] - location
-        else:
+        elif region == '*':
             multilocus_pos_m['position'] = self._coding[1] + location - 1
         return self._noncoding.to_coordinate(multilocus_pos_m)
 
