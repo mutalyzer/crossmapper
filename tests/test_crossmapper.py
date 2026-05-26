@@ -405,7 +405,7 @@ def test_Coding_no_utr3_inverted():
 
 
 def test_Coding_small_utr5():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (11, 15))
 
     # Transition from upstream to 5' UTR to CDS.
@@ -430,7 +430,7 @@ def test_Coding_small_utr5():
 
 
 def test_Coding_small_utr5_inverted():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (15, 19), True)
 
     # Transition from upstream to 5' UTR to CDS.
@@ -455,7 +455,7 @@ def test_Coding_small_utr5_inverted():
 
 
 def test_Coding_small_utr3():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (15, 19))
 
     # Transition from CDS to 3' UTR to downstream.
@@ -480,7 +480,7 @@ def test_Coding_small_utr3():
 
 
 def test_Coding_small_utr3_inverted():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (11, 15), True)
 
     # Transition from CDS to 3' UTR to downstream.
@@ -707,7 +707,7 @@ def test_Coding_no_utr3_inverted_degenerate_return():
 
 
 def test_Coding_small_utr5_degenerate_return():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (11, 15))
 
     assert crossmap.coordinate_to_coding(9, True) == {
@@ -728,7 +728,7 @@ def test_Coding_small_utr5_degenerate_return():
 
 
 def test_Coding_small_utr5_inverted_degenerate_return():
-    """A 5' UTR may be of lenght one."""
+    """A 5' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (11, 15), True)
 
     assert crossmap.coordinate_to_coding(9, True) == {
@@ -749,7 +749,7 @@ def test_Coding_small_utr5_inverted_degenerate_return():
 
 
 def test_Coding_small_utr3_degenerate_return():
-    """A 3' UTR may be of lenght one."""
+    """A 3' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (15, 19))
 
     assert crossmap.coordinate_to_coding(18, True) == {
@@ -770,7 +770,7 @@ def test_Coding_small_utr3_degenerate_return():
 
 
 def test_Coding_small_utr3_inverted_degenerate_return():
-    """A 3' UTR may be of lenght one."""
+    """A 3' UTR may be of length one."""
     crossmap = Coding([(10, 20)], (15, 19), True)
 
     assert crossmap.coordinate_to_coding(18, True) == {
