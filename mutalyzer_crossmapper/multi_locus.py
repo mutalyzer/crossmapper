@@ -19,7 +19,7 @@ def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
 
 class MultiLocus(object):
     """MultiLocus object."""
-    def __init__(self, locations: list[tuple[int, int]], inverted: bool = False) -> None:
+    def __init__(self, locations: list[tuple[int, int]], inverted: bool=False) -> None:
         """
         :arg list locations: List of locus locations.
         :arg bool inverted: Orientation.
@@ -59,34 +59,34 @@ class MultiLocus(object):
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
-        locus_pos_m = self._loci[index].to_position(coordinate)
+        point = self._loci[index].to_position(coordinate)
         return {
-            'position': locus_pos_m['position'] + self._offsets[self._direction(index)],
-            'offset': locus_pos_m['offset'],
+            'position': point['position'] + self._offsets[self._direction(index)],
+            'offset': point['offset'],
             'region': region
         }
 
-    def to_coordinate(self, pos_m: dict[str, int | str]) -> int:
+    def to_coordinate(self, point: dict[str, int | str]) -> int:
         """Convert a position model to a coordinate.
 
-        :arg dict pos_m: Position model with 'position','offset' and 'region' keys.
+        :arg dict point: Position model with 'position','offset' and 'region' keys.
 
         :returns int: Coordinate.
         """
-        region = pos_m['region']
+        region = point['region']
 
         if region == 'u':
             if self._inverted:
-                return self._locations[-1][1] - pos_m['offset'] - 1
-            return self._locations[0][0] + pos_m['offset']
+                return self._locations[-1][1] - point['offset'] - 1
+            return self._locations[0][0] + point['offset']
         if region == 'd':
             if self._inverted:
-                return self._locations[0][0] - pos_m['offset']
-            return self._locations[-1][1] + pos_m['offset'] - 1
+                return self._locations[0][0] - point['offset']
+            return self._locations[-1][1] + point['offset'] - 1
 
         index = min(
             len(self._offsets),
-            max(0, bisect_right(self._offsets, pos_m['position']) - 1)
+            max(0, bisect_right(self._offsets, point['position']) - 1)
         )
-        locus_pos_m = {**pos_m, 'position': pos_m['position'] - self._offsets[index]}
-        return self._loci[self._direction(index)].to_coordinate(locus_pos_m)
+        return self._loci[self._direction(index)].to_coordinate(
+            {**point, 'position': point['position'] - self._offsets[index]})
