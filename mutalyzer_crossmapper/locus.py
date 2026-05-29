@@ -10,7 +10,7 @@ class Locus(object):
         self.boundary = location[0], location[1] - 1
         self._end = self.boundary[1] - self.boundary[0]
 
-    def to_point(self, coordinate: int) -> dict[str, int]:
+    def to_position(self, coordinate: int) -> dict[str, int]:
         """Convert a coordinate to a proper point model.
 
         :arg int coordinate: Coordinate.

@@ -49,8 +49,8 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_point(self, coordinate: int) -> dict[str, int | str]:
-        """Convert a coordinate to a point.
+    def to_position(self, coordinate: int) -> dict[str, int | str]:
+        """Convert a coordinate to a point model.
 
         :arg int coordinate: Coordinate.
 
@@ -59,11 +59,11 @@ class MultiLocus(object):
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
-        point = self._loci[index].to_point(coordinate)
+        point = self._loci[index].to_position(coordinate)
         return {
             'position': point['position'] + self._offsets[self._direction(index)],
             'offset': point['offset'],
-            'region': region
+            'region': region,
         }
 
     def to_coordinate(self, point: dict[str, int | str]) -> int:
