@@ -1,6 +1,6 @@
 class Locus(object):
     """Locus object."""
-    def __init__(self, location: tuple[int, int], inverted: bool=False) -> None:
+    def __init__(self, location: tuple[int, int], inverted: bool = False) -> None:
         """
         :arg tuple location: Locus location.
         :arg bool inverted: Orientation.
@@ -10,12 +10,12 @@ class Locus(object):
         self.boundary = location[0], location[1] - 1
         self._end = self.boundary[1] - self.boundary[0]
 
-    def to_position(self, coordinate: int) -> dict[str, int]:
-        """Convert a coordinate to a proper position model.
+    def to_point(self, coordinate: int) -> dict[str, int]:
+        """Convert a coordinate to a proper point model.
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Position model with 'position' and 'offset' keys.
+        :returns dict: Point model with 'position' and 'offset' keys.
         """
         if self._inverted:
             if coordinate > self.boundary[1]:
@@ -31,9 +31,9 @@ class Locus(object):
         return {'position': coordinate - self.boundary[0], 'offset': 0}
 
     def to_coordinate(self, point: dict[str, int]) -> int:
-        """Convert a position model to a coordinate.
+        """Convert a point model to a coordinate.
 
-        :arg dict point: Position model with 'position' and 'offset' keys.
+        :arg dict point: Point model with 'position' and 'offset' keys.
 
         :returns int: Coordinate.
         """
