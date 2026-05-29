@@ -43,7 +43,11 @@ class NonCoding(Genomic):
         :returns dict: Noncoding point model.
         """
         point = self._noncoding.to_position(coordinate)
-        return {'position': point['position'] + 1, "region": point['region'], 'offset': point['offset']}
+        return {
+            'position': point['position'] + 1,
+            'region': point['region'],
+            'offset': point['offset'],
+        }
 
     def noncoding_to_coordinate(self, point: dict[str, int | str]) -> int:
         """Convert a noncoding point (n./r.) to a coordinate.
