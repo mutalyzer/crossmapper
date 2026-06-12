@@ -4,6 +4,7 @@ from .crossmapper import Coding, Genomic, NonCoding
 from .location import nearest_location
 from .locus import Locus
 from .multi_locus import MultiLocus
+from .models import GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 
 
 def _get_metadata(name: str) -> str:
