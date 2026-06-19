@@ -1,7 +1,5 @@
 from __future__ import annotations
-
-from dataclasses import asdict, dataclass
-from typing import Any
+from dataclasses import dataclass
 
 
 # Basic dataclass module for locus and multi_locus

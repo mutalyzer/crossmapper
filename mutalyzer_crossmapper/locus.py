@@ -1,5 +1,6 @@
 from .models import Point
 
+
 class Locus(object):
     """Locus object."""
     def __init__(self, location: tuple[int, int], inverted: bool = False) -> None:

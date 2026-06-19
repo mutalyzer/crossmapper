@@ -74,8 +74,6 @@ class MultiLocus(object):
 
         :returns int: Coordinate.
         """
-
-
         region = point.region
 
         if region == 'u':

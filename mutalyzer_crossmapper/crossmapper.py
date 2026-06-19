@@ -1,5 +1,5 @@
 from .multi_locus import MultiLocus
-from .models import GenomicPoint, NonCodingPoint, CodingPoint,ProteinPoint
+from .models import GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 
 
 class Genomic(object):
@@ -47,7 +47,7 @@ class NonCoding(Genomic):
         return NonCodingPoint(
             position=point.position + 1,
             offset=point.offset,
-            region=point.region,
+            region=point.region
         )
 
     def noncoding_to_coordinate(self, point: NonCodingPoint) -> int:
@@ -61,7 +61,7 @@ class NonCoding(Genomic):
             NonCodingPoint(
                 position=point.position - 1,
                 offset=point.offset,
-                region=point.region,
+                region=point.region
             )
         )
 
@@ -89,20 +89,20 @@ class Coding(NonCoding):
         if self._inverted:
             self._coding = (
                 cds_end.position + cds_end.offset,
-                cds_start.position + cds_start.offset + 1,
+                cds_start.position + cds_start.offset + 1
             )
             self._exons = (
                 exon_end.position + exon_end.offset,
-                exon_start.position + exon_start.offset + 1,
+                exon_start.position + exon_start.offset + 1
             )
         else:
             self._coding = (
                 cds_start.position + cds_start.offset,
-                cds_end.position + cds_end.offset + 1,
+                cds_end.position + cds_end.offset + 1
             )
             self._exons = (
                 exon_start.position + exon_start.offset,
-                exon_end.position + exon_end.offset + 1,
+                exon_end.position + exon_end.offset + 1
             )
 
     def _coordinate_to_coding(self, coordinate: int) -> CodingPoint:
@@ -185,7 +185,7 @@ class Coding(NonCoding):
             noncoding_point = NonCodingPoint(
                 position=position + self._coding[0] - 1,
                 offset=point.offset,
-                region='',
+                region=''
             )
             return self._noncoding.to_coordinate(noncoding_point)
 
@@ -195,14 +195,14 @@ class Coding(NonCoding):
                     NonCodingPoint(
                         position=self._coding[0] - position,
                         offset=point.offset,
-                        region='',
+                        region=''
                     )
                 )
             return self._noncoding.to_coordinate(
                 NonCodingPoint(
                     position=0,
                     offset=point.offset + 1 - position,
-                    region='u',
+                    region='u'
                 )
             )
 
@@ -210,7 +210,7 @@ class Coding(NonCoding):
             NonCodingPoint(
                 position=self._coding[1] + position - 1,
                 offset=point.offset,
-                region='',
+                region=''
             )
         )
 
@@ -229,13 +229,13 @@ class Coding(NonCoding):
                 position=abs(-position // 3),
                 position_in_codon=-position % 3 + 1,
                 region=point.region,
-                offset=point.offset,
+                offset=point.offset
             )
         return ProteinPoint(
             position=(position + 2) // 3,
             position_in_codon=(position + 2) % 3 + 1,
             region=point.region,
-            offset=point.offset,
+            offset=point.offset
         )
 
     def protein_to_coordinate(self, point: ProteinPoint) -> int:
@@ -250,13 +250,13 @@ class Coding(NonCoding):
                 CodingPoint(
                     position=3 * point.position - point.position_in_codon + 1,
                     offset=point.offset,
-                    region=point.region,
+                    region=point.region
                 )
             )
         return self.coding_to_coordinate(
             CodingPoint(
                 position=3 * point.position + point.position_in_codon - 3,
                 offset=point.offset,
-                region=point.region,
+                region=point.region
             )
         )
