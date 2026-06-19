@@ -55,7 +55,7 @@ class MultiLocus(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns Point: Point model with 'position', 'offset', and 'region'.
+        :returns Point: CodingPoint model with 'position', 'offset', and 'region'.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
@@ -70,12 +70,11 @@ class MultiLocus(object):
     def to_coordinate(self, point: Point) -> int:
         """Convert a point model to a coordinate.
 
-        :arg Point point: Point model with 'position', 'offset', and 'region'.
+        :arg CodingPoint point: Point model with 'position', 'offset', and 'region'.
 
         :returns int: Coordinate.
         """
-        if not isinstance(point, Point):
-            raise TypeError(f"Cannot convert {type(point)}")
+
 
         region = point.region
 
