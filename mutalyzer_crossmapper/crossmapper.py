@@ -5,14 +5,14 @@ from .models import GenomicPoint, NonCodingPoint, CodingPoint,ProteinPoint
 class Genomic(object):
     """Genomic crossmap object."""
 
-    def coordinate_to_genomic(self, coordinate: int) -> dict[str, int]:
+    def coordinate_to_genomic(self, coordinate: int) -> GenomicPoint:
         """Convert a coordinate to a genomic point model (g./m./o.).
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Genomic point model.
+        :returns GenomicPoint: Genomic point model.
         """
-        return GenomicPoint(coordinate + 1).to_dict()
+        return GenomicPoint(coordinate + 1)
 
     def genomic_to_coordinate(self, point: GenomicPoint) -> int:
         """Convert a genomic point (g./m./o.) to a coordinate.
@@ -36,34 +36,34 @@ class NonCoding(Genomic):
 
         self._noncoding = MultiLocus(locations, inverted)
 
-    def coordinate_to_noncoding(self, coordinate: int) -> dict[str, int | str]:
+    def coordinate_to_noncoding(self, coordinate: int) -> NonCodingPoint:
         """Convert a coordinate to a noncoding point model (n./r.).
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Noncoding point model.
+        :returns NonCodingPoint: Noncoding point model.
         """
         point = NonCodingPoint.to_dataclass(self._noncoding.to_position(coordinate))
         return NonCodingPoint(
             position=point.position + 1,
             offset=point.offset,
             region=point.region,
-        ).to_dict()
+        )
 
     def noncoding_to_coordinate(self, point: NonCodingPoint) -> int:
         """Convert a noncoding point (n./r.) to a coordinate.
 
-        :arg dict point: Noncoding point model.
+        :arg NonCodingPoint point: Noncoding point model.
 
         :returns int: Coordinate.
         """
         noncoding_point = NonCodingPoint.to_dataclass(point)
         return self._noncoding.to_coordinate(
-            {
-                'position': noncoding_point.position - 1,
-                'region': noncoding_point.region,
-                'offset': noncoding_point.offset,
-            }
+            NonCodingPoint(
+                position=noncoding_point.position - 1,
+                offset=noncoding_point.offset,
+                region=noncoding_point.region,
+            )
         )
 
 
@@ -89,21 +89,21 @@ class Coding(NonCoding):
 
         if self._inverted:
             self._coding = (
-                cds_end['position'] + cds_end['offset'],
-                cds_start['position'] + cds_start['offset'] + 1,
+                cds_end.position + cds_end.offset,
+                cds_start.position + cds_start.offset + 1,
             )
             self._exons = (
-                exon_end['position'] + exon_end['offset'],
-                exon_start['position'] + exon_start['offset'] + 1,
+                exon_end.position + exon_end.offset,
+                exon_start.position + exon_start.offset + 1,
             )
         else:
             self._coding = (
-                cds_start['position'] + cds_start['offset'],
-                cds_end['position'] + cds_end['offset'] + 1,
+                cds_start.position + cds_start.offset,
+                cds_end.position + cds_end.offset + 1,
             )
             self._exons = (
-                exon_start['position'] + exon_start['offset'],
-                exon_end['position'] + exon_end['offset'] + 1,
+                exon_start.position + exon_start.offset,
+                exon_end.position + exon_end.offset + 1,
             )
 
     def _coordinate_to_coding(self, coordinate: int) -> CodingPoint:
@@ -140,32 +140,38 @@ class Coding(NonCoding):
             region = ''
         return CodingPoint(position=position, offset=offset, region=region)
 
-    def coordinate_to_coding(self, coordinate: int, degenerate: bool = False) -> dict[str, int | str]:
+    def coordinate_to_coding(self, coordinate: int, degenerate: bool = False) -> CodingPoint:
         """Convert a coordinate to a coding position (c./r.).
 
         :arg int coordinate: Coordinate.
         :arg bool degenerate: Return a degenerate position.
 
-        :returns dict: Coding position model (c./r.).
+        :returns CodingPoint: Coding position model (c./r.).
         """
         point = self._coordinate_to_coding(coordinate)
 
         region = point.region
         if not degenerate:
-            return point.to_dict()
+            return point
 
         if region == 'u':
-            position = abs(point.offset) if self._coding[0] == 0 else point.position + abs(point.offset)
-            return CodingPoint(position=position, offset=0, region='-').to_dict()
+            if self._coding[0] == 0:
+                position = abs(point.offset)
+            else:
+                position = point.position + abs(point.offset)
+            return CodingPoint(position=position, offset=0, region='-')
         if region == 'd':
-            position = abs(point.offset) if self._exons[1] == self._coding[1] else point.position + abs(point.offset)
-            return CodingPoint(position=position, offset=0, region='*').to_dict()
-        return point.to_dict()
+            if self._exons[1] == self._coding[1]:
+                position = abs(point.offset)
+            else:
+                position = point.position + abs(point.offset)
+            return CodingPoint(position=position, offset=0, region='*')
+        return point
 
-    def coding_to_coordinate(self, point: NonCodingPoint) -> int:
+    def coding_to_coordinate(self, point: CodingPoint) -> int:
         """Convert a coding position (c./r.) to a coordinate.
 
-        :arg dict point: Coding position model (c./r.).
+        :arg CodingPoint point: Coding position model (c./r.).
 
         :returns int: Coordinate.
         """
@@ -174,28 +180,49 @@ class Coding(NonCoding):
         region = coding_point.region
 
         if region in ('u', 'd'):
-            return self._noncoding.to_coordinate(coding_point.to_dict())
+            return self._noncoding.to_coordinate(coding_point)
 
         position = coding_point.position
-        noncoding_point = {
-            'position': coding_point.position,
-            'region': '',
-            'offset': coding_point.offset,
-        }
         if region == '':
-            noncoding_point['position'] = position + self._coding[0] - 1
-        elif region == '-':
-            noncoding_point['position'] = self._coding[0] - position
-        elif region == '*':
-            noncoding_point['position'] = self._coding[1] + position - 1
-        return self._noncoding.to_coordinate(noncoding_point)
+            noncoding_point = NonCodingPoint(
+                position=position + self._coding[0] - 1,
+                offset=coding_point.offset,
+                region='',
+            )
+            return self._noncoding.to_coordinate(noncoding_point)
 
-    def coordinate_to_protein(self, coordinate: int) -> dict[str, int | str]:
+        if region == '-':
+            print(self._coding, position)
+            if position <= self._coding[0]:
+                return self._noncoding.to_coordinate(
+                    NonCodingPoint(
+                        position=self._coding[0] - position,
+                        offset=coding_point.offset,
+                        region='',
+                    )
+                )
+            return self._noncoding.to_coordinate(
+                NonCodingPoint(
+                    position=0,
+                    offset=coding_point.offset + 1 - position,
+                    region='u',
+                )
+            )
+
+        return self._noncoding.to_coordinate(
+            NonCodingPoint(
+                position=self._coding[1] + position - 1,
+                offset=coding_point.offset,
+                region='',
+            )
+        )
+
+    def coordinate_to_protein(self, coordinate: int) -> ProteinPoint:
         """Convert a coordinate to a protein position (p.).
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Protein position model(p.).
+        :returns ProteinPoint: Protein position model(p.).
         """
         point = CodingPoint.to_dataclass(self.coordinate_to_coding(coordinate))
 
@@ -206,18 +233,18 @@ class Coding(NonCoding):
                 position_in_codon=-position % 3 + 1,
                 region=point.region,
                 offset=point.offset,
-            ).to_dict()
+            )
         return ProteinPoint(
             position=(position + 2) // 3,
             position_in_codon=(position + 2) % 3 + 1,
             region=point.region,
             offset=point.offset,
-        ).to_dict()
+        )
 
     def protein_to_coordinate(self, point: ProteinPoint) -> int:
         """Convert a protein position (p.) to a coordinate.
 
-        :arg dict point: Protein position model(p.).
+        :arg ProteinPoint point: Protein position model(p.).
 
         :returns int: Coordinate.
         """
@@ -228,12 +255,12 @@ class Coding(NonCoding):
                     position=3 * protein_point.position - protein_point.position_in_codon + 1,
                     offset=protein_point.offset,
                     region=protein_point.region,
-                ).to_dict()
+                )
             )
         return self.coding_to_coordinate(
             CodingPoint(
                 position=3 * protein_point.position + protein_point.position_in_codon - 3,
                 offset=protein_point.offset,
                 region=protein_point.region,
-            ).to_dict()
+            )
         )

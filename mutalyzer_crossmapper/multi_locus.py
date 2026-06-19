@@ -3,6 +3,7 @@ from itertools import accumulate
 
 from .location import nearest_location
 from .locus import Locus
+from .models import Point
 
 
 def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
@@ -49,49 +50,52 @@ class MultiLocus(object):
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coordinate: int) -> dict[str, int | str]:
+    def to_position(self, coordinate: int) -> Point:
         """Convert a coordinate to a point model.
 
         :arg int coordinate: Coordinate.
 
-        :returns dict: Point model 'position', 'offset' and 'region' keys.
+        :returns Point: Point model with 'position', 'offset', and 'region'.
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
         point = self._loci[index].to_position(coordinate)
-        return {
-            'position': point['position'] + self._offsets[self._direction(index)],
-            'offset': point['offset'],
-            'region': region,
-        }
+        return Point(
+            position=point.position + self._offsets[self._direction(index)],
+            offset=point.offset,
+            region=region,
+        )
 
-    def to_coordinate(self, point: dict[str, int | str]) -> int:
+    def to_coordinate(self, point: Point) -> int:
         """Convert a point model to a coordinate.
 
-        :arg dict point: Point model with 'position','offset' and 'region' keys.
+        :arg Point point: Point model with 'position', 'offset', and 'region'.
 
         :returns int: Coordinate.
         """
-        region = point['region']
+        if not isinstance(point, Point):
+            raise TypeError(f"Cannot convert {type(point)}")
+
+        region = point.region
 
         if region == 'u':
             if self._inverted:
-                return self._locations[-1][1] - point['offset'] - 1
-            return self._locations[0][0] + point['offset']
+                return self._locations[-1][1] - point.offset - 1
+            return self._locations[0][0] + point.offset
         if region == 'd':
             if self._inverted:
-                return self._locations[0][0] - point['offset']
-            return self._locations[-1][1] + point['offset'] - 1
+                return self._locations[0][0] - point.offset
+            return self._locations[-1][1] + point.offset - 1
 
         index = min(
             len(self._offsets),
-            max(0, bisect_right(self._offsets, point['position']) - 1)
+            max(0, bisect_right(self._offsets, point.position) - 1)
         )
         return self._loci[self._direction(index)].to_coordinate(
-            {
-                'position': point['position'] - self._offsets[index],
-                'offset': point['offset'],
-                'region': point['region'],
-            }
+            Point(
+                position=point.position - self._offsets[index],
+                offset=point.offset,
+                region=point.region,
+            )
         )
