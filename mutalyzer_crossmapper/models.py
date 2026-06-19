@@ -3,11 +3,13 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from typing import Any
 
+
+# Basic dataclass module for locus and multi_locus
 @dataclass(slots=True)
 class Point:
     position: int
     offset: int = 0
-    region: str = ""
+    region: str = ''
 
 
 @dataclass(slots=True)
@@ -17,29 +19,19 @@ class GenomicPoint:
     def __post_init__(self) -> None:
         self._validate_position(self.position)
 
+    def __str__(self) -> str:
+        return f"{self.position}"
+
     @staticmethod
     def _validate_position(position: int) -> None:
-        if not isinstance(position, int):
-            raise TypeError("position must be a non-negative integer")
-        if position < 0:
-            raise ValueError("position must be a non-negative integer")
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-    @classmethod
-    def to_dataclass(cls, point: Any) -> GenomicPoint:
-        if isinstance(point, cls):
-            return point
-        if isinstance(point, Point):
-            return cls(position=point.position)
-        raise TypeError(f"Cannot convert {type(point)}")
+        if not isinstance(position, int) or position < 0:
+            raise ValueError('position must be a non-negative integer')
 
 
 @dataclass(slots=True)
 class NonCodingPoint(GenomicPoint):
     offset: int = 0
-    region: str = ""
+    region: str = ''
 
     allowed_regions = {'', 'u', 'd'}
 
@@ -51,52 +43,21 @@ class NonCodingPoint(GenomicPoint):
     @staticmethod
     def _validate_offset(offset: int) -> None:
         if not isinstance(offset, int):
-            raise TypeError("offset must be an integer")
+            raise TypeError('offset must be an integer')
 
     def _validate_region(self, region: str) -> None:
-        if not isinstance(region, str):
-            raise TypeError(f"region must be a string in {self.allowed_regions}")
-        if region not in self.allowed_regions:
-            raise ValueError(f"region must be a string in {self.allowed_regions}")
+        if not isinstance(region, str) or region not in self.allowed_regions:
+            raise ValueError(f'region must be a string in {self.allowed_regions}')
 
-    @classmethod
-    def to_dataclass(cls, point: Any) -> NonCodingPoint:
-        if isinstance(point, cls):
-            return point
-
-        if isinstance(point, Point):
-            return cls(position=point.position, offset=point.offset, region=point.region)
-
-        if isinstance(point, GenomicPoint):
-            return cls(position=point.position)
-
-        raise TypeError(f"Cannot convert {type(point)}")
+    def __str__(self) -> str:
+        if self.offset == 0:
+            return f"{self.region}{self.position}"
+        return f"{self.region}{self.position}{self.offset:+}"
 
 
 @dataclass(slots=True)
 class CodingPoint(NonCodingPoint):
     allowed_regions = {'', 'u', 'd', '-', '*'}
-
-    @classmethod
-    def to_dataclass(cls, point: Any) -> CodingPoint:
-        if isinstance(point, cls):
-            return point
-
-        if isinstance(point, Point):
-            return cls(
-                position=point.position,
-                offset=point.offset,
-                region=point.region,
-            )
-
-        if isinstance(point, NonCodingPoint):
-            return cls(
-                position=point.position,
-                offset=point.offset,
-                region=point.region,
-            )
-
-        raise TypeError(f"Cannot convert {type(point)}")
 
 
 @dataclass(slots=True)
@@ -110,29 +71,4 @@ class ProteinPoint(CodingPoint):
     @staticmethod
     def _validate_position_in_codon(position_in_codon: int) -> None:
         if not isinstance(position_in_codon, int) or position_in_codon not in (1, 2, 3):
-            raise ValueError("position_in_codon must be 1, 2, or 3")
-
-    @classmethod
-    def to_dataclass(cls, point: Any) -> ProteinPoint:
-        if isinstance(point, cls):
-            return point
-
-        if isinstance(point, Point):
-            return cls(
-                position=point.position,
-                offset=point.offset,
-                region=point.region,
-                position_in_codon=getattr(point, "position_in_codon", 1),
-            )
-
-        if isinstance(point, CodingPoint):
-            return cls(
-                position=point.position,
-                offset=point.offset,
-                region=point.region,
-                position_in_codon=getattr(point, "position_in_codon", 1),
-            )
-
-        raise TypeError(f"Cannot convert {type(point)}")
-
-
+            raise ValueError('position_in_codon must be 1, 2, or 3')
