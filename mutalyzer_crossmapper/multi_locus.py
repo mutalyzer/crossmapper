@@ -10,7 +10,7 @@ def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
     """For each location, calculate the length of the preceding locations.
 
     :arg list locations: List of locations.
-    :arg int orientation: Direction of {locations}.
+    :arg int orientation: Direction of locations.
 
     :returns list: List of cumulative location lengths.
     """
@@ -55,7 +55,7 @@ class MultiLocus(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns Point: CodingPoint model with 'position', 'offset', and 'region'.
+        :returns Point: Point model .
         """
         index = nearest_location(self._locations, coordinate, self._inverted)
         outside = self._orientation * self.outside(coordinate)
@@ -70,7 +70,7 @@ class MultiLocus(object):
     def to_coordinate(self, point: Point) -> int:
         """Convert a point model to a coordinate.
 
-        :arg CodingPoint point: Point model with 'position', 'offset', and 'region'.
+        :arg Point point: Point model.
 
         :returns int: Coordinate.
         """
