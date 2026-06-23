@@ -1,5 +1,5 @@
 from .multi_locus import MultiLocus
-from .models import GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
+from .models import Point, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 
 
 class Genomic(object):
@@ -58,7 +58,7 @@ class NonCoding(Genomic):
         :returns int: Coordinate.
         """
         return self._noncoding.to_coordinate(
-            NonCodingPoint(
+            Point(
                 position=point.position - 1,
                 offset=point.offset,
                 region=point.region
@@ -106,7 +106,7 @@ class Coding(NonCoding):
             )
 
     def _coordinate_to_coding(self, coordinate: int) -> CodingPoint:
-        """Convert a coordinate to a coding position (c./r.).
+        """Convert a coordinate to a coding point model (c./r.).
 
         :arg int coordinate: Coordinate.
 
@@ -140,12 +140,12 @@ class Coding(NonCoding):
         return CodingPoint(position=position, offset=offset, region=region)
 
     def coordinate_to_coding(self, coordinate: int, degenerate: bool = False) -> CodingPoint:
-        """Convert a coordinate to a coding position (c./r.).
+        """Convert a coordinate to a coding point model (c./r.).
 
         :arg int coordinate: Coordinate.
         :arg bool degenerate: Return a degenerate position.
 
-        :returns CodingPoint: Coding position model (c./r.).
+        :returns CodingPoint: Coding point model (c./r.).
         """
         point = self._coordinate_to_coding(coordinate)
 
@@ -170,11 +170,10 @@ class Coding(NonCoding):
     def coding_to_coordinate(self, point: CodingPoint) -> int:
         """Convert a coding position (c./r.) to a coordinate.
 
-        :arg CodingPoint point: Coding position model (c./r.).
+        :arg CodingPoint point: Coding point model (c./r.).
 
         :returns int: Coordinate.
         """
-
         region = point.region
 
         if region in ('u', 'd'):
@@ -182,44 +181,21 @@ class Coding(NonCoding):
 
         position = point.position
         if region == '':
-            noncoding_point = NonCodingPoint(
-                position=position + self._coding[0] - 1,
-                offset=point.offset,
-                region=''
-            )
-            return self._noncoding.to_coordinate(noncoding_point)
-
-        if region == '-':
-            if position <= self._coding[0]:
-                return self._noncoding.to_coordinate(
-                    NonCodingPoint(
-                        position=self._coding[0] - position,
-                        offset=point.offset,
-                        region=''
-                    )
-                )
-            return self._noncoding.to_coordinate(
-                NonCodingPoint(
-                    position=0,
-                    offset=point.offset + 1 - position,
-                    region='u'
-                )
-            )
-
+            position = position + self._coding[0] - 1
+        elif region == '-':
+            position = self._coding[0] - position
+        elif region == '*':
+            position = self._coding[1] + position - 1
         return self._noncoding.to_coordinate(
-            NonCodingPoint(
-                position=self._coding[1] + position - 1,
-                offset=point.offset,
-                region=''
-            )
+            Point(position=position, region='', offset=point.offset)
         )
 
     def coordinate_to_protein(self, coordinate: int) -> ProteinPoint:
-        """Convert a coordinate to a protein position (p.).
+        """Convert a coordinate to a protein point model (p.).
 
         :arg int coordinate: Coordinate.
 
-        :returns ProteinPoint: Protein position model(p.).
+        :returns ProteinPoint: Protein point model(p.).
         """
         point = self.coordinate_to_coding(coordinate)
 
@@ -241,7 +217,7 @@ class Coding(NonCoding):
     def protein_to_coordinate(self, point: ProteinPoint) -> int:
         """Convert a protein position (p.) to a coordinate.
 
-        :arg ProteinPoint point: Protein position model(p.).
+        :arg ProteinPoint point: Protein point model(p.).
 
         :returns int: Coordinate.
         """
