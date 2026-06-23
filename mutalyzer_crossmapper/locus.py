@@ -18,7 +18,7 @@ class Locus(object):
 
         :arg int coordinate: Coordinate.
 
-        :returns Point: Position point with 'position' and 'offset'.
+        :returns Point: Position point model.
         """
         if self._inverted:
             if coordinate > self.boundary[1]:
@@ -36,7 +36,7 @@ class Locus(object):
     def to_coordinate(self, point: Point) -> int:
         """Convert a point model to a coordinate.
 
-        :arg Point point: Point model with 'position' and 'offset'.
+        :arg Point point: Point model.
 
         :returns int: Coordinate.
         """
