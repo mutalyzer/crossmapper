@@ -1,5 +1,20 @@
+from dataclasses import dataclass
+
 from .multi_locus import MultiLocus
-from .models import Point, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
+from .models import Point
+
+
+@dataclass(slots=True)
+class GenomicPoint:
+    """Genomic dataclass."""
+    position: int
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.position, int) or self.position <= 0:
+            raise ValueError('Position must be a positive integer')
+
+    def __str__(self) -> str:
+        return f'{self.position}'
 
 
 class Genomic(object):
@@ -22,6 +37,29 @@ class Genomic(object):
         :returns int: Coordinate.
         """
         return point.position - 1
+
+
+@dataclass(slots=True)
+class NonCodingPoint(GenomicPoint):
+    """NonCoding dataclass."""
+    offset: int = 0
+    region: str = ''
+
+    allowed_regions = {'', 'u', 'd'}
+
+    def __post_init__(self) -> None:
+        # Python version 3.11 and 3.10: cannot use super() due to conflicts with slots=True
+        GenomicPoint.__post_init__(self)
+
+        if not isinstance(self.offset, int):
+            raise TypeError('Offset must be an integer')
+        if not isinstance(self.region, str) or self.region not in self.allowed_regions:
+            raise ValueError(f'Region must be a string in {self.allowed_regions}')
+
+    def __str__(self) -> str:
+        if self.offset == 0:
+            return f'{self.region}{self.position}'
+        return f'{self.region}{self.position}{self.offset:+}'
 
 
 class NonCoding(Genomic):
@@ -64,6 +102,24 @@ class NonCoding(Genomic):
                 region=point.region
             )
         )
+
+
+@dataclass(slots=True)
+class CodingPoint(NonCodingPoint):
+    """Coding dataclass."""
+    allowed_regions = {'', 'u', 'd', '-', '*'}
+
+
+@dataclass(slots=True)
+class ProteinPoint(CodingPoint):
+    """Protein dataclass."""
+    position_in_codon: int = 1
+
+    def __post_init__(self) -> None:
+        CodingPoint.__post_init__(self)
+
+        if not isinstance(self.position_in_codon, int) or self.position_in_codon not in (1, 2, 3):
+            raise ValueError('Position_in_codon must be 1, 2, or 3')
 
 
 class Coding(NonCoding):

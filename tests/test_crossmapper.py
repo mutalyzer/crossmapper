@@ -1,5 +1,4 @@
-from mutalyzer_crossmapper import Coding, Genomic, NonCoding
-from mutalyzer_crossmapper.models import CodingPoint, GenomicPoint, NonCodingPoint, ProteinPoint
+from mutalyzer_crossmapper import Genomic, NonCoding, Coding, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 
 from helper import degenerate_equal, invariant
 

@@ -1,10 +1,9 @@
 from importlib.metadata import metadata
 
-from .crossmapper import Coding, Genomic, NonCoding
+from .crossmapper import Coding, Genomic, NonCoding, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 from .location import nearest_location
 from .locus import Locus
 from .multi_locus import MultiLocus
-from .models import Point, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 
 
 def _get_metadata(name: str) -> str:

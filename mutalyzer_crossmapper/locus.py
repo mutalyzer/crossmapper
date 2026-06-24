@@ -1,8 +1,16 @@
 from .models import Point
+from dataclasses import dataclass
 
 
 class Locus(object):
     """Locus object."""
+
+    @dataclass(slots=True)
+    class Point:
+        position: int
+        offset: int = 0
+        region: str = ''
+
     def __init__(self, location: tuple[int, int], inverted: bool = False) -> None:
         """
         :arg tuple location: Locus location.
