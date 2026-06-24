@@ -1,5 +1,5 @@
 from mutalyzer_crossmapper import Locus
-from mutalyzer_crossmapper.models import Point
+from mutalyzer_crossmapper.locus import Point
 
 from helper import degenerate_equal, invariant
 

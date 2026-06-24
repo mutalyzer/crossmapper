@@ -1,8 +1,7 @@
 from dataclasses import dataclass
 
 from .multi_locus import MultiLocus
-from .models import Point
-
+from .locus import Point
 
 @dataclass(slots=True)
 class GenomicPoint:

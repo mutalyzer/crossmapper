@@ -1,6 +1,6 @@
 from mutalyzer_crossmapper import MultiLocus
 from mutalyzer_crossmapper.multi_locus import _offsets
-from mutalyzer_crossmapper.models import Point
+from mutalyzer_crossmapper.locus import Point
 
 from helper import degenerate_equal, invariant
 

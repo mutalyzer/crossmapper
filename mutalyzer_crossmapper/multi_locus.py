@@ -2,8 +2,7 @@ from bisect import bisect_right
 from itertools import accumulate
 
 from .location import nearest_location
-from .locus import Locus
-from .models import Point
+from .locus import Locus, Point
 
 
 def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
