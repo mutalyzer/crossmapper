@@ -232,7 +232,9 @@ class Coding(NonCoding):
         region = point.region
 
         if region in ('u', 'd'):
-            return self._noncoding.to_coordinate(point)
+            return self._noncoding.to_coordinate(
+                Point(position=point.position, region=point.region, offset=point.offset)
+            )
 
         position = point.position
         if region == '':
