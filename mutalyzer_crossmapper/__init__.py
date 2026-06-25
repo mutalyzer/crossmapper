@@ -1,4 +1,5 @@
-from importlib.metadata import metadata
+# from importlib.metadata import metadata
+from importlib_metadata import metadata
 
 from .crossmapper import Coding, Genomic, NonCoding, GenomicPoint, NonCodingPoint, CodingPoint, ProteinPoint
 from .location import nearest_location
