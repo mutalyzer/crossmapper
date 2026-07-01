@@ -52,7 +52,7 @@ class NonCodingPoint(GenomicPoint):
 
         if not isinstance(self.offset, int):
             raise TypeError('Offset must be an integer')
-        if not isinstance(self.region, str) or self.region not in self.allowed_regions:
+        if self.region not in self.allowed_regions:
             raise ValueError(f'Region must be a string in {self.allowed_regions}')
 
     def __str__(self) -> str:
@@ -120,6 +120,11 @@ class ProteinPoint(CodingPoint):
         if not isinstance(self.position_in_codon, int) or self.position_in_codon not in (1, 2, 3):
             raise ValueError('Position_in_codon must be 1, 2, or 3')
 
+    def __str__(self) -> str:
+        if self.offset == 0 and self.region == '':
+            return f'{self.position}'
+        return '?'
+
 
 class Coding(NonCoding):
     """Coding crossmap object."""
@@ -162,6 +167,7 @@ class Coding(NonCoding):
 
     def _coordinate_to_coding(self, coordinate: int) -> CodingPoint:
         """Convert a coordinate to a coding point model (c./r.).
+        #TODO: explain why checking
 
         :arg int coordinate: Coordinate.
 
@@ -196,6 +202,7 @@ class Coding(NonCoding):
 
     def coordinate_to_coding(self, coordinate: int, degenerate: bool = False) -> CodingPoint:
         """Convert a coordinate to a coding point model (c./r.).
+        # TODO: explain abs()
 
         :arg int coordinate: Coordinate.
         :arg bool degenerate: Return a degenerate position.
@@ -204,21 +211,21 @@ class Coding(NonCoding):
         """
         point = self._coordinate_to_coding(coordinate)
 
-        region = point.region
         if not degenerate:
             return point
 
-        if region == 'u':
+        offset = abs(point.offset)
+        if point.region == 'u':
             if self._coding[0] == 0:
-                position = abs(point.offset)
+                position = offset
             else:
-                position = point.position + abs(point.offset)
+                position = point.position + offset
             return CodingPoint(position=position, offset=0, region='-')
-        if region == 'd':
+        if point.region == 'd':
             if self._exons[1] == self._coding[1]:
-                position = abs(point.offset)
+                position = offset
             else:
-                position = point.position + abs(point.offset)
+                position = point.position + offset
             return CodingPoint(position=position, offset=0, region='*')
         return point
 
