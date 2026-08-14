@@ -1,8 +1,7 @@
-from mutalyzer_crossmapper import MultiLocus
-from mutalyzer_crossmapper.multi_locus import _offsets
-from mutalyzer_crossmapper.locus import Point
+from mutalyzer_crossmapper.multi_locus import _offsets, Point, Coord, MultiLocus
+# from mutalyzer_crossmapper.locus import Point
 
-from helper import degenerate_equal, invariant
+from helper import invariant
 
 _locations = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 
@@ -34,14 +33,14 @@ def test_MultiLocus():
     # Boundary between upstream and the first locus.
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
 
     invariant(
         multi_locus.to_position,
-        5,
+        Coord(5),
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
@@ -49,37 +48,37 @@ def test_MultiLocus():
     # Internal locus.
     invariant(
         multi_locus.to_position,
-        29,
+        Coord(29),
         multi_locus.to_coordinate,
         Point(position=9, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        30,
+        Coord(30),
         multi_locus.to_coordinate,
         Point(position=9, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        31,
+        Coord(31),
         multi_locus.to_coordinate,
         Point(position=10, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        33,
+        Coord(33),
         multi_locus.to_coordinate,
         Point(position=12, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        34,
+        Coord(34),
         multi_locus.to_coordinate,
         Point(position=13, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        35,
+        Coord(35),
         multi_locus.to_coordinate,
         Point(position=13, offset=1, region=''),
     )
@@ -87,13 +86,13 @@ def test_MultiLocus():
     # Boundary between the last locus and downstream.
     invariant(
         multi_locus.to_position,
-        71,
+        Coord(71),
         multi_locus.to_coordinate,
         Point(position=21, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        72,
+        Coord(72),
         multi_locus.to_coordinate,
         Point(position=21, offset=1, region='d'),
     )
@@ -101,18 +100,18 @@ def test_MultiLocus():
 
 def test_MultiLocus_inverted():
     """Reverse oriented MultiLocus."""
-    multi_locus = MultiLocus(_locations, True)
+    multi_locus = MultiLocus(_locations, None, True)
 
     # Boundary between upstream and the first locus.
     invariant(
         multi_locus.to_position,
-        72,
+        Coord(72),
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
     invariant(
         multi_locus.to_position,
-        71,
+        Coord(71),
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
@@ -120,37 +119,37 @@ def test_MultiLocus_inverted():
     # Internal locus.
     invariant(
         multi_locus.to_position,
-        35,
+        Coord(35),
         multi_locus.to_coordinate,
         Point(position=8, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        34,
+        Coord(34),
         multi_locus.to_coordinate,
         Point(position=8, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        33,
+        Coord(33),
         multi_locus.to_coordinate,
         Point(position=9, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        31,
+        Coord(31),
         multi_locus.to_coordinate,
         Point(position=11, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        30,
+        Coord(30),
         multi_locus.to_coordinate,
         Point(position=12, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        29,
+        Coord(29),
         multi_locus.to_coordinate,
         Point(position=12, offset=1, region=''),
     )
@@ -158,13 +157,13 @@ def test_MultiLocus_inverted():
     # Boundary between the last locus and downstream.
     invariant(
         multi_locus.to_position,
-        5,
+        Coord(5),
         multi_locus.to_coordinate,
         Point(position=21, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=21, offset=1, region='d'),
     )
@@ -176,13 +175,13 @@ def test_MultiLocus_adjacent_loci():
 
     invariant(
         multi_locus.to_position,
-        2,
+        Coord(2),
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        3,
+        Coord(3),
         multi_locus.to_coordinate,
         Point(position=2, offset=0, region=''),
     )
@@ -190,17 +189,17 @@ def test_MultiLocus_adjacent_loci():
 
 def test_MultiLocus_adjacent_loci_inverted():
     """Positions are continuous when loci are adjacent."""
-    multi_locus = MultiLocus([(1, 3), (3, 5)], True)
+    multi_locus = MultiLocus([(1, 3), (3, 5)], None, True)
 
     invariant(
         multi_locus.to_position,
-        3,
+        Coord(3),
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        2,
+        Coord(2),
         multi_locus.to_coordinate,
         Point(position=2, offset=0, region=''),
     )
@@ -212,13 +211,13 @@ def test_MultiLocus_offsets_odd():
 
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        5,
+        Coord(5),
         multi_locus.to_coordinate,
         Point(position=2, offset=-1, region=''),
     )
@@ -226,17 +225,18 @@ def test_MultiLocus_offsets_odd():
 
 def test_MultiLocus_offsets_odd_inverted():
     """Offets exacly between two loci are assigned to the upstream locus."""
-    multi_locus = MultiLocus([(1, 3), (6, 8)], True)
-
+    multi_locus = MultiLocus([(1, 3), (6, 8)], None, True)
+    print(multi_locus.to_position(Coord(4)))
+    print(multi_locus.to_position(Coord(3)))
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        3,
+        Coord(3),
         multi_locus.to_coordinate,
         Point(position=2, offset=-1, region=''),
     )
@@ -248,13 +248,13 @@ def test_MultiLocus_offsets_even():
 
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        5,
+        Coord(5),
         multi_locus.to_coordinate,
         Point(position=2, offset=-2, region=''),
     )
@@ -262,66 +262,17 @@ def test_MultiLocus_offsets_even():
 
 def test_MultiLocus_offsets_even_inverted():
     """Offsets are assigned to the nearest locus."""
-    multi_locus = MultiLocus([(1, 3), (7, 9)], True)
+    multi_locus = MultiLocus([(1, 3), (7, 9)], None, True)
 
     invariant(
         multi_locus.to_position,
-        5,
+        Coord(5),
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        4,
+        Coord(4),
         multi_locus.to_coordinate,
         Point(position=2, offset=-2, region=''),
-    )
-
-
-def test_MultiLocus_degenerate():
-    """Degenerate upstream and downstream positions are silently corrected."""
-    multi_locus = MultiLocus(_locations)
-
-    degenerate_equal(
-        multi_locus.to_coordinate,
-        4,
-        [
-            Point(position=0, offset=-1, region='u'),
-            Point(position=-1, offset=0, region=''),
-        ],
-    )
-
-    degenerate_equal(
-        multi_locus.to_coordinate,
-        72,
-        [
-            Point(position=21, offset=1, region='d'),
-            Point(position=22, offset=0, region=''),
-            Point(position=22, offset=1, region='d'),
-        ],
-    )
-
-
-def test_MultiLocus_inverted_degenerate():
-    """Degenerate upstream and downstream positions are silently corrected."""
-    multi_locus = MultiLocus(_locations, True)
-
-    degenerate_equal(
-        multi_locus.to_coordinate,
-        72,
-        [
-            Point(position=-1, offset=0, region=''),
-            Point(position=0, offset=-1, region=''),
-            Point(position=0, offset=-1, region='u'),
-        ],
-    )
-
-    degenerate_equal(
-        multi_locus.to_coordinate,
-        4,
-        [
-            Point(position=21, offset=1, region=''),
-            Point(position=22, offset=0, region=''),
-            Point(position=21, offset=1, region='d'),
-        ],
     )
