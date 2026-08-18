@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from .checker import _check_locus, _check_non_negative, _check_int
 
 
 @dataclass(slots=True)
@@ -9,7 +8,7 @@ class Point:
     offset: int = 0
 
     def __post_init__(self) -> None:
-        _check_non_negative(self.position)
+        _check_non_negative_int(self.position)
         _check_int(self.offset)
 
 
@@ -19,7 +18,32 @@ class Coord:
     coordinate: int
 
     def __post_init__(self) -> None:
-        _check_non_negative(self.coordinate)
+        _check_non_negative_int(self.coordinate)
+
+
+def _check_int(value: int) -> None:
+    """Check if the value type is integer."""
+    if not isinstance(value, int):
+        raise ValueError("Value must be an integer.")
+
+
+def _check_non_negative_int(value: int) -> None:
+    """Check if the coordinate is a non-negative integer."""
+    _check_int(value)
+    if value < 0:
+        raise ValueError("Value must be non-negative.")
+
+
+def _check_locus(locus: tuple[int, int]) -> None:
+    """Check if the range is valid."""
+    if len(locus) != 2:
+        raise ValueError("Locus must be a tuple of two values.")
+
+    for value in locus:
+        _check_non_negative_int(value)
+
+    if locus[0] >= locus[1]:
+        raise ValueError(f"Locus start {locus[0]} must be smaller than locus end {locus[1]}.")
 
 
 class Locus(object):
@@ -33,7 +57,7 @@ class Locus(object):
         _check_locus(location)
 
         self._inverted = inverted
-        self.boundary = location[0], location[1] - 1  #: 0 based open on coordinate
+        self.boundary = location[0], location[1] - 1
         self._end = self.boundary[1] - self.boundary[0]
 
     def _validate_point(self, position, offset) -> None:
@@ -48,7 +72,7 @@ class Locus(object):
             raise IndexError(f"Offset {offset} should be at a locus start.")
         if offset > 0 and position != self._end:
             raise IndexError(f"Offset {offset} should be at a locus end.")
-        if position > self._end:
+        if position > max(self._end, 0):
             raise IndexError(f"Position {position} exceeds locus length {self._end + 1}")
 
     def to_position(self, coord: Coord) -> Point:
