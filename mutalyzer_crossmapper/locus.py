@@ -58,7 +58,7 @@ class Locus(object):
 
         self._inverted = inverted
         self.boundary = location[0], location[1] - 1
-        self._end = self.boundary[1] - self.boundary[0]
+        self._end = location[1] - location[0]   # one-based length of the locus
 
     def _validate_point(self, position, offset) -> None:
         """Validate a point model under HGVS rules.
@@ -66,14 +66,14 @@ class Locus(object):
         :arg int position: Position.
         :arg int offset: Offset.
         """
-        if offset != 0 and position not in (0, self._end):
+        if offset != 0 and position not in (0, self._end-1):
             raise ValueError(f"Position {position} is not at locus boundary.")
         if offset < 0 and position != 0:
             raise IndexError(f"Offset {offset} should be at a locus start.")
-        if offset > 0 and position != self._end:
+        if offset > 0 and position != self._end-1:
             raise IndexError(f"Offset {offset} should be at a locus end.")
-        if position > max(self._end, 0):
-            raise IndexError(f"Position {position} exceeds locus length {self._end + 1}")
+        if position > self._end-1:
+            raise IndexError(f"Position {position} exceeds locus length {self._end}")
 
     def to_position(self, coord: Coord) -> Point:
         """Convert a coordinate to a proper point model.
@@ -86,13 +86,13 @@ class Locus(object):
             if coord.coordinate > self.boundary[1]:
                 return Point(position=0, offset=self.boundary[1] - coord.coordinate)
             if coord.coordinate < self.boundary[0]:
-                return Point(position=self._end, offset=self.boundary[0] - coord.coordinate)
+                return Point(position=self._end-1, offset=self.boundary[0] - coord.coordinate)
             return Point(position=self.boundary[1] - coord.coordinate, offset=0)
 
         if coord.coordinate < self.boundary[0]:
             return Point(position=0, offset=coord.coordinate - self.boundary[0])
         if coord.coordinate > self.boundary[1]:
-            return Point(position=self._end, offset=coord.coordinate - self.boundary[1])
+            return Point(position=self._end-1, offset=coord.coordinate - self.boundary[1])
         return Point(position=coord.coordinate - self.boundary[0], offset=0)
 
     def to_coordinate(self, point: Point) -> Coord:
