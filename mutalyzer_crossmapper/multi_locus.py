@@ -190,7 +190,7 @@ class MultiLocus(object):
         except IndexError as e:
             if "Position" in str(e):
                 raise IndexError(
-                    f"Position {point.position} exceeds locus length {self._offsets[self._direction(index)] + self._loci[self._direction(index)].boundary[1] - self._loci[self._direction(index)].boundary[0]}"
+                    f"Position {point.position} exceeds multi_locus length {self._end}"
                 ) from e
             raise e
 
