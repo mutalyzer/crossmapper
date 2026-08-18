@@ -85,8 +85,6 @@ def test_invalid_Locus_inverted_point():
 def test_Locus():
     """Forward orientent Locus."""
     locus = Locus((30, 35))
-    print(locus.to_coordinate(Point(position=4, offset=1)))
-    print(locus.to_position(Coord(35)))
 
     invariant(locus.to_position, Coord(29), locus.to_coordinate, Point(position=0, offset=-1))
     invariant(locus.to_position, Coord(30), locus.to_coordinate, Point(position=0, offset=0))
