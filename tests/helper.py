@@ -5,5 +5,4 @@ def invariant(f, x, f_i, y):
 
 def degenerate_equal(f, coordinate, locations):
     assert f(locations[0]) == coordinate
-    assert len(
-        set(map(f, locations))) == 1
+    assert len(set(obj.coordinate for obj in map(f, locations))) == 1

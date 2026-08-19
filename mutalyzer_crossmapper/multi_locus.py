@@ -80,6 +80,7 @@ class MultiLocus(object):
         :arg int offset: Offset.
         :arg str region: Region.
         """
+        print("offsets", self._offsets)
         # Upstream region validation, position is constant value and offset should not be positive
         if region == 'u':
             if position != self._offsets[0]:
