@@ -629,7 +629,7 @@ def test_Coding_no_utr_degenerate():
         Coord(9),
         [
             CodingPoint(position=1, offset=-1, region='u'),
-            CodingPoint(position=2, offset=0, region='*'),
+            CodingPoint(position=1, offset=0, region='-'),
         ],
     )
     degenerate_equal(
