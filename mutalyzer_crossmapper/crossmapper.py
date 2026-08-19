@@ -167,7 +167,6 @@ class Coding(NonCoding):
                 exon_start.position + exon_start.offset,
                 exon_end.position + exon_end.offset + 1
             )
-        print(f'Coding: {self._coding}, Exons: {self._exons}')
 
     def _check_cds(self, cds: tuple[int, int], locations: list[tuple[int, int]], length: int|None = None) -> None:
         """Check if the CDS is valid."""
@@ -250,6 +249,7 @@ class Coding(NonCoding):
         region = point.region
         position = point.position
 
+        # For missing 3' UTR or 5' UTR
         if region in ('u', 'd'):
             if region == 'u':
                 if self._coding[0] == self._exons[0]:
@@ -283,8 +283,7 @@ class Coding(NonCoding):
 
         :returns int: Coordinate.
         """
-        # Check if the point is degenerate
-        # return self._coding_to_coordinate(point)
+        # Silently correct for degenerate points
         region = point.region
         offset = point.offset
         position = point.position
@@ -293,15 +292,13 @@ class Coding(NonCoding):
             if position > self._coding[0]:
                 point = CodingPoint(position=self._coding[0], offset=self._coding[0] - position, region='u')
         if region == '*' and offset == 0:
-            print("innnnnn")
             if position > self._exons[1] -self._coding[1]:
                 point = CodingPoint(position=self._exons[1] -self._coding[1], offset=position - (self._exons[1] -self._coding[1]), region='d')
-        print(f'Coding to coordinate: position={point.position}, offset={point.offset}, region={point.region}')
         return self._coding_to_coordinate(point)
 
     def coordinate_to_protein(self, coord: Coord) -> ProteinPoint:
         """Convert a coordinate to a protein point model (p.).
-point.position
+
         :arg Coord coord: Coordinate model.
 
         :returns ProteinPoint: Protein point model(p.).

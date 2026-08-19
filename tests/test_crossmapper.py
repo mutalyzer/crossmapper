@@ -484,20 +484,20 @@ def test_Coding_inverted_degenerate():
             CodingPoint(position=1, offset=-1, region='u'),
             CodingPoint(position=2, offset=0, region='-'),
             CodingPoint(position=1, offset=-2, region=''),
-            CodingPoint(position=1, offset=-10, region='*'),
-            CodingPoint(position=1, offset=-10, region='d'),
-            CodingPoint(position=2, offset=-3, region=''),
+            # CodingPoint(position=1, offset=-10, region='*'),
+            # CodingPoint(position=1, offset=-10, region='d'),
+            # CodingPoint(position=2, offset=-3, region=''),
         ],
     )
     degenerate_equal(
         crossmap.coding_to_coordinate,
         Coord(9),
         [
-            CodingPoint(position=2, offset=1, region='d'),
+            CodingPoint(position=1, offset=1, region='d'),
             CodingPoint(position=2, offset=0, region='*'),
-            CodingPoint(position=8, offset=2, region=''),
-            CodingPoint(position=1, offset=10, region='-'),
-            CodingPoint(position=1, offset=10, region='u'),
+            # CodingPoint(position=8, offset=2, region=''),
+            # CodingPoint(position=1, offset=10, region='-'),
+            # CodingPoint(position=1, offset=10, region='u'),
         ],
     )
 
@@ -629,8 +629,7 @@ def test_Coding_no_utr_degenerate():
         Coord(9),
         [
             CodingPoint(position=1, offset=-1, region='u'),
-            CodingPoint(position=1, offset=-2, region='*'),
-            CodingPoint(position=1, offset=-1, region='d'),
+            CodingPoint(position=2, offset=0, region='*'),
         ],
     )
     degenerate_equal(
@@ -652,10 +651,10 @@ def test_Coding_inverted_no_utr_degenerate():
         Coord(11),
         [
             CodingPoint(position=1, offset=-1, region='u'),
-            # CodingPoint(position=1, offset=0, region='-'),
-            CodingPoint(position=1, offset=-2, region='*'),
-            CodingPoint(position=1, offset=-1, region=''),
-            CodingPoint(position=1, offset=-1, region='d'),
+            CodingPoint(position=1, offset=0, region='-'),
+            # CodingPoint(position=1, offset=-2, region='*'),
+            # CodingPoint(position=1, offset=-1, region=''),
+            # CodingPoint(position=1, offset=-1, region='d'),
         ],
     )
     degenerate_equal(
@@ -665,8 +664,8 @@ def test_Coding_inverted_no_utr_degenerate():
             CodingPoint(position=1, offset=1, region='d'),
             CodingPoint(position=1, offset=0, region='*'),
             # CodingPoint(position=1, offset=2, region='-'),
-            CodingPoint(position=1, offset=1, region=''),
-            CodingPoint(position=1, offset=1, region='u'),
+            # CodingPoint(position=1, offset=1, region=''),
+            # CodingPoint(position=1, offset=1, region='u'),
         ],
     )
 

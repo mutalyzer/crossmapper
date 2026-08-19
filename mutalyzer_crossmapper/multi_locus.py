@@ -20,13 +20,11 @@ class Point(LocusPoint):
 
 def _check_in_range(value: int, length: int | None = None) -> None:
     """Check if the value no larger than length."""
-    print(value, length)
     if length is not None and value >= length:
         raise ValueError(f"Value {value} must be within the bounds of the reference sequence {length}.")
 
 
 def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = None) -> None:
-    print(locations, length)
     """Check if the locations list is valid."""
     for locus in locations:
         _check_locus(locus)
@@ -80,7 +78,6 @@ class MultiLocus(object):
         :arg int offset: Offset.
         :arg str region: Region.
         """
-        print("offsets", self._offsets)
         # Upstream region validation, position is constant value and offset should not be positive
         if region == 'u':
             if position != self._offsets[0]:
@@ -109,8 +106,9 @@ class MultiLocus(object):
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
         if region == '':
+            #TODO: should also consider for single locus, where index+1 or index-1 may be out of range
             if position > self._end-1:
-                raise IndexError(f"Position {position} exceeds MultiLocus length {self._end}")
+                raise IndexError(f"Position {position} exceeds multi locus length {self._end}")
             if offset < 0 and abs(offset) > abs(self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index-1)].boundary[1]):
                 raise IndexError(f"Offset {offset} exceeds intron length.")
             if offset > 0 and abs(offset) > abs(self._loci[self._direction(index+1)].boundary[0] - self._loci[self._direction(index)].boundary[1]):
