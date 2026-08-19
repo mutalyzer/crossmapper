@@ -1,7 +1,17 @@
 Library
 =======
 
-The library provides a number of classes to perform various conversions.
+The package provides conversion helpers between zero-based genomic
+coordinates and HGVS-like point models for genomic, non-coding, coding,
+and protein contexts.
+
+Coordinate And Location Conventions
+-----------------------------------
+
+- Coordinates are zero-based integers.
+- Locations are provided as half-open intervals: ``(start, end)`` with
+  ``start`` inclusive and ``end`` exclusive.
+- HGVS-style positions exposed by public dataclasses are one-based.
 
 
 The ``Genomic`` class
@@ -10,15 +20,16 @@ The ``Genomic`` class
 The ``Genomic`` class provides an interface to conversions between genomic
 (``g.``, ``m.``, ``o.``) positions and coordinates.
 
-Genomic Position Model
-~~~~~~~~~~~~~~~~~~~~~~~
+The ``GenomicPoint`` dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Genomic positions follow the HGVS genomic coordinate system.
-They are represented as 1-key dictionaries. Below is an example of ``g.1`` in HGVS.
+They are represented as 1-attribute dataclasses. Below is an example of ``g.1`` in HGVS.
 
 .. code-block:: python
 
-    {'position': 1}
+    >>> from mutalyzer_crossmapper import GenomicPoint
+    >>> GenomicPoint(position=1)
 
 Where:
 
@@ -27,7 +38,7 @@ Where:
 Genomic Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+.. code-block:: python
 
     >>> from mutalyzer_crossmapper import Genomic
     >>> crossmap = Genomic()
@@ -38,8 +49,8 @@ used to convert to and from genomic positions.
 .. code:: python
 
     >>> crossmap.coordinate_to_genomic(0)
-    {'position': 1}
-    >>> crossmap.genomic_to_coordinate({'position': 1})
+    GenomicPoint(position=1)
+    >>> crossmap.genomic_to_coordinate(GenomicPoint(position=1))
     0
 
 See section :doc:`api/crossmap` for a detailed description.
@@ -52,493 +63,211 @@ On top of the functionality provided by the ``Genomic`` class, the
 (``n.``, ``r.``) positions and coordinates. Conversions between positioning
 systems should be done via a coordinate.
 
-NonCoding Position Model
-~~~~~~~~~~~~~~~~~~~~~~~~
+The ``NonCodingPoint`` Dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Noncoding positions follow the HGVS ``n.`` coordinate system. They are represented
-as 3-key dictionaries. Below is an example of ``n.14+1`` in HGVS.
+``NonCodingPoint`` fields:
+
+- ``position``: positive integer (1-based transcript position)
+- ``offset``: integer intronic/outside offset
+- ``region``: one of ``''``, ``'u'``, ``'d'``
 
 .. code-block:: python
 
-    {
-        'position': 14,
-        'offset': 1,
-        'region': ''
-    }
+    >>> from mutalyzer_crossmapper import NonCodingPoint
+    >>> NonCodingPoint(position=14, offset=1, region='')
+    NonCodingPoint(position=14, offset=1, region='')
 
-Where:
+Non-Coding Position Conversion
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- **position**: an integer representing a nucleotide position (> 0)
-- **offset**: an integer indicating the offset relative to the position (negative for upstream,
-  positive for downstream)
-- **region**: a string describing the region type (empty for positions within a non-coding
-  transcript, ``u`` for upstream, ``d`` for downstream)
-
-NonCoding Position Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: python
+.. code-block:: python
 
     >>> from mutalyzer_crossmapper import NonCoding
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> crossmap = NonCoding(exons)
-
-Now the functions ``coordinate_to_noncoding()`` and ``noncoding_to_coordinate()``
-can be used.
-
-In our example, the HGVS position ``g.36`` (coordinate *35*) is equivalent to
-position ``n.14+1``. We can convert between these two as follows.
-
-.. code:: python
-
     >>> crossmap.coordinate_to_noncoding(35)
-    {'position': 14, 'offset': 1, 'region': ''}
-    >>> crossmap.noncoding_to_coordinate({'position': 14, 'offset': 1, 'region': ''})
+    NonCodingPoint(position=14, offset=1, region='')
+    >>> crossmap.noncoding_to_coordinate(NonCodingPoint(position=14, offset=1, region=''))
     35
 
-When the coordinate is upstream or downstream of the transcript, we use ``u`` to
-denote upstream and ``d`` to denote downstream.
-
-.. code:: python
-
-    >>> crossmap.coordinate_to_noncoding(2)
-    {'position': 1, 'offset': -3, 'region': 'u'}
-    >>> crossmap.noncoding_to_coordinate({'position': 1, 'offset': -3, 'region': 'u'})
-    2
-    >>> crossmap.coordinate_to_noncoding(73)
-    {'position': 22, 'offset': 2, 'region': 'd'}
-    >>> crossmap.noncoding_to_coordinate({'position': 22, 'offset': 2, 'region': 'd'})
-    73
-
-For transcripts that reside on the reverse complement strand, the ``inverted``
-parameter should be set to ``True``. In our example, HGVS position ``g.36``
-(coordinate *35*) is now equivalent to position ``n.9-1``.
-
-.. code:: python
-
-    >>> crossmap = NonCoding(exons, inverted=True)
-    >>> crossmap.coordinate_to_noncoding(35)
-    {'position': 9, 'offset': -1, 'region': ''}
-    >>> crossmap.noncoding_to_coordinate({'position': 9, 'offset': -1, 'region': ''})
-    35
-
-In the following table, we show a number of annotated examples.
-
-.. _table_noncoding:
-.. list-table:: Coordinates to Noncoding Positions mapping.
-   :header-rows: 1
-
-   * - coordinate
-     - position
-     - offset
-     - region
-     - HGVS
-   * - 0
-     - 1
-     - -5
-     - ``u``
-     - ``n.u5``
-   * - 4
-     - 1
-     - -1
-     - ``u``
-     - ``n.u1``
-   * - 5
-     - 1
-     - 0
-     -
-     - ``n.1``
-   * - 24
-     - 9
-     - 5
-     -
-     - ``n.9+5``
-   * - 25
-     - 10
-     - -5
-     -
-     - ``n.10-5``
-   * - 71
-     - 22
-     - 0
-     -
-     - ``n.22``
-   * - 72
-     - 22
-     - 1
-     - ``d``
-     - ``n.d1``
-   * - 79
-     - 22
-     - 8
-     - ``d``
-     - ``n.d8``
-
-See section :doc:`api/crossmap` for a detailed description.
-
-The ``Coding`` class
---------------------
-
-The ``Coding`` class provides an interface to all conversions between
-coding (``c.``, ``r.``) positions and coordinates. Conversions between
-positioning systems should be done via a coordinate.
-
-Coding Position Model
-~~~~~~~~~~~~~~~~~~~~~
-Coding positions follow the HGVS ``c.`` coordinate system. They are
-represented as 3-key dictionaries. Here is an example of ``c.*1+3``.
+Upstream and downstream positions are represented using ``region='u'`` and
+``region='d'``:
 
 .. code-block:: python
 
-    {
-        'position': 1,
-        'offset': 3,
-        'region': '*'
-    }
+    >>> crossmap.coordinate_to_noncoding(2)
+    NonCodingPoint(position=1, offset=-3, region='u')
+    >>> crossmap.coordinate_to_noncoding(73)
+    NonCodingPoint(position=22, offset=2, region='d')
 
-Where:
+For reverse-complement orientation, set ``inverted=True``:
 
-- **position**: an integer representing a transcript position (> 0)
-- **offset**: an integer indicating the offset relative to the position (negative for upstream,
-  positive for downstream)
-- **region**: a string describing the region type (empty for positions within coding DNA sequence,
-  ``-`` for 5' UTR, ``*`` for 3' UTR, ``u`` for upstream and ``d`` for downstream)
+.. code-block:: python
+
+    >>> reverse = NonCoding(exons, inverted=True)
+    >>> reverse.coordinate_to_noncoding(35)
+    NonCodingPoint(position=9, offset=-1, region='')
+
+See :doc:`api/crossmap` for full API details.
+
+
+The ``Coding`` Class
+--------------------
+
+``Coding`` extends ``NonCoding`` with coding DNA position logic
+(``c.``, ``r.``), using exon locations and one CDS interval.
+
+The ``CodingPoint`` Dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``CodingPoint`` fields:
+
+- ``position``: positive integer
+- ``offset``: integer
+- ``region``: one of ``''``, ``'u'``, ``'d'``, ``'-'``, ``'*'``
+
+.. code-block:: python
+
+    >>> from mutalyzer_crossmapper import CodingPoint
+    >>> CodingPoint(position=1, offset=3, region='*')
+    CodingPoint(position=1, offset=3, region='*')
 
 Coding Position Conversion
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+.. code-block:: python
 
     >>> from mutalyzer_crossmapper import Coding
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> cds = (32, 43)
     >>> crossmap = Coding(exons, cds)
-
-On top of the functionality provided by the ``NonCoding`` class, the functions
-``coordinate_to_coding()`` and ``coding_to_coordinate()`` can be used. These
-functions use a 3-key dictionary to represent a coding position.
-
-In our example, the HGVS position ``g.32`` (coordinate *31*) is equivalent to
-position ``c.-1``. We can convert between these two as follows.
-
-.. code:: python
-
     >>> crossmap.coordinate_to_coding(31)
-    {'position': 1, 'offset': 0, 'region': '-'}
-    >>> crossmap.coding_to_coordinate({'position': 1, 'offset': 0, 'region': '-'})
+    CodingPoint(position=1, offset=0, region='-')
+    >>> crossmap.coding_to_coordinate(CodingPoint(position=1, offset=0, region='-'))
     31
 
-The ``coordinate_to_coding()`` function accepts an optional ``degenerate``
-argument. When set to ``True``, positions outside of the transcript are no
-longer described using the ``u`` or ``d`` notation, ``-`` and ``*`` are used
-instead. Note that the values of ``position`` and ``offset`` are adjusted accordingly.
-
-.. code:: python
-
-    >>> crossmap.coordinate_to_coding(4)
-    {'position': 11, 'offset': -1, 'region': 'u'}
-    >>> crossmap.coordinate_to_coding(4, True)
-    {'position': 12, 'offset': 0, 'region': '-'}
-
-In the following table, we show a number of annotated examples.
-
-.. _table_coding:
-.. list-table:: Coordinates to Coding Positions mapping
-   :header-rows: 1
-
-   * - coordinate
-     - position
-     - offset
-     - region
-     - HGVS
-   * - 0
-     - 11
-     - -5
-     - ``u``
-     - ``c.u5``
-   * - 4
-     - 11
-     - -1
-     - ``u``
-     - ``c.u1``
-   * - 5
-     - 11
-     - 0
-     - ``-``
-     - ``c.-11``
-   * - 24
-     - 3
-     - 5
-     - ``-``
-     - ``c.-3+5``
-   * - 31
-     - 1
-     - 0
-     - ``-``
-     - ``c.-1``
-   * - 32
-     - 1
-     - 0
-     -
-     - ``c.1``
-   * - 37
-     - 3
-     - 3
-     -
-     - ``c.3+3``
-   * - 38
-     - 4
-     - -2
-     -
-     - ``c.4-2``
-   * - 43
-     - 1
-     - 0
-     - ``*``
-     - ``c.*1``
-   * - 61
-     - 4
-     - -9
-     - ``*``
-     - ``c.*4-9``
-   * - 71
-     - 5
-     - 0
-     - ``*``
-     - ``c.*5``
-   * - 72
-     - 5
-     - 1
-     - ``d``
-     - ``c.d1``
-   * - 79
-     - 5
-     - 8
-     - ``d``
-     - ``c.d8``
-
-
-Protein
--------
-
-Additionally, the functions ``coordinate_to_protein()`` and
-``protein_to_coordinate()`` can be used. These functions use a 4-key dictionary
-to represent a protein position. Here is one example of three possibilities
-for ``p.1`` in HGVS.
+The optional ``degenerate=True`` argument maps outside-transcript ``u``/``d``
+representations to degenerate ``-``/``*`` positions:
 
 .. code-block:: python
 
-    {
-        'position': 1,
-        'position_in_codon': 3,
-        'offset': 0,
-        'region': ''
-    }
+    >>> crossmap.coordinate_to_coding(4)
+    CodingPoint(position=11, offset=-1, region='u')
+    >>> crossmap.coordinate_to_coding(4, degenerate=True)
+    CodingPoint(position=12, offset=0, region='-')
 
-Where:
 
-- **position**: an integer representing an amino acid position (> 0)
-- **position_in_codon**: an integer indexing the position in a codon (1, 2, or 3)
-- **offset**: an integer indicating offset relative to the nucleotide specified by `position_in_codon` in the codon
-- **region**: a string describing the region type (empty for valid amino acid positions)
+Protein Conversion
+------------------
 
-In our example, the HGVS position ``g.42`` (coordinate *41*) corresponds with
-position ``p.2``. We can convert between these two as follows.
+``Coding`` also exposes conversion to and from protein-position models.
 
-.. code:: python
+The ``ProteinPoint`` Dataclass
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+``ProteinPoint`` extends ``CodingPoint`` with:
+
+- ``position_in_codon``: one of ``1``, ``2``, ``3``
+
+.. code-block:: python
+
+    >>> from mutalyzer_crossmapper import ProteinPoint
+    >>> ProteinPoint(position=1, position_in_codon=3, offset=0, region='')
+    ProteinPoint(position=1, offset=0, region='', position_in_codon=3)
+
+.. code-block:: python
+
+    >>> from mutalyzer_crossmapper import Coding
+    >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
+    >>> cds = (32, 43)
+    >>> crossmap = Coding(exons, cds)
     >>> crossmap.coordinate_to_protein(41)
-    {'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''}
-    >>> crossmap.protein_to_coordinate({'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''})
+    ProteinPoint(position=2, offset=0, region='', position_in_codon=2)
+    >>> crossmap.protein_to_coordinate(
+    ...     ProteinPoint(position=2, offset=0, region='', position_in_codon=2)
+    ... )
     41
 
-**Note:** protein position only corresponds with the HGVS "p." notation
-when the offset equals ``0`` and the region equals empty. In the following
-table, we show a number of annotated examples.
+Note that canonical HGVS ``p.`` positions correspond to points with
+``offset == 0`` and ``region == ''``.
 
-.. _table_protein:
-.. list-table:: Coordinates to Protein Positions mapping
-   :header-rows: 1
-
-   * - coordinate
-     - position
-     - position_in_codon
-     - offset
-     - region
-     - HGVS
-   * - 0
-     - 4
-     - 2
-     - -5
-     - ``u``
-     -
-   * - 4
-     - 4
-     - 2
-     - -1
-     - ``u``
-     -
-   * - 5
-     - 4
-     - 2
-     - 0
-     - ``-``
-     -
-   * - 31
-     - 1
-     - 3
-     - 0
-     - ``-``
-     -
-   * - 32
-     - 1
-     - 1
-     - 0
-     -
-     - ``p.1``
-   * - 33
-     - 1
-     - 2
-     - 0
-     -
-     - ``p.1``
-   * - 34
-     - 1
-     - 3
-     - 0
-     -
-     - ``p.1``
-   * - 35
-     - 1
-     - 3
-     - 1
-     -
-     -
-   * - 42
-     - 2
-     - 3
-     - 0
-     -
-     - ``p.2``
-   * - 43
-     - 1
-     - 1
-     - 0
-     - ``*``
-     -
-   * - 44
-     - 1
-     - 1
-     - 1
-     - ``*``
-     -
-   * - 72
-     - 2
-     - 2
-     - 1
-     - ``d``
-     -
-
-   * - 79
-     - 2
-     - 2
-     - 8
-     - ``d``
-     -
+See :doc:`api/crossmap` for full API details.
 
 
-See section :doc:`api/crossmap` for a detailed description.
+Location Helper
+---------------
 
-Locations
----------
+``nearest_location()`` finds the closest location index for a coordinate.
+When two boundaries are equally close, ``p`` controls tie-breaking
+(``0``: left, ``1``: right).
 
-In many cases we need to know the nearest location with respect to a
-coordinate. For example, we need to know where the nearest exon is when we want
-to describe a position in an intron. The ``nearest_location()`` can be used to
-do exactly this.
-
-.. code:: python
+.. code-block:: python
 
     >>> from mutalyzer_crossmapper import nearest_location
+    >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> nearest_location(exons, 37)
     2
-    >>> nearest_location(exons, 38)
+    >>> nearest_location(exons, 37, p=1)
     3
 
-Notice that coordinate ``37`` is in the center of intron 2. By default
-``nearest_location()`` will return the left location in case of a draw. This
-behaviour can be altered by setting the optional argument ``p`` to ``1``.
+See :doc:`api/location` for full API details.
 
-.. code:: python
 
-    >>> nearest_location(exons, 37, 1)
-    3
-
-See section :doc:`api/location` for a detailed description.
-
-Basic classes
+Basic Classes
 -------------
 
-The ``Coding`` class makes use of a number of basic classes described in this
-section.
+These lower-level classes are used by ``NonCoding`` and ``Coding``.
 
-The ``Locus`` class
+The ``Point`` Dataclass
+~~~~~~~~~~~~~~~~~~~~~~~
+
+``Point`` is the internal coordinate model used by ``Locus`` and
+``MultiLocus``.
+
+- ``position``: zero-based position within a locus or concatenated loci
+- ``offset``: relative offset
+- ``region``: one of ``''``, ``'u'``, ``'d'`` (mainly for ``MultiLocus``)
+
+See :doc:`api/dataclass`.
+
+
+The ``Locus`` Class
 ~~~~~~~~~~~~~~~~~~~
 
-The ``Locus`` class is used to deal with offsets with respect to a single
-locus.
+``Locus`` maps one genomic interval to/from ``Point``.
 
-.. code:: python
+.. code-block:: python
 
-    >>> from mutalyzer_crossmapper import Locus
+    >>> from mutalyzer_crossmapper.locus import Locus, Point, Coord
     >>> locus = Locus((10, 20))
-
-This class provides the functions ``to_position()`` and ``to_coordinate()`` for
-converting from a locus position to a coordinate and vice versa. These
-functions work with a 2-key dictionary, see the section about `The NonCoding class`_
-for the semantics.
-
-**Note:** the ``position`` values in the position dictionaries are **0-based**,
-so the first base of the locus corresponds to ``{'position': 0, 'offset': 0}``.
-This differs from HGVS numbering, which is **1-based**.
-
-.. code:: python
-
     >>> locus.to_position(9)
-    {'position': 0, 'offset': -1}
-    >>> locus.to_coordinate({'position': 0, 'offset': -1})
+    Point(position=0, offset=-1)
+    >>> locus.to_coordinate(Point(position=0, offset=-1))
     9
 
-For loci that reside on the reverse complement strand, the optional
-``inverted`` constructor parameter should be set to ``True``.
+Set ``inverted=True`` for reverse-complement orientation.
 
-See section :doc:`api/locus` for a detailed description.
+See :doc:`api/locus` for full API details.
 
-The ``MultiLocus`` class
-^^^^^^^^^^^^^^^^^^^^^^^^
 
-The ``MultiLocus`` class is used to deal with offsets with respect to multiple
-loci.
+The ``MultiLocus`` Class
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code:: python
+``MultiLocus`` maps coordinates across multiple intervals to/from a unified
+``Point`` model.
 
-    >>> from mutalyzer_crossmapper import MultiLocus
+.. code-block:: python
+
+    >>> from mutalyzer_crossmapper import MultiLocus, Point
     >>> multilocus = MultiLocus([(10, 20), (40, 50)])
-
-The interface to this class is similar to that of the ``Locus`` class. Functions
-``to_position()`` and ``to_coordinate()`` work with a 3-key dictionary.
-
-**Note:** again, the ``position`` values in the position dictionaries are **0-based**.
-
-.. code:: python
-
     >>> multilocus.to_position(22)
-    {'position': 9, 'offset': 3, 'region': ''}
-    >>> multilocus.to_coordinate({'position': 9, 'offset': 3, 'region': ''})
+    Point(position=9, offset=3, region='')
+    >>> multilocus.to_coordinate(Point(position=9, offset=3, region=''))
     22
     >>> multilocus.to_position(38)
-    {'position': 10, 'offset': -2, 'region': ''}
-    >>> multilocus.to_coordinate({'position': 10, 'offset': -2, 'region': ''})
+    Point(position=10, offset=-2, region='')
+    >>> multilocus.to_coordinate(Point(position=10, offset=-2, region=''))
     38
 
-See section :doc:`api/multi_locus` for a detailed description.
+See :doc:`api/multi_locus` for full API details.
