@@ -10,3 +10,4 @@ API documentation
    api/location
    api/locus
    api/multi_locus
+   api/dataclass
