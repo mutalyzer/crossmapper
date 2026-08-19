@@ -4,7 +4,8 @@ from dataclasses import dataclass
 
 
 from .location import nearest_location
-from .locus import Locus, Coord, Point as LocusPoint, _check_locus
+from .locus import Locus, Coord, _check_locus
+from .locus import Point as LocusPoint
 
 
 @dataclass(slots=True)
@@ -65,10 +66,10 @@ class MultiLocus(object):
         self._offsets = _offsets(locations, self._orientation)
         self._end = sum(end - start for start, end in locations)    # one-based length of the MultiLocus
 
-    def _validate_coord(self, coord) -> None:
+    def _validate_coord(self, coordinate:int) -> None:
         """Check if the coordinate is valid."""
         if self._length is not None:
-            _check_in_range(coord, self._length)
+            _check_in_range(coordinate, self._length)
 
     def _validate_point(self, index: int, position: int, offset: int, region: str) -> None:
         """Check if a point is valid under HGVS rules.
@@ -152,12 +153,12 @@ class MultiLocus(object):
             region=region,
         )
 
-    def to_coordinate(self, point: Point) -> int:
+    def to_coordinate(self, point: Point) -> Coord:
         """Convert a point model to a coordinate.
 
         :arg Point point: Point model.
 
-        :returns int: Coordinate.
+        :returns Coord: Coordinate module.
         """
         index = min(
             len(self._offsets),

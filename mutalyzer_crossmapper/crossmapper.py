@@ -239,7 +239,7 @@ class Coding(NonCoding):
             return CodingPoint(position=position, offset=0, region='*')
         return point
 
-    def _coding_to_coordinate(self, point: CodingPoint) -> int:
+    def _coding_to_coordinate(self, point: CodingPoint) -> Coord:
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg CodingPoint point: Coding point model (c./r.).
@@ -276,12 +276,12 @@ class Coding(NonCoding):
             Point(position=position, region='', offset=point.offset)
         )
 
-    def coding_to_coordinate(self, point: CodingPoint) -> int:
+    def coding_to_coordinate(self, point: CodingPoint) -> Coord:
         """Convert a coding position (c./r.) to a coordinate.
 
         :arg CodingPoint point: Coding point model (c./r.).
 
-        :returns int: Coordinate.
+        :returns Coord: Coordinate module.
         """
         # Silently correct for degenerate points
         region = point.region
@@ -320,12 +320,12 @@ class Coding(NonCoding):
             offset=point.offset
         )
 
-    def protein_to_coordinate(self, point: ProteinPoint) -> int:
+    def protein_to_coordinate(self, point: ProteinPoint) -> Coord:
         """Convert a protein position (p.) to a coordinate.
 
         :arg ProteinPoint point: Protein point model(p.).
 
-        :returns int: Coordinate.
+        :returns Coord: Coordinate module.
         """
         if point.region in ('-', 'u'):
             return self.coding_to_coordinate(

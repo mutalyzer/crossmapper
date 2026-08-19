@@ -60,7 +60,7 @@ class Locus(object):
         self.boundary = location[0], location[1] - 1
         self._end = location[1] - location[0]   # one-based length of the locus
 
-    def _validate_point(self, position, offset) -> None:
+    def _validate_point(self, position: int, offset: int) -> None:
         """Validate a point model under HGVS rules.
 
         :arg int position: Position.
