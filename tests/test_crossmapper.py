@@ -483,10 +483,6 @@ def test_Coding_inverted_degenerate():
         [
             CodingPoint(position=1, offset=-1, region='u'),
             CodingPoint(position=2, offset=0, region='-'),
-            CodingPoint(position=1, offset=-2, region=''),
-            # CodingPoint(position=1, offset=-10, region='*'),
-            # CodingPoint(position=1, offset=-10, region='d'),
-            # CodingPoint(position=2, offset=-3, region=''),
         ],
     )
     degenerate_equal(
@@ -495,9 +491,6 @@ def test_Coding_inverted_degenerate():
         [
             CodingPoint(position=1, offset=1, region='d'),
             CodingPoint(position=2, offset=0, region='*'),
-            # CodingPoint(position=8, offset=2, region=''),
-            # CodingPoint(position=1, offset=10, region='-'),
-            # CodingPoint(position=1, offset=10, region='u'),
         ],
     )
 
@@ -531,7 +524,7 @@ def test_Coding_no_utr5_degenerate_return():
 
 def test_Coding_no_utr5_inverted_degenerate_return():
     """A 5' UTR may be missing."""
-    crossmap = Coding([(10, 20)], (15, 20), inverted=True)
+    crossmap = Coding([(10, 20)], (10, 15), inverted=True)
 
     assert crossmap.coordinate_to_coding(Coord(9), True) == CodingPoint(position=1, offset=0, region='*')
     assert crossmap.coordinate_to_coding(Coord(10), True) == CodingPoint(position=5, offset=0, region='')
