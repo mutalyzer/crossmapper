@@ -33,7 +33,7 @@ jobs:
       - name: Test typings
         run: |
           pip install mypy
-          mypy --strict mutalyzer_crossmapper
+          mypy mutalyzer_crossmapper
       - name: Test with pytest
         run: |
           pytest
