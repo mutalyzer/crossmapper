@@ -7,13 +7,14 @@ from .multi_locus import MultiLocus
 
 
 def _get_metadata(name: str) -> str:
-    """Get metadata from the package using importlib.metadata"""
+    """Get metadata from the package using importlib.metadata."""
     try:
-        meta = metadata('mutalyzer_crossmapper')
-        return meta.get(name, '')
+        meta = metadata("mutalyzer_crossmapper")
+        return meta[name]
+    except KeyError:
+        return ''
     except Exception:
         return ''
-
 
 _copyright_notice = 'Copyright (c) {} <{}>'.format(
     _get_metadata('Author'), _get_metadata('Author-email'))
