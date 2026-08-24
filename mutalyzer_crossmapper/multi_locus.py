@@ -107,13 +107,19 @@ class MultiLocus(object):
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
         if region == '':
-            #TODO: should also consider for single locus, where index+1 or index-1 may be out of range
             if position > self._end-1:
                 raise IndexError(f"Position {position} exceeds multi locus length {self._end}")
-            if offset < 0 and abs(offset) > abs(self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index-1)].boundary[1]):
-                raise IndexError(f"Offset {offset} exceeds intron length.")
-            if offset > 0 and abs(offset) > abs(self._loci[self._direction(index+1)].boundary[0] - self._loci[self._direction(index)].boundary[1]):
-                raise IndexError(f"Offset {offset} exceeds intron length.")
+            if offset < 0:
+                if index == 0:
+                    raise IndexError(f"Offset {offset} at the first exon should not be in the upstream region.")
+                if abs(offset) > abs(self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index-1)].boundary[1]):
+                    raise IndexError(f"Offset {offset} exceeds intron length.")
+            if offset > 0:
+                if index == len(self._loci):
+                    raise IndexError(f"Offset {offset} at the last exon should not be in the downstream region.")
+                if abs(offset) > abs(self._loci[self._direction(index+1)].boundary[0] - self._loci[self._direction(index)].boundary[1]):
+                    raise IndexError(f"Offset {offset} exceeds intron length.")
+
 
 
     def _direction(self, index: int) -> int:

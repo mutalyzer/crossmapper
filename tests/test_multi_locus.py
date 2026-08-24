@@ -82,19 +82,6 @@ def test_MultiLocus_invalid_point():
     with pytest.raises(ValueError):
         multi_locus.to_coordinate(Point(position=-5, offset=0, region=''))
     with pytest.raises(IndexError):
-        multi_locus.to_coordinate(Point(position=0, offset=2, region=''))
-    with pytest.raises(IndexError):
-        multi_locus.to_coordinate(Point(position=4, offset=-2, region=''))
-    with pytest.raises(ValueError):
-        multi_locus.to_coordinate(Point(position=2, offset=1, region=''))
-
-
-def test_MultiLocus_inverted_invalid_point():
-    """Reverse orientent MultiLocus with invalid point."""
-    multi_locus = MultiLocus([(30, 35), (40, 45)], inverted=True)
-    with pytest.raises(ValueError):
-        multi_locus.to_coordinate(Point(position=-5, offset=0, region=''))
-    with pytest.raises(IndexError):
         multi_locus.to_coordinate(Point(position=5, offset=1, region=''))
     with pytest.raises(IndexError):
         multi_locus.to_coordinate(Point(position=0, offset=2, region=''))
@@ -102,6 +89,25 @@ def test_MultiLocus_inverted_invalid_point():
         multi_locus.to_coordinate(Point(position=4, offset=-2, region=''))
     with pytest.raises(ValueError):
         multi_locus.to_coordinate(Point(position=2, offset=1, region=''))
+    with pytest.raises(IndexError):
+        multi_locus.to_coordinate(Point(position=10, offset=6, region=''))
+
+
+def test_MultiLocus_inverted_invalid_point():
+    """Reverse orientent MultiLocus with invalid point."""
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True)
+    with pytest.raises(ValueError):
+        multi_locus.to_coordinate(Point(position=-5, offset=0, region=''))
+    with pytest.raises(IndexError):
+        multi_locus.to_coordinate(Point(position=0, offset=-1, region=''))
+    with pytest.raises(IndexError):
+        multi_locus.to_coordinate(Point(position=0, offset=-2, region=''))
+    with pytest.raises(IndexError):
+        multi_locus.to_coordinate(Point(position=5, offset=2, region=''))
+    with pytest.raises(ValueError):
+        multi_locus.to_coordinate(Point(position=7, offset=-1, region=''))
+    with pytest.raises(IndexError):
+        multi_locus.to_coordinate(Point(position=0, offset=-6, region=''))
 
 
 def test_MultiLocus():
