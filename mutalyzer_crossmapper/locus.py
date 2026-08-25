@@ -36,7 +36,7 @@ def _check_non_negative_int(value: int) -> None:
 
 def _check_locus(locus: tuple[int, int]) -> None:
     """Check if the range is valid."""
-    if len(locus) != 2:
+    if not isinstance(locus, tuple) or len(locus) != 2:
         raise ValueError("Locus must be a tuple of two values.")
 
     for value in locus:

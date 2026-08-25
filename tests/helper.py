@@ -1,6 +1,7 @@
 def invariant(f, x, f_i, y):
-    assert f(x) == y
-    assert f_i(y) == x
+    args = x if isinstance(x, tuple) else (x,)
+    assert f(*args) == y
+    assert f_i(y) == args[0]
 
 
 def degenerate_equal(f, coordinate, locations):

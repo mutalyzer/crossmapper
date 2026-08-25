@@ -27,6 +27,8 @@ def _check_in_range(value: int, length: int | None = None) -> None:
 
 def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = None) -> None:
     """Check if the locations list is valid."""
+    if not locations or not isinstance(locations, list):
+        raise ValueError("Locations must be a non-empty list of tuples.")
     for locus in locations:
         _check_locus(locus)
 
@@ -65,6 +67,7 @@ class MultiLocus(object):
         self._orientation = -1 if inverted else 1
         self._offsets = _offsets(locations, self._orientation)
         self._end = sum(end - start for start, end in locations)    # one-based length of the MultiLocus
+        print(self._offsets)
 
     def _validate_coord(self, coordinate:int) -> None:
         """Check if the coordinate is valid."""
@@ -83,8 +86,8 @@ class MultiLocus(object):
         if region == 'u':
             if position != self._offsets[0]:
                 raise ValueError(f"Position {position} is not at the upstream boundary.")
-            if offset > 0:
-                raise ValueError(f"Offset {offset} at upstream boundary should not be positive.")
+            if offset >= 0:
+                raise ValueError(f"Offset {offset} at upstream boundary should be negative.")
             if self._inverted:
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(0)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds upstream region.")
@@ -96,30 +99,69 @@ class MultiLocus(object):
         if region == 'd':
             if position != self._end-1:
                 raise ValueError(f"Position {position} is not at the downstream boundary {self._end-1}.")
-            if offset < 0:
-                raise ValueError(f"Offset {offset} at downstream boundary should not be negative.")
+            if offset <= 0:
+                raise ValueError(f"Offset {offset} at downstream boundary should be positive.")
             if not self._inverted:
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(-1)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds downstream region.")
             else:
-                if abs(offset) > self._loci[self._direction(0)].boundary[0]:
+                if abs(offset) >= self._loci[self._direction(0)].boundary[0]:
                     raise ValueError(f"Offset {offset} exceeds downstream boundary.")
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
         if region == '':
-            if position > self._end-1:
-                raise IndexError(f"Position {position} exceeds multi locus length {self._end}")
-            if offset < 0:
-                if index == 0:
-                    raise IndexError(f"Offset {offset} at the first exon should not be in the upstream region.")
-                if abs(offset) > abs(self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index-1)].boundary[1]):
-                    raise IndexError(f"Offset {offset} exceeds intron length.")
-            if offset > 0:
-                if index == len(self._loci):
-                    raise IndexError(f"Offset {offset} at the last exon should not be in the downstream region.")
-                if abs(offset) > abs(self._loci[self._direction(index+1)].boundary[0] - self._loci[self._direction(index)].boundary[1]):
-                    raise IndexError(f"Offset {offset} exceeds intron length.")
+            if self._inverted:
+                if offset < 0:
+                    if self._direction(index) == len(self._loci) - 1:
+                        raise ValueError(
+                            f"Offset {offset} at the last exon on the reverse complement should be in the upstream region."
+                        )
+                    else:
+                        intron_length = abs(
+                            self._loci[self._direction(index-1)].boundary[0]
+                            - self._loci[self._direction(index)].boundary[1]
+                        )
+                        if abs(offset) >= intron_length:
+                            raise IndexError(f"Offset {offset} exceeds intron length.")
+                if offset > 0:
+                    if self._direction(index) == 0:
+                        raise ValueError(
+                            f"Offset {offset} at the last exon on the reverse complement should be in the downstream region."
+                        )
+                    else:
+                        intron_length = abs(
+                            self._loci[self._direction(index)].boundary[0]
+                            - self._loci[self._direction(index+1)].boundary[1]
+                        )
+                        if abs(offset) >= intron_length:
+                            raise IndexError(f"Offset {offset} exceeds intron length.")
 
+
+            if not self._inverted:
+                if offset < 0:
+                    if self._direction(index) == 0:
+                        raise ValueError(
+                            f"Offset {offset} at the first exon should be in the upstream region."
+                        )
+                    else:
+                        intron_length = abs(
+                            self._loci[self._direction(index)].boundary[0]
+                            - self._loci[self._direction(index-1)].boundary[1]
+                        )
+                        if abs(offset) >= intron_length:
+                            raise IndexError(f"Offset {offset} exceeds intron length.")
+                if offset > 0:
+                    if self._direction(index) == len(self._loci) - 1:
+                        raise ValueError(
+                            f"Offset {offset} at the last exon should be in the downstream region."
+                        )
+                    else:
+                        intron_length = abs(
+                            self._loci[self._direction(index+1)].boundary[0]
+                            - self._loci[self._direction(index)].boundary[1]
+                        )
+                        if abs(offset) >= intron_length:
+                            raise IndexError(f"Offset {offset} exceeds intron length.")
 
 
     def _direction(self, index: int) -> int:
