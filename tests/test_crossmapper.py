@@ -7,6 +7,16 @@ _exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
 _cds = (32, 43)
 
 
+def test_GenomicPoint_invalid_initialization():
+    """GenomicPoint cannot be initialized with invalid position."""
+    with pytest.raises(ValueError) as e:
+        GenomicPoint(position=0)
+    with pytest.raises(ValueError) as e:
+        GenomicPoint(position=-1)
+    with pytest.raises(ValueError) as e:
+        GenomicPoint(position=[101])
+
+
 def test_Genomic():
     """Genomic positions are coordinates incremented by one."""
     crossmap = Genomic()
@@ -23,6 +33,84 @@ def test_Genomic():
         crossmap.genomic_to_coordinate,
         GenomicPoint(position=99),
     )
+
+
+def test_Genomic_invalid_with_length():
+    """Raise ValueError if coordinate is out of bounds."""
+    crossmap = Genomic()
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_genomic(Coord(-1), 99)
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_genomic(Coord(99), 99)
+
+
+def test_Genomic_with_length():
+    """Genomic positions are coordinates incremented by one."""
+    crossmap = Genomic()
+
+    invariant(
+        crossmap.coordinate_to_genomic,
+        (Coord(0), 99),
+        crossmap.genomic_to_coordinate,
+        GenomicPoint(position=1),
+    )
+    invariant(
+        crossmap.coordinate_to_genomic,
+        (Coord(98), 99),
+        crossmap.genomic_to_coordinate,
+        GenomicPoint(position=99),
+    )
+
+
+def test_NonCodingPoint_invalid_initialization():
+    """Raise error with invalid initialization."""
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=0, offset=0, region='u')
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=0, offset=0, region='d')
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=0, offset=0, region='')
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=0, offset=0, region='*')
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=-1, offset=0, region='')
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=1, offset=None, region='u')
+
+
+def test_NonCoding_invalid():
+    """Raise ValueError if noncoding is invalid."""
+    with pytest.raises(ValueError) as e:
+        NonCoding([()])
+    with pytest.raises(ValueError) as e:
+        NonCoding([(10)])
+    with pytest.raises(ValueError) as e:
+        NonCoding([(10, 20), (15, 25)])
+    with pytest.raises(ValueError) as e:
+        NonCoding([(None, 20), (30, None)])
+    with pytest.raises(ValueError) as e:
+        NonCoding(_exons, length=70)
+
+    # Reverse orientation
+    with pytest.raises(ValueError) as e:
+        NonCoding([()], inverted=True)
+    with pytest.raises(ValueError) as e:
+        NonCoding([(10)], inverted=True)
+    with pytest.raises(ValueError) as e:
+        NonCoding([(10, 20), (15, 25)], inverted=True)
+    with pytest.raises(ValueError) as e:
+        NonCoding([(None, 20), (30, None)], inverted=True)
+    with pytest.raises(ValueError) as e:
+        NonCoding(_exons, length=70, inverted=True)
+
+
+def test_NonCoding_invalid_with_length():
+    """Raise ValueError if coordinate is out of bounds."""
+    with pytest.raises(ValueError) as e:
+        NonCoding(_exons, length=70)
+    # Reverse orientation
+    with pytest.raises(ValueError) as e:
+        NonCoding(_exons, length=70, inverted=True)
 
 
 def test_NonCoding():
@@ -64,8 +152,59 @@ def test_NonCoding():
     )
 
 
+def test_NonCoding_with_length():
+    """Raise ValueError if coordinate is out of bounds."""
+    crossmap = NonCoding(_exons, length=75)
+
+    # Boundary between upstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(3)    ,
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=-2, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(4),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(5),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=0, region=''),
+    )
+
+    # Boundary between downstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(71),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=22, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(72),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=22, offset=1, region='d'),
+    )
+
+    # Boundary between downstream and sequence end.
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(74),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=22, offset=3, region='d'),
+    )
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_noncoding(Coord(75))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=4, region='d'))
+
+
 def test_NonCoding_inverted():
-    """Forward oriented noncoding transcript."""
+    """Reverse oriented noncoding transcript."""
     crossmap = NonCoding(_exons, inverted=True)
 
     # Boundary between upstream and transcript.
@@ -97,10 +236,226 @@ def test_NonCoding_inverted():
     )
 
 
+def test_NonCoding_inverted_with_length():
+    """Reverse oriented noncoding transcript."""
+    crossmap = NonCoding(_exons, length=75, inverted=True)
+
+    # Boundary between upstream and sequence end.
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_noncoding(Coord(75))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-4, region='u'))
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(74),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=-3, region='u'),
+    )
+
+    # Boundary between upstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(72),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(71),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=1, offset=0, region=''),
+    )
+
+    # Boundary between downstream and transcript.
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(5),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=22, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(4),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=22, offset=1, region='d'),
+    )
+
+
+def test_NonCoding_invalid_position():
+    """Raise error if position is not valid under HGVS rules."""
+    crossmap = NonCoding(_exons, length=75)
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=0, offset=1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=2, offset=1, region='u'))
+    with pytest.raises(IndexError):
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=23, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=21, offset=1, region='d'))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=30, offset=-1, region='d'))
+
+
+def test_NonCoding_invalid_position_inverted():
+    """Raise error if position is not valid under HGVS rules."""
+    crossmap = NonCoding(_exons, length=75, inverted=True)
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=0, offset=1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=2, offset=1, region='u'))
+    with pytest.raises(IndexError):
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=23, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=21, offset=1, region='d'))
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=30, offset=-1, region='d'))
+
+
+def test_NonCoding_invalid_offset():
+    """Raise error if offset is not valid under HGVS rules."""
+    crossmap = NonCoding(_exons, length=75)
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=0, region='u'))
+        assert e.value.args[0] == "Offset 0 at upstream boundary should be negative."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=1, region='u'))
+        assert e.value.args[0] == "Offset 1 at upstream boundary should be negative."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-5, region='u'))
+        assert e.value.args[0] == "Offset -5 exceeds upstream boundary."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-1, region=''))
+        assert e.value.args[0] == "Offset -1 at the first exon should be in the upstream region."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=1, region=''))
+        assert e.value.args[0] == "Offset 1 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=10, offset=1, region=''))
+        assert e.value.args[0] == "Offset 1 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=10, offset=-11, region=''))
+        assert e.value.args[0] == "Offset -11 exceeds intron length."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=-1, region=''))
+        assert e.value.args[0] == "Offset -1 should be at a locus start."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=1, region=''))
+        assert e.value.args[0] == "Offset 1 at the first exon should be in the downstream region."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=0, region='d'))
+        assert e.value.args[0] == "Offset 0 at downstream boundary should be positive."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=-1, region='d'))
+        assert e.value.args[0] == "Offset -1 at downstream boundary should be positive."
+
+
+def test_NonCoding_invalid_offset_inverted():
+    """Raise error if offset is not valid under HGVS rules."""
+    crossmap = NonCoding(_exons, length=75, inverted=True)
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=0, region='u'))
+        assert e.value.args[0] == "Offset 0 at upstream boundary should be negative."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=1, region='u'))
+        assert e.value.args[0] == "Offset 1 at upstream boundary should be negative."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-5, region='u'))
+        assert e.value.args[0] == "Offset -5 exceeds upstream boundary."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-1, region=''))
+        assert e.value.args[0] == "Offset -1 at the first exon should be in the upstream region."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=1, region=''))
+        assert e.value.args[0] == "Offset 1 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=13, offset=-1, region=''))
+        assert e.value.args[0] == "Offset -1 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=13, offset=11, region=''))
+        assert e.value.args[0] == "Offset 11 exceeds intron length."
+    with pytest.raises(IndexError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=-1, region=''))
+        assert e.value.args[0] == "Offset -1 should be at a locus start."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=1, region=''))
+        assert e.value.args[0] == "Offset 1 at the last exon on the reverse complement should be in the downstream region."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=0, region='d'))
+        assert e.value.args[0] == "Offset 0 at downstream boundary should be positive."
+    with pytest.raises(ValueError) as e:
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=-1, region='d'))
+        assert e.value.args[0] == "Offset -1 at downstream boundary should be positive."
+
+
+def test_CodingPoint_invalid_initialization():
+    """Raise error with invalid initialization."""
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=0, offset=0, region='-')
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=0, offset=0, region='*')
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=0, offset=0, region='')
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=-1, offset=0, region='')
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=1, offset=None, region='')
+    with pytest.raises(ValueError) as e:
+        CodingPoint(position=2, offset=1, region='upstream')
+
+
+def test_Coding_invalid():
+    """Raise ValueError if coding is invalid."""
+
+    with pytest.raises(ValueError) as e:
+        Coding([(20, 20)], (20, 20))
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (9,15))
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (10,21))
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (15, 10))
+    with pytest.raises(ValueError) as e:
+        Coding([], None)
+
+    # Reverse orientation
+    with pytest.raises(ValueError) as e:
+        Coding([(20, 20)], (20, 20), inverted=True)
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (9,15), inverted=True)
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (10,21), inverted=True)
+    with pytest.raises(ValueError) as e:
+        Coding([(10, 20)], (15, 10), inverted=True)
+    with pytest.raises(ValueError) as e:
+        Coding([], None, inverted=True)
+
+
+def test_Coding_invalid_with_length():
+    """Raise ValueError if coordinate is out of bounds."""
+    with pytest.raises(ValueError) as e:
+        Coding(_exons, _cds, length=70)
+    # Reverse orientation
+    with pytest.raises(ValueError) as e:
+        Coding(_exons, _cds, length=70, inverted=True)
+
 
 def test_Coding():
     """Forward oriented coding transcript."""
     crossmap = Coding(_exons, _cds)
+
+    # Boundary between upstream and 5' UTR.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(4),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(5),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=0, region='-'),
+    )
 
     # Boundary between 5' and CDS.
     invariant(
@@ -129,12 +484,112 @@ def test_Coding():
         crossmap.coding_to_coordinate,
         CodingPoint(position=1, offset=0, region='*'),
     )
+
+    # Boundary between 3' and downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(71),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=0, region='*'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(72),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=1, region='d'),
+    )
+
+
+def test_Coding_with_length():
+    """Raise ValueError if coordinate is out of bounds."""
+    crossmap = Coding(_exons, _cds, length=75)
+    # Boundary between upstream and 5' UTR.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(4),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(5),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=0, region='-'),
+    )
+
+    # Boundary between 5' and CDS.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(31),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region='-'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(32),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region=''),
+    )
+
+    # Boundary between CDS and 3'.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(42),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=6, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(43),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region='*'),
+    )
+
+    # Boundary between 3' and downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(71),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=0, region='*'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(72),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=1, region='d'),
+    )
+
+    # Boundary between downstream and sequence end.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(74),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=3, region='d'),
+    )
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_coding(Coord(75))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=5, offset=4, region='d'))
 
 
 def test_Coding_inverted():
     """Reverse oriented coding transcript."""
     crossmap = Coding(_exons, _cds, inverted=True)
 
+    # Boundary between upstream and 5' UTR.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(72),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(71),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=0, region='-'),
+    )
+
     # Boundary between 5' and CDS.
     invariant(
         crossmap.coordinate_to_coding,
@@ -161,6 +616,93 @@ def test_Coding_inverted():
         Coord(31),
         crossmap.coding_to_coordinate,
         CodingPoint(position=1, offset=0, region='*'),
+    )
+
+    # Boundary between 3' and downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(5),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=0, region='*'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(4),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=1, region='d'),
+    )
+
+
+def test_Coding_inverted_with_length():
+    """Reverse oriented coding transcript."""
+    crossmap = Coding(_exons, _cds, length=75, inverted=True)
+
+    # Boundary between upstream and sequence end.
+    with pytest.raises(ValueError) as e:
+        crossmap.coordinate_to_coding(Coord(75))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=5, offset=-4, region='u'))
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(74),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=-3, region='u'),
+    )
+
+    # Boundary between upstream and 5' UTR.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(72),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=-1, region='u'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(71),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=0, region='-'),
+    )
+
+    # Boundary between 5' and CDS.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(43),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region='-'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(42),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region=''),
+    )
+
+    # Boundary between CDS and 3'.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(32),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=6, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(31),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=1, offset=0, region='*'),
+    )
+
+    # Boundary between 3' and downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(5),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=0, region='*'),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(4),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=11, offset=1, region='d'),
     )
 
 
@@ -249,50 +791,6 @@ def test_Coding_no_utr5():
     )
 
 
-def test_Coding_no_intron():
-    crossmap = Coding([(10, 20), (20, 30)], (15, 25))
-
-    invariant(
-        crossmap.coordinate_to_coding,
-        Coord(20),
-        crossmap.coding_to_coordinate,
-        CodingPoint(position=6, offset=0, region=''),
-    )
-
-
-def test_Coding_no_intron_inverted():
-    crossmap = Coding([(10, 20), (20, 30)], (15, 25), inverted=True)
-
-    invariant(
-        crossmap.coordinate_to_coding,
-        Coord(20),
-        crossmap.coding_to_coordinate,
-        CodingPoint(position=5, offset=0, region=''),
-    )
-
-
-def test_Coding_one_base_intron():
-    crossmap = Coding([(10, 19), (20, 30)], (15, 25))
-
-    invariant(
-        crossmap.coordinate_to_coding,
-        Coord(19),
-        crossmap.coding_to_coordinate,
-        CodingPoint(position=4, offset=1, region=''),
-    )
-
-
-def test_Coding_one_base_intron_inverted():
-    crossmap = Coding([(10, 19), (20, 30)], (15, 25), inverted=True)
-
-    invariant(
-        crossmap.coordinate_to_coding,
-        Coord(19),
-        crossmap.coding_to_coordinate,
-        CodingPoint(position=5, offset=1, region=''),
-    )
-
-
 def test_Coding_no_utr5_inverted():
     """A 5' UTR may be missing."""
     crossmap = Coding([(10, 20)], (15, 20), inverted=True)
@@ -315,8 +813,6 @@ def test_Coding_no_utr5_inverted():
 def test_Coding_no_utr3():
     """A 3' UTR may be missing."""
     crossmap = Coding([(10, 20)], (15, 20))
-    print(crossmap.coordinate_to_coding(Coord(20)).position, crossmap.coordinate_to_coding(Coord(20)).offset, crossmap.coordinate_to_coding(Coord(20)).region)
-    print(crossmap.coding_to_coordinate(CodingPoint(position=5, offset=1, region='d')))
     # Direct transition from CDS to downstream.
     invariant(
         crossmap.coordinate_to_coding,
@@ -447,6 +943,50 @@ def test_Coding_small_utr3_inverted():
         Coord(9),
         crossmap.coding_to_coordinate,
         CodingPoint(position=1, offset=1, region='d'),
+    )
+
+
+def test_Coding_no_intron():
+    crossmap = Coding([(10, 20), (20, 30)], (15, 25))
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(20),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=6, offset=0, region=''),
+    )
+
+
+def test_Coding_no_intron_inverted():
+    crossmap = Coding([(10, 20), (20, 30)], (15, 25), inverted=True)
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(20),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=0, region=''),
+    )
+
+
+def test_Coding_one_base_intron():
+    crossmap = Coding([(10, 19), (20, 30)], (15, 25))
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(19),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=4, offset=1, region=''),
+    )
+
+
+def test_Coding_one_base_intron_inverted():
+    crossmap = Coding([(10, 19), (20, 30)], (15, 25), inverted=True)
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(19),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=5, offset=1, region=''),
     )
 
 
@@ -645,9 +1185,6 @@ def test_Coding_inverted_no_utr_degenerate():
         [
             CodingPoint(position=1, offset=-1, region='u'),
             CodingPoint(position=1, offset=0, region='-'),
-            # CodingPoint(position=1, offset=-2, region='*'),
-            # CodingPoint(position=1, offset=-1, region=''),
-            # CodingPoint(position=1, offset=-1, region='d'),
         ],
     )
     degenerate_equal(
@@ -656,9 +1193,6 @@ def test_Coding_inverted_no_utr_degenerate():
         [
             CodingPoint(position=1, offset=1, region='d'),
             CodingPoint(position=1, offset=0, region='*'),
-            # CodingPoint(position=1, offset=2, region='-'),
-            # CodingPoint(position=1, offset=1, region=''),
-            # CodingPoint(position=1, offset=1, region='u'),
         ],
     )
 
@@ -680,17 +1214,37 @@ def test_Coding_inverted_no_utr_degenerate_return():
     assert crossmap.coordinate_to_coding(Coord(11), True) == CodingPoint(position=1, offset=0, region='-')
     assert crossmap.coordinate_to_coding(Coord(9), True) == CodingPoint(position=1, offset=0, region='*')
 
+_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
+_cds = (32, 43)
+def test_Coding_invalid_position():
+    """Raise error if position in coding point is invalid."""
+    crossmap = Coding(_exons, _cds)
+
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=0, offset=1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=12, offset=-1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=13, offset=1, region='-'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=-1, offset=0, region='-'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=0, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=7, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=6, offset=1, region='*'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=None, offset=0, region='*'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=6, offset=0, region='d'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1000, offset=2, region='d'))
+
 
 def test_Coding_protein():
     """Protein positions."""
     crossmap = Coding(_exons, _cds)
-    for i in range(0, 80):
-        t = crossmap.coordinate_to_protein(Coord(i))
-        print(f"{i}: {crossmap.coordinate_to_coding(Coord(i))},{t.region} {t.position} {t.offset} {t.position_in_codon}")
-
-    print(crossmap.coordinate_to_protein(Coord(4)))
-
-    print(crossmap.protein_to_coordinate(ProteinPoint(position=4, offset=-1, region='u', position_in_codon=2)))
 
     # Boundary between upstream and 5' UTR
     invariant(

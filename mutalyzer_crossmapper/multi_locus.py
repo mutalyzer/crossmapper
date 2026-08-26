@@ -67,7 +67,6 @@ class MultiLocus(object):
         self._orientation = -1 if inverted else 1
         self._offsets = _offsets(locations, self._orientation)
         self._end = sum(end - start for start, end in locations)    # one-based length of the MultiLocus
-        print(self._offsets)
 
     def _validate_coord(self, coordinate:int) -> None:
         """Check if the coordinate is valid."""
@@ -85,20 +84,20 @@ class MultiLocus(object):
         # Upstream region validation, position is constant value and offset should not be positive
         if region == 'u':
             if position != self._offsets[0]:
-                raise ValueError(f"Position {position} is not at the upstream boundary.")
+                raise ValueError(f"Position {position} is not at upstream boundary.")
             if offset >= 0:
                 raise ValueError(f"Offset {offset} at upstream boundary should be negative.")
             if self._inverted:
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(0)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds upstream region.")
             else:
-                if abs(offset) > self._loci[self._direction(0)].boundary[0]:
+                if abs(offset) >= self._loci[self._direction(0)].boundary[0]:
                     raise ValueError(f"Offset {offset} exceeds upstream boundary.")
 
         # Downstream region validation, position is constant value and offset should not be negative
         if region == 'd':
             if position != self._end-1:
-                raise ValueError(f"Position {position} is not at the downstream boundary {self._end-1}.")
+                raise ValueError(f"Position {position} is not at downstream boundary.")
             if offset <= 0:
                 raise ValueError(f"Offset {offset} at downstream boundary should be positive.")
             if not self._inverted:
@@ -144,10 +143,12 @@ class MultiLocus(object):
                             f"Offset {offset} at the first exon should be in the upstream region."
                         )
                     else:
+                        print("boundary", self._loci[self._direction(index)].boundary, self._loci[self._direction(index-1)].boundary)
                         intron_length = abs(
                             self._loci[self._direction(index)].boundary[0]
                             - self._loci[self._direction(index-1)].boundary[1]
                         )
+                        print("intron length", intron_length, "position", position, "offset", offset)
                         if abs(offset) >= intron_length:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:
@@ -233,12 +234,12 @@ class MultiLocus(object):
 
         except ValueError as e:
             if "Position" in str(e):
-                raise ValueError(f"Position {point.position} is not at a locus boundary.") from e
+                raise ValueError(str(e).replace(str(point.position - 1), str(point.position))) from e
             raise e
         except IndexError as e:
             if "Position" in str(e):
                 raise IndexError(
-                    f"Position {point.position} exceeds multi_locus length {self._end}"
+                    f"Position {point.position} exceeds multi locus length."
                 ) from e
             raise e
 

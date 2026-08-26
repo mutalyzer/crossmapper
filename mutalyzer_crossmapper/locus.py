@@ -73,7 +73,7 @@ class Locus(object):
         if offset > 0 and position != self._end-1:
             raise IndexError(f"Offset {offset} should be at a locus end.")
         if position > self._end-1:
-            raise IndexError(f"Position {position} exceeds locus length {self._end}")
+            raise IndexError(f"Position {position} exceeds locus length.")
 
     def to_position(self, coord: Coord) -> Point:
         """Convert a coordinate to a proper point model.

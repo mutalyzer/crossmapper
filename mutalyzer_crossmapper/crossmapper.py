@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from .multi_locus import MultiLocus, Point, Coord, _check_in_range, _check_multi_locus
-from .locus import _check_locus, _check_non_negative_int,  _check_int
+from .multi_locus import MultiLocus, Point, _check_in_range, _check_multi_locus
+from .locus import Coord, _check_locus, _check_int
 from .location import nearest_location
 
 @dataclass(slots=True)
@@ -10,7 +10,9 @@ class GenomicPoint:
     position: int
 
     def __post_init__(self) -> None:
-        _check_non_negative_int(self.position)
+        _check_int(self.position)
+        if self.position <= 0:
+            raise ValueError("Genomic position must be a positive integer.")
 
     def __str__(self) -> str:
         return f'{self.position}'
@@ -95,13 +97,23 @@ class NonCoding(Genomic):
 
         :returns Coord: Coordinate model.
         """
-        return self._noncoding.to_coordinate(
-            Point(
-                position=point.position - 1,
-                offset=point.offset,
-                region=point.region
+        # Catch errors from multi_locus module
+        try:
+            return self._noncoding.to_coordinate(
+                Point(
+                    position=point.position - 1,
+                    offset=point.offset,
+                    region=point.region
+                )
             )
-        )
+        except ValueError as e:
+            if "Position" in str(e):
+                raise ValueError(str(e).replace(str(point.position - 1), str(point.position)))
+            raise e
+        except IndexError as e:
+            if "Position" in str(e):
+                raise IndexError(str(e).replace(str(point.position - 1), str(point.position)))
+            raise e
 
 
 @dataclass(slots=True)
@@ -177,6 +189,28 @@ class Coding(NonCoding):
             if coord < locations[index][0] or coord > locations[index][1]:
                 raise ValueError(f"Coordinate {coord} of CDS {cds} is not within any exon.")
 
+    def _validate_point(self, position, region) -> None:
+        """Validate a coding point model under HGVS rules.
+
+        :arg CodingPoint point: Coding point model.
+        """
+        if region == 'u':
+            if position not in (1, self._coding[0]):
+                raise ValueError(f"Position {position} is not in upstream boundary.")
+        if region == '-':
+            if position not in range(1, self._coding[0] + 1):
+                raise ValueError(f"Position {position} exceeds - region.")
+        if region == '':
+            if position not in range(1, self._coding[1] - self._coding[0] + 1):
+                raise ValueError(f"Position {position} exceeds coding region.")
+        if region == '*':
+            if position not in range(1, self._exons[1] - self._coding[1] + 1):
+                raise ValueError(f"Position {position} exceeds * region.")
+        if region == 'd':
+            if position not in (1, self._coding[0], self._exons[1] - self._coding[1]):
+                raise ValueError(f"Position {position} is not in downstream boundary.")
+
+
     def _coordinate_to_coding(self, coord: Coord) -> CodingPoint:
         """Convert a coordinate to a coding point model (c./r.).
 
@@ -249,13 +283,12 @@ class Coding(NonCoding):
         region = point.region
         position = point.position
 
+        self._validate_point(position, region)
+
         # For missing 3' UTR or 5' UTR
         if region in ('u', 'd'):
             if region == 'u':
-                if self._coding[0] == self._exons[0]:
-                    position = 1
-                else:
-                    position = 1
+                position = 1
             if region == 'd':
                 if self._coding[1] == self._exons[1]:
                     position = self._coding[1]
@@ -265,13 +298,13 @@ class Coding(NonCoding):
                 Point(position=position - 1, region=point.region, offset=point.offset)
             )
 
-
         if region == '':
             position = position + self._coding[0] - 1
         elif region == '-':
             position = self._coding[0] - position
         elif region == '*':
             position = self._coding[1] + position - 1
+
         return self._noncoding.to_coordinate(
             Point(position=position, region='', offset=point.offset)
         )
@@ -284,16 +317,16 @@ class Coding(NonCoding):
         :returns Coord: Coordinate module.
         """
         # Silently correct for degenerate points
-        region = point.region
-        offset = point.offset
-        position = point.position
+        if point.offset == 0:
+            if point.region == '-' and point.position > self._coding[0]:
+                if self._coding[0] == 0:
+                    return self._coding_to_coordinate(CodingPoint(position=1, offset=self._coding[0] - point.position, region='u'))
+                return self._coding_to_coordinate(CodingPoint(position=self._coding[0], offset=self._coding[0] - point.position, region='u'))
+            if point.region == '*' and point.position > self._exons[1] - self._coding[1]:
+                if self._exons[1] == self._coding[1]:
+                    return self._coding_to_coordinate(CodingPoint(position=1, offset=point.position - (self._exons[1] - self._coding[1]), region='d'))
+                return self._coding_to_coordinate(CodingPoint(position=self._exons[1] - self._coding[1], offset=point.position - (self._exons[1] - self._coding[1]), region='d'))
 
-        if region == '-' and offset == 0:
-            if position > self._coding[0]:
-                point = CodingPoint(position=self._coding[0], offset=self._coding[0] - position, region='u')
-        if region == '*' and offset == 0:
-            if position > self._exons[1] -self._coding[1]:
-                point = CodingPoint(position=self._exons[1] -self._coding[1], offset=position - (self._exons[1] -self._coding[1]), region='d')
         return self._coding_to_coordinate(point)
 
     def coordinate_to_protein(self, coord: Coord) -> ProteinPoint:
