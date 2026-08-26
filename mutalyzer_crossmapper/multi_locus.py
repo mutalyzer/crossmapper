@@ -104,7 +104,7 @@ class MultiLocus(object):
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(-1)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds downstream region.")
             else:
-                if abs(offset) >= self._loci[self._direction(len(self._locations))].boundary[0]:
+                if abs(offset) > self._loci[self._direction(len(self._locations)-1)].boundary[0]:
                     raise ValueError(f"Offset {offset} exceeds downstream boundary.")
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
