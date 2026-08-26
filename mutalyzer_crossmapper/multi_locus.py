@@ -91,7 +91,7 @@ class MultiLocus(object):
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(0)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds upstream region.")
             else:
-                if abs(offset) >= self._loci[self._direction(0)].boundary[0]:
+                if abs(offset) > self._loci[self._direction(0)].boundary[0]:
                     raise ValueError(f"Offset {offset} exceeds upstream boundary.")
 
         # Downstream region validation, position is constant value and offset should not be negative
@@ -104,7 +104,7 @@ class MultiLocus(object):
                 if self._length is not None and abs(offset) >= self._length - self._loci[self._direction(-1)].boundary[1]:
                     raise ValueError(f"Offset {offset} exceeds downstream region.")
             else:
-                if abs(offset) >= self._loci[self._direction(0)].boundary[0]:
+                if abs(offset) >= self._loci[self._direction(len(self._locations))].boundary[0]:
                     raise ValueError(f"Offset {offset} exceeds downstream boundary.")
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
@@ -143,12 +143,10 @@ class MultiLocus(object):
                             f"Offset {offset} at the first exon should be in the upstream region."
                         )
                     else:
-                        print("boundary", self._loci[self._direction(index)].boundary, self._loci[self._direction(index-1)].boundary)
                         intron_length = abs(
                             self._loci[self._direction(index)].boundary[0]
                             - self._loci[self._direction(index-1)].boundary[1]
                         )
-                        print("intron length", intron_length, "position", position, "offset", offset)
                         if abs(offset) >= intron_length:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:

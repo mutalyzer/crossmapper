@@ -321,8 +321,8 @@ def test_NonCoding_invalid_offset():
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=1, region='u'))
         assert e.value.args[0] == "Offset 1 at upstream boundary should be negative."
     with pytest.raises(ValueError) as e:
-        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-5, region='u'))
-        assert e.value.args[0] == "Offset -5 exceeds upstream boundary."
+        crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-6, region='u'))
+        assert e.value.args[0] == "Offset -6 exceeds upstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-1, region=''))
         assert e.value.args[0] == "Offset -1 at the first exon should be in the upstream region."
@@ -1219,6 +1219,32 @@ _cds = (32, 43)
 def test_Coding_invalid_position():
     """Raise error if position in coding point is invalid."""
     crossmap = Coding(_exons, _cds)
+
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=0, offset=1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=12, offset=-1, region='u'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=13, offset=1, region='-'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=-1, offset=0, region='-'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=0, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=7, offset=0, region=''))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=6, offset=1, region='*'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=None, offset=0, region='*'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=6, offset=0, region='d'))
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1000, offset=2, region='d'))
+
+
+def test_Coding_inverted_invalid_position_inverted():
+    """Raise error if position in coding point is invalid for inverted coding."""
+    crossmap = Coding(_exons, _cds, inverted=True)
 
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=0, offset=1, region='u'))
