@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class Point:
-    """Point dataclass"""
+    """Locus point dataclass"""
     position: int
     offset: int = 0
 
@@ -61,7 +61,7 @@ class Locus(object):
         self._end = location[1] - location[0]   # one-based length of the locus
 
     def _validate_point(self, position: int, offset: int) -> None:
-        """Validate a point model under HGVS rules.
+        """Validate a point according to HGVS rules.
 
         :arg int position: Position.
         :arg int offset: Offset.
@@ -105,5 +105,5 @@ class Locus(object):
         self._validate_point(point.position, point.offset)
 
         if self._inverted:
-            return Coord(coordinate=self.boundary[1] - point.position - point.offset)
-        return Coord(coordinate=self.boundary[0] + point.position + point.offset)
+            return Coord(self.boundary[1] - point.position - point.offset)
+        return Coord(self.boundary[0] + point.position + point.offset)
