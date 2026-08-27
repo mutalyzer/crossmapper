@@ -67,7 +67,7 @@ class Locus(object):
         :arg int offset: Offset.
         """
         if offset != 0 and position not in (0, self._end-1):
-            raise ValueError(f"Position {position} is not at locus boundary.")
+            raise ValueError(f"Position {position} is not at a locus boundary.")
         if offset < 0 and position != 0:
             raise IndexError(f"Offset {offset} should be at a locus start.")
         if offset > 0 and position != self._end-1:
