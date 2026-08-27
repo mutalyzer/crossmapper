@@ -1,73 +1,74 @@
-from mutalyzer_crossmapper.locus import Locus, Point, Coord
+import pytest
 
 from helper import invariant
-import pytest
+from mutalyzer_crossmapper.locus import Coord, Locus, Point
 
 
 def test_invalid_Locus_initialization():
     """Test Locus initialization."""
     with pytest.raises(ValueError) as e:
         Locus((10, 5))
-    assert str(e.value) == f"Locus start 10 must be smaller than locus end 5."
+    assert str(e.value) == "Locus start 10 must be smaller than locus end 5."
     with pytest.raises(ValueError) as e:
         Locus((10, 20, 30))
-    assert str(e.value) == f"Locus must be a tuple of two values."
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         Locus((10, -5))
-    assert str(e.value) == f"Value must be non-negative."
+    assert str(e.value) == "Value must be non-negative."
     with pytest.raises(ValueError) as e:
         Locus((10, 20.5))
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus((10, None))
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus(("10", "20"))
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus((10, 10))
-    assert str(e.value) == f"Locus start 10 must be smaller than locus end 10."
+    assert str(e.value) == "Locus start 10 must be smaller than locus end 10."
 
-    #Inverted Locus initialization
+    # Inverted Locus initialization
     with pytest.raises(ValueError) as e:
         Locus((10, 5), inverted=True)
-    assert str(e.value) == f"Locus start 10 must be smaller than locus end 5."
+    assert str(e.value) == "Locus start 10 must be smaller than locus end 5."
     with pytest.raises(ValueError) as e:
         Locus((10, 20, 30), inverted=True)
-    assert str(e.value) == f"Locus must be a tuple of two values."
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         Locus((10, -5), inverted=True)
-    assert str(e.value) == f"Value must be non-negative."
+    assert str(e.value) == "Value must be non-negative."
     with pytest.raises(ValueError) as e:
         Locus((10, 20.5), inverted=True)
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus((10, None), inverted=True)
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus(("10", "20"), inverted=True)
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Locus((10, 10), inverted=True)
-    assert str(e.value) == f"Locus start 10 must be smaller than locus end 10."
+    assert str(e.value) == "Locus start 10 must be smaller than locus end 10."
 
 
 def test_invalid_Coord_initialization():
     """Test Coord initialization."""
     with pytest.raises(ValueError) as e:
         Coord(-1)
-    assert str(e.value) == f"Value must be non-negative."
+    assert str(e.value) == "Value must be non-negative."
     with pytest.raises(ValueError) as e:
         Coord(3.5)
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Coord("10")
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Coord(None)
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         Coord([10])
-    assert str(e.value) == f"Value must be an integer."
+    assert str(e.value) == "Value must be an integer."
 
 
 def test_invalid_Locus_point():
@@ -75,20 +76,20 @@ def test_invalid_Locus_point():
     locus = Locus((30, 35))
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=-5, offset=0))
-    assert str(e.value) == f"Value must be non-negative."
+    assert str(e.value) == "Value must be non-negative."
 
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=5, offset=0))
-    assert str(e.value) == f"Position 5 exceeds locus length."
+    assert str(e.value) == "Position 5 exceeds locus length."
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=0, offset=2))
-    assert str(e.value) == f"Offset 2 should be at a locus end."
+    assert str(e.value) == "Offset 2 should be at a locus end."
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=4, offset=-2))
-    assert str(e.value) == f"Offset -2 should be at a locus start."
+    assert str(e.value) == "Offset -2 should be at a locus start."
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=2, offset=1))
-    assert str(e.value) == f"Position 2 is not at a locus boundary."
+    assert str(e.value) == "Position 2 is not at a locus boundary."
 
 
 def test_invalid_Locus_inverted_point():
@@ -96,19 +97,19 @@ def test_invalid_Locus_inverted_point():
     locus = Locus((30, 35), True)
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=-5, offset=0))
-    assert str(e.value) == f"Value must be non-negative."
+    assert str(e.value) == "Value must be non-negative."
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=5, offset=0))
-    assert str(e.value) == f"Position 5 exceeds locus length."
+    assert str(e.value) == "Position 5 exceeds locus length."
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=0, offset=2))
-    assert str(e.value) == f"Offset 2 should be at a locus end."
+    assert str(e.value) == "Offset 2 should be at a locus end."
     with pytest.raises(IndexError) as e:
         locus.to_coordinate(Point(position=4, offset=-2))
-    assert str(e.value) == f"Offset -2 should be at a locus start."
+    assert str(e.value) == "Offset -2 should be at a locus start."
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=2, offset=1))
-    assert str(e.value) == f"Position 2 is not at a locus boundary."
+    assert str(e.value) == "Position 2 is not at a locus boundary."
 
 
 def test_Locus():
