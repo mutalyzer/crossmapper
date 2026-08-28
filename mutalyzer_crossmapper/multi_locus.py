@@ -22,7 +22,7 @@ class Point(LocusPoint):
 def _check_in_range(value: int, length: int | None = None) -> None:
     """Check if the value no larger than length."""
     if length is not None and value >= length:
-        raise ValueError(f"Value {value} must be within the bounds of the reference sequence {length}.")
+        raise ValueError(f"Value {value} must be within the bounds of the reference length {length}.")
 
 
 def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = None) -> None:
@@ -92,7 +92,7 @@ class MultiLocus(object):
                     raise ValueError(f"Offset {offset} exceeds upstream region.")
             else:
                 if abs(offset) > self._loci[self._direction(0)].boundary[0]:
-                    raise ValueError(f"Offset {offset} exceeds upstream boundary.")
+                    raise ValueError(f"Offset {offset} exceeds upstream region.")
 
         # Downstream region validation, position is constant value and offset should not be negative
         if region == 'd':
@@ -105,16 +105,17 @@ class MultiLocus(object):
                     raise ValueError(f"Offset {offset} exceeds downstream region.")
             else:
                 if abs(offset) > self._loci[self._direction(len(self._locations)-1)].boundary[0]:
-                    raise ValueError(f"Offset {offset} exceeds downstream boundary.")
+                    raise ValueError(f"Offset {offset} exceeds downstream region.")
 
         # '' region validation, position should be within the MultiLocus and offset should not exceed intron length
         if region == '':
             if self._inverted:
                 if offset < 0:
                     if self._direction(index) == len(self._loci) - 1:
-                        raise ValueError(
-                            f"Offset {offset} at the last exon on the reverse complement should be in the upstream region."
-                        )
+                        if position == 0:
+                            raise ValueError(
+                                f"Offset {offset} at the first exon on the reverse complement should be in the upstream region."
+                            )
                     else:
                         intron_length = abs(
                             self._loci[self._direction(index-1)].boundary[0]
@@ -124,9 +125,10 @@ class MultiLocus(object):
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:
                     if self._direction(index) == 0:
-                        raise ValueError(
-                            f"Offset {offset} at the last exon on the reverse complement should be in the downstream region."
-                        )
+                        if position == self._end-1:
+                            raise ValueError(
+                                f"Offset {offset} at the first exon on the reverse complement should be in the downstream region."
+                            )
                     else:
                         intron_length = abs(
                             self._loci[self._direction(index)].boundary[0]
@@ -139,9 +141,10 @@ class MultiLocus(object):
             if not self._inverted:
                 if offset < 0:
                     if self._direction(index) == 0:
-                        raise ValueError(
-                            f"Offset {offset} at the first exon should be in the upstream region."
-                        )
+                        if position == 0:
+                            raise ValueError(
+                                f"Offset {offset} at the first exon should be in the upstream region."
+                            )
                     else:
                         intron_length = abs(
                             self._loci[self._direction(index)].boundary[0]
@@ -151,9 +154,10 @@ class MultiLocus(object):
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:
                     if self._direction(index) == len(self._loci) - 1:
-                        raise ValueError(
-                            f"Offset {offset} at the last exon should be in the downstream region."
-                        )
+                        if position == self._end-1:
+                            raise ValueError(
+                                f"Offset {offset} at the last exon should be in the downstream region."
+                            )
                     else:
                         intron_length = abs(
                             self._loci[self._direction(index+1)].boundary[0]
@@ -232,8 +236,7 @@ class MultiLocus(object):
 
         except ValueError as e:
             if "Position" in str(e):
-                raise ValueError(str(e).replace(str(point.position - 1), str(point.position))) from e
-            raise e
+                raise ValueError(str(e).replace(str(point.position - self._offsets[index]), str(point.position))) from e
         except IndexError as e:
             if "Position" in str(e):
                 raise IndexError(
