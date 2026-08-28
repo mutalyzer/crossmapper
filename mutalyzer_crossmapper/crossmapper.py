@@ -12,7 +12,7 @@ class GenomicPoint:
     def __post_init__(self) -> None:
         _check_int(self.position)
         if self.position <= 0:
-            raise ValueError("Genomic position must be a positive integer.")
+            raise ValueError(f"Position {self.position} must be a positive integer.")
 
     def __str__(self) -> str:
         return f'{self.position}'
@@ -46,7 +46,7 @@ class NonCodingPoint(GenomicPoint):
     offset: int = 0
     region: str = ''
 
-    allowed_regions = {'', 'u', 'd'}
+    allowed_regions = ['', 'u', 'd']
 
     def __post_init__(self) -> None:
         # Python version 3.11 and 3.10: cannot use super() due to conflicts with slots=True
@@ -54,7 +54,7 @@ class NonCodingPoint(GenomicPoint):
 
         _check_int(self.offset)
         if self.region not in self.allowed_regions:
-            raise ValueError(f'Region must be a string in {self.allowed_regions}')
+            raise ValueError(f"Region must be a string in {self.allowed_regions}.")
 
     def __str__(self) -> str:
         if self.offset == 0:
@@ -119,7 +119,7 @@ class NonCoding(Genomic):
 @dataclass(slots=True)
 class CodingPoint(NonCodingPoint):
     """Coding dataclass."""
-    allowed_regions = {'', 'u', 'd', '-', '*'}
+    allowed_regions = ['', 'u', 'd', '-', '*']
 
 
 @dataclass(slots=True)
@@ -305,9 +305,18 @@ class Coding(NonCoding):
         elif region == '*':
             position = self._coding[1] + position - 1
 
-        return self._noncoding.to_coordinate(
-            Point(position=position, region='', offset=point.offset)
-        )
+        try:
+            return self._noncoding.to_coordinate(
+                Point(position=position, region='', offset=point.offset)
+            )
+        except ValueError as e:
+            if "Position" in str(e):
+                raise ValueError(str(e).replace(str(position), str(point.position)))
+            raise e
+        except IndexError as e:
+            if "Position" in str(e):
+                raise IndexError(str(e).replace(str(position), str(point.position)))
+            raise e
 
     def coding_to_coordinate(self, point: CodingPoint) -> Coord:
         """Convert a coding position (c./r.) to a coordinate.

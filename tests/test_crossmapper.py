@@ -11,10 +11,13 @@ def test_GenomicPoint_invalid_initialization():
     """GenomicPoint cannot be initialized with invalid position."""
     with pytest.raises(ValueError) as e:
         GenomicPoint(position=0)
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         GenomicPoint(position=-1)
+    assert str(e.value) == "Position -1 must be a positive integer."
     with pytest.raises(ValueError) as e:
         GenomicPoint(position=[101])
+    assert str(e.value) == "Value must be an integer."
 
 
 def test_Genomic():
@@ -40,8 +43,10 @@ def test_Genomic_invalid_with_length():
     crossmap = Genomic()
     with pytest.raises(ValueError) as e:
         crossmap.coordinate_to_genomic(Coord(-1), 99)
+    assert str(e.value) == "Value must be non-negative."
     with pytest.raises(ValueError) as e:
         crossmap.coordinate_to_genomic(Coord(99), 99)
+    assert str(e.value) == "Value 99 must be within the bounds of the reference length 99."
 
 
 def test_Genomic_with_length():
@@ -66,51 +71,72 @@ def test_NonCodingPoint_invalid_initialization():
     """Raise error with invalid initialization."""
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=0, offset=0, region='u')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=0, offset=0, region='d')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=0, offset=0, region='')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=0, offset=0, region='*')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=-1, offset=0, region='')
+    assert str(e.value) == "Position -1 must be a positive integer."
     with pytest.raises(ValueError) as e:
         NonCodingPoint(position=1, offset=None, region='u')
+    assert str(e.value) == "Value must be an integer."
+    with pytest.raises(ValueError) as e:
+        NonCodingPoint(position=1, offset=1, region='-')
+    assert str(e.value) == "Region must be a string in ['', 'u', 'd']."
 
 
 def test_NonCoding_invalid():
     """Raise ValueError if noncoding is invalid."""
     with pytest.raises(ValueError) as e:
         NonCoding([()])
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         NonCoding([(10)])
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         NonCoding([(10, 20), (15, 25)])
+    assert str(e.value) == "Locus (15, 25) and locus (10, 20) are overlapping."
     with pytest.raises(ValueError) as e:
         NonCoding([(None, 20), (30, None)])
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         NonCoding(_exons, length=70)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
 
     # Reverse orientation
     with pytest.raises(ValueError) as e:
         NonCoding([()], inverted=True)
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         NonCoding([(10)], inverted=True)
+    assert str(e.value) == "Locus must be a tuple of two values."
     with pytest.raises(ValueError) as e:
         NonCoding([(10, 20), (15, 25)], inverted=True)
+    assert str(e.value) == "Locus (15, 25) and locus (10, 20) are overlapping."
     with pytest.raises(ValueError) as e:
         NonCoding([(None, 20), (30, None)], inverted=True)
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         NonCoding(_exons, length=70, inverted=True)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
 
 
 def test_NonCoding_invalid_with_length():
     """Raise ValueError if coordinate is out of bounds."""
     with pytest.raises(ValueError) as e:
         NonCoding(_exons, length=70)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
     # Reverse orientation
     with pytest.raises(ValueError) as e:
         NonCoding(_exons, length=70, inverted=True)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
 
 
 def test_NonCoding():
@@ -199,8 +225,10 @@ def test_NonCoding_with_length():
     )
     with pytest.raises(ValueError) as e:
         crossmap.coordinate_to_noncoding(Coord(75))
+    assert str(e.value) == "Value 75 must be within the bounds of the reference length 75."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=4, region='d'))
+    assert str(e.value) == "Offset 4 exceeds downstream region."
 
 
 def test_NonCoding_inverted():
@@ -243,8 +271,10 @@ def test_NonCoding_inverted_with_length():
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as e:
         crossmap.coordinate_to_noncoding(Coord(75))
+    assert str(e.value) == "Value 75 must be within the bounds of the reference length 75."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-4, region='u'))
+    assert str(e.value) == "Offset -4 exceeds upstream region."
     invariant(
         crossmap.coordinate_to_noncoding,
         Coord(74),
@@ -286,14 +316,19 @@ def test_NonCoding_invalid_position():
     crossmap = NonCoding(_exons, length=75)
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=0, offset=1, region='u'))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=2, offset=1, region='u'))
-    with pytest.raises(IndexError):
+    assert str(e.value) == "Position 2 is not at upstream boundary."
+    with pytest.raises(IndexError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=23, offset=0, region=''))
+    assert str(e.value) == "Position 23 exceeds multi locus length."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=21, offset=1, region='d'))
+    assert str(e.value) == "Position 21 is not at downstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=30, offset=-1, region='d'))
+    assert str(e.value) == "Position 30 is not at downstream boundary."
 
 
 def test_NonCoding_invalid_position_inverted():
@@ -301,14 +336,19 @@ def test_NonCoding_invalid_position_inverted():
     crossmap = NonCoding(_exons, length=75, inverted=True)
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=0, offset=1, region='u'))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=2, offset=1, region='u'))
-    with pytest.raises(IndexError):
+    assert str(e.value) == "Position 2 is not at upstream boundary."
+    with pytest.raises(IndexError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=23, offset=0, region=''))
+    assert str(e.value) == "Position 23 exceeds multi locus length."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=21, offset=1, region='d'))
+    assert str(e.value) == "Position 21 is not at downstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=30, offset=-1, region='d'))
+    assert str(e.value) == "Position 30 is not at downstream boundary."
 
 
 def test_NonCoding_invalid_offset():
@@ -391,16 +431,22 @@ def test_CodingPoint_invalid_initialization():
     """Raise error with invalid initialization."""
     with pytest.raises(ValueError) as e:
         CodingPoint(position=0, offset=0, region='-')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         CodingPoint(position=0, offset=0, region='*')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         CodingPoint(position=0, offset=0, region='')
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         CodingPoint(position=-1, offset=0, region='')
+    assert str(e.value) == "Position -1 must be a positive integer."
     with pytest.raises(ValueError) as e:
         CodingPoint(position=1, offset=None, region='')
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         CodingPoint(position=2, offset=1, region='upstream')
+    assert str(e.value) == "Region must be a string in ['', 'u', 'd', '-', '*']."
 
 
 def test_Coding_invalid():
@@ -408,35 +454,47 @@ def test_Coding_invalid():
 
     with pytest.raises(ValueError) as e:
         Coding([(20, 20)], (20, 20))
+    assert str(e.value) == "Locus start 20 must be smaller than locus end 20."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (9,15))
+    assert str(e.value) == "Coordinate 9 of CDS (9, 15) is not within any exon."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (10,21))
+    assert str(e.value) == "Coordinate 21 of CDS (10, 21) is not within any exon."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (15, 10))
+    assert str(e.value) == "Locus start 15 must be smaller than locus end 10."
     with pytest.raises(ValueError) as e:
         Coding([], None)
+    assert str(e.value) == "Locations must be a non-empty list of tuples."
 
     # Reverse orientation
     with pytest.raises(ValueError) as e:
         Coding([(20, 20)], (20, 20), inverted=True)
+    assert str(e.value) == "Locus start 20 must be smaller than locus end 20."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (9,15), inverted=True)
+    assert str(e.value) == "Coordinate 9 of CDS (9, 15) is not within any exon."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (10,21), inverted=True)
+    assert str(e.value) == "Coordinate 21 of CDS (10, 21) is not within any exon."
     with pytest.raises(ValueError) as e:
         Coding([(10, 20)], (15, 10), inverted=True)
+    assert str(e.value) == "Locus start 15 must be smaller than locus end 10."
     with pytest.raises(ValueError) as e:
         Coding([], None, inverted=True)
+    assert str(e.value) == "Locations must be a non-empty list of tuples."
 
 
 def test_Coding_invalid_with_length():
     """Raise ValueError if coordinate is out of bounds."""
     with pytest.raises(ValueError) as e:
         Coding(_exons, _cds, length=70)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
     # Reverse orientation
     with pytest.raises(ValueError) as e:
         Coding(_exons, _cds, length=70, inverted=True)
+    assert str(e.value) == "Value 72 must be within the bounds of the reference length 70."
 
 
 def test_Coding():
@@ -640,8 +698,10 @@ def test_Coding_inverted_with_length():
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as e:
         crossmap.coordinate_to_coding(Coord(75))
+    assert str(e.value) == "Value 75 must be within the bounds of the reference length 75."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=5, offset=-4, region='u'))
+    assert str(e.value) == "Offset -4 exceeds upstream region."
     invariant(
         crossmap.coordinate_to_coding,
         Coord(74),
@@ -1214,32 +1274,41 @@ def test_Coding_inverted_no_utr_degenerate_return():
     assert crossmap.coordinate_to_coding(Coord(11), True) == CodingPoint(position=1, offset=0, region='-')
     assert crossmap.coordinate_to_coding(Coord(9), True) == CodingPoint(position=1, offset=0, region='*')
 
-_exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
-_cds = (32, 43)
+
 def test_Coding_invalid_position():
     """Raise error if position in coding point is invalid."""
     crossmap = Coding(_exons, _cds)
 
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=0, offset=1, region='u'))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=12, offset=-1, region='u'))
+    assert str(e.value) == "Position 12 is not in upstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=13, offset=1, region='-'))
+    assert str(e.value) == "Position 13 exceeds - region."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=-1, offset=0, region='-'))
+    assert str(e.value) == "Position -1 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=0, offset=0, region=''))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=7, offset=0, region=''))
+    assert str(e.value) == "Position 7 exceeds coding region."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=6, offset=1, region='*'))
+    assert str(e.value) == "Position 6 exceeds * region."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=None, offset=0, region='*'))
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=6, offset=0, region='d'))
+    assert str(e.value) == "Position 6 is not in downstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=1000, offset=2, region='d'))
+    assert str(e.value) == "Position 1000 is not in downstream boundary."
 
 
 def test_Coding_inverted_invalid_position_inverted():
@@ -1248,24 +1317,94 @@ def test_Coding_inverted_invalid_position_inverted():
 
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=0, offset=1, region='u'))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=12, offset=-1, region='u'))
+    assert str(e.value) == "Position 12 is not in upstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=13, offset=1, region='-'))
+    assert str(e.value) == "Position 13 exceeds - region."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=-1, offset=0, region='-'))
+    assert str(e.value) == "Position -1 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=0, offset=0, region=''))
+    assert str(e.value) == "Position 0 must be a positive integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=7, offset=0, region=''))
+    assert str(e.value) == "Position 7 exceeds coding region."
     with pytest.raises(ValueError) as e:
-        crossmap.coding_to_coordinate(CodingPoint(position=6, offset=1, region='*'))
+        crossmap.coding_to_coordinate(CodingPoint(position=13, offset=1, region='*'))
+    assert str(e.value) == "Position 13 exceeds * region."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=None, offset=0, region='*'))
+    assert str(e.value) == "Value must be an integer."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=6, offset=0, region='d'))
+    assert str(e.value) == "Position 6 is not in downstream boundary."
     with pytest.raises(ValueError) as e:
         crossmap.coding_to_coordinate(CodingPoint(position=1000, offset=2, region='d'))
+    assert str(e.value) == "Position 1000 is not in downstream boundary."
+
+
+def test_Coding_invalid_offset():
+    """Raise error if offset in coding point is invalid."""
+    crossmap = Coding(_exons, _cds, length=75)
+
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-6, region='u'))
+    assert str(e.value) == "Offset -6 exceeds upstream region."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=1, region='-'))
+    assert str(e.value) == "Position 1 is not at a locus boundary."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-1, region='-'))
+    assert str(e.value) == "Position 1 is not at a locus boundary."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-1, region=''))
+    assert str(e.value) == "Position 1 is not at a locus boundary."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=3, offset=6, region=''))
+    assert str(e.value) == "Offset 6 exceeds intron length."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=4, offset=12, region='*'))
+    assert str(e.value) == "Offset 12 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=4, offset=-50, region='*'))
+    assert str(e.value) == "Offset -50 exceeds intron length."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=5, offset=10, region='d'))
+    assert str(e.value) == "Offset 10 exceeds downstream region."
+
+
+def test_Coding_invalid_offset_inverted():
+    """Raise error if offset in coding point is invalid."""
+    crossmap = Coding(_exons, _cds, length=75, inverted=True)
+
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-6, region='u'))
+    assert str(e.value) == "Offset -6 exceeds upstream region."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=1, region='-'))
+    assert str(e.value) == "Offset 1 should be at a locus end."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=2, offset=-1, region='-'))
+    assert str(e.value) == "Offset -1 should be at a locus start."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-1, region=''))
+    assert str(e.value) == "Position 1 is not at a locus boundary."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=3, offset=6, region=''))
+    assert str(e.value) == "Offset 6 exceeds intron length."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=4, offset=12, region='*'))
+    assert str(e.value) == "Offset 12 exceeds intron length."
+    with pytest.raises(IndexError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=4, offset=-50, region='*'))
+    assert str(e.value) == "Offset -50 exceeds intron length."
+    with pytest.raises(ValueError) as e:
+        crossmap.coding_to_coordinate(CodingPoint(position=11, offset=10, region='d'))
+    assert str(e.value) == "Offset 10 exceeds downstream region."
 
 
 def test_Coding_protein():
