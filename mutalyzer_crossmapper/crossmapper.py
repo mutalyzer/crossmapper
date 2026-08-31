@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from .multi_locus import MultiLocus, Point, _check_in_range, _check_multi_locus
 from .locus import Coord, _check_locus, _check_int
-from .location import nearest_location
+from .location import _nearest_location
 
 @dataclass(slots=True)
 class GenomicPoint:
@@ -12,7 +12,7 @@ class GenomicPoint:
     def __post_init__(self) -> None:
         _check_int(self.position)
         if self.position <= 0:
-            raise ValueError(f"Position {self.position} must be a positive integer.")
+            raise ValueError(f'Position {self.position} must be a positive integer.')
 
     def __str__(self) -> str:
         return f'{self.position}'
@@ -54,7 +54,7 @@ class NonCodingPoint(GenomicPoint):
 
         _check_int(self.offset)
         if self.region not in self.allowed_regions:
-            raise ValueError(f"Region must be a string in {self.allowed_regions}.")
+            raise ValueError(f'Region must be a string in {self.allowed_regions}.')
 
     def __str__(self) -> str:
         if self.offset == 0:
@@ -107,11 +107,11 @@ class NonCoding(Genomic):
                 )
             )
         except ValueError as e:
-            if "Position" in str(e):
+            if 'Position' in str(e):
                 raise ValueError(str(e).replace(str(point.position - 1), str(point.position)))
             raise e
         except IndexError as e:
-            if "Position" in str(e):
+            if 'Position' in str(e):
                 raise IndexError(str(e).replace(str(point.position - 1), str(point.position)))
             raise e
 
@@ -185,9 +185,9 @@ class Coding(NonCoding):
         _check_locus(cds)
         _check_in_range(cds[1], length)
         for coord in cds:
-            index = nearest_location(locations, coord)
+            index = _nearest_location(locations, coord)
             if coord < locations[index][0] or coord > locations[index][1]:
-                raise ValueError(f"Coordinate {coord} of CDS {cds} is not within any exon.")
+                raise ValueError(f'Coordinate {coord} of CDS {cds} is not within any exon.')
 
     def _validate_point(self, position: int, region: str) -> None:
         """Validate a coding point model under HGVS rules.
@@ -196,19 +196,19 @@ class Coding(NonCoding):
         """
         if region == 'u':
             if position not in (1, self._coding[0]):
-                raise ValueError(f"Position {position} is not in upstream boundary.")
+                raise ValueError(f'Position {position} is not in upstream boundary.')
         if region == '-':
             if position not in range(1, self._coding[0] + 1):
-                raise ValueError(f"Position {position} exceeds - region.")
+                raise ValueError(f'Position {position} exceeds - region.')
         if region == '':
             if position not in range(1, self._coding[1] - self._coding[0] + 1):
-                raise ValueError(f"Position {position} exceeds coding region.")
+                raise ValueError(f'Position {position} exceeds coding region.')
         if region == '*':
             if position not in range(1, self._exons[1] - self._coding[1] + 1):
-                raise ValueError(f"Position {position} exceeds * region.")
+                raise ValueError(f'Position {position} exceeds * region.')
         if region == 'd':
             if position not in (1, self._coding[0], self._exons[1] - self._coding[1]):
-                raise ValueError(f"Position {position} is not in downstream boundary.")
+                raise ValueError(f'Position {position} is not in downstream boundary.')
 
 
     def _coordinate_to_coding(self, coord: Coord) -> CodingPoint:
@@ -310,11 +310,11 @@ class Coding(NonCoding):
                 Point(position=position, region='', offset=point.offset)
             )
         except ValueError as e:
-            if "Position" in str(e):
+            if 'Position' in str(e):
                 raise ValueError(str(e).replace(str(position), str(point.position)))
             raise e
         except IndexError as e:
-            if "Position" in str(e):
+            if 'Position' in str(e):
                 raise IndexError(str(e).replace(str(position), str(point.position)))
             raise e
 

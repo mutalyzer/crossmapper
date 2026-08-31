@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class Point:
-    """Locus point dataclass"""
+    """Locus point dataclass."""
     position: int
     offset: int = 0
 
@@ -14,7 +14,7 @@ class Point:
 
 @dataclass(slots=True)
 class Coord:
-    """Coordinate dataclass"""
+    """Coordinate dataclass."""
     coordinate: int
 
     def __post_init__(self) -> None:
@@ -24,26 +24,26 @@ class Coord:
 def _check_int(value: int) -> None:
     """Check if the value type is integer."""
     if not isinstance(value, int):
-        raise ValueError("Value must be an integer.")
+        raise ValueError('Value must be an integer.')
 
 
 def _check_non_negative_int(value: int) -> None:
     """Check if the coordinate is a non-negative integer."""
     _check_int(value)
     if value < 0:
-        raise ValueError("Value must be non-negative.")
+        raise ValueError('Value must be non-negative.')
 
 
 def _check_locus(locus: tuple[int, int]) -> None:
     """Check if the range is valid."""
     if not isinstance(locus, tuple) or len(locus) != 2:
-        raise ValueError("Locus must be a tuple of two values.")
+        raise ValueError('Locus must be a tuple of two values.')
 
     for value in locus:
         _check_non_negative_int(value)
 
     if locus[0] >= locus[1]:
-        raise ValueError(f"Locus start {locus[0]} must be smaller than locus end {locus[1]}.")
+        raise ValueError(f'Locus start {locus[0]} must be smaller than locus end {locus[1]}.')
 
 
 class Locus(object):
@@ -61,26 +61,26 @@ class Locus(object):
         self._end = location[1] - location[0]   # one-based length of the locus
 
     def _validate_point(self, position: int, offset: int) -> None:
-        """Validate a point according to HGVS rules.
+        """Validate a locus Point dataclass according to HGVS rules.
 
         :arg int position: Position.
         :arg int offset: Offset.
         """
         if offset != 0 and position not in (0, self._end-1):
-            raise ValueError(f"Position {position} is not at a locus boundary.")
+            raise ValueError(f'Position {position} is not at a locus boundary.')
         if offset < 0 and position != 0:
-            raise IndexError(f"Offset {offset} should be at a locus start.")
+            raise IndexError(f'Offset {offset} should be at a locus start.')
         if offset > 0 and position != self._end-1:
-            raise IndexError(f"Offset {offset} should be at a locus end.")
+            raise IndexError(f'Offset {offset} should be at a locus end.')
         if position > self._end-1:
-            raise IndexError(f"Position {position} exceeds locus length.")
+            raise IndexError(f'Position {position} exceeds locus length.')
 
     def to_position(self, coord: Coord) -> Point:
-        """Convert a coordinate to a proper point model.
+        """Convert a coordinate dataclass to a locus point dataclass.
 
-        :arg Coord coord: Coordinate module.
+        :arg Coord coord: Coordinate dataclass.
 
-        :returns Point: Position point model.
+        :returns Point: Locus point dataclass.
         """
         if self._inverted:
             if coord.coordinate > self.boundary[1]:
@@ -96,11 +96,11 @@ class Locus(object):
         return Point(position=coord.coordinate - self.boundary[0], offset=0)
 
     def to_coordinate(self, point: Point) -> Coord:
-        """Convert a point model to a coordinate model.
+        """Convert a locus dataclass point model to a coordinate dataclass.
 
-        :arg Point point: Point model.
+        :arg Point point: Locus point dataclass.
 
-        :returns Coord: Coordinate model.
+        :returns Coord: Coordinate dataclass.
         """
         self._validate_point(point.position, point.offset)
 

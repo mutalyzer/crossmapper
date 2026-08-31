@@ -1,4 +1,4 @@
-from mutalyzer_crossmapper import nearest_location
+from mutalyzer_crossmapper import _nearest_location
 from mutalyzer_crossmapper.location import _nearest_boundary
 
 
@@ -20,36 +20,36 @@ def test_nearest_location():
     """Index of the nearest location."""
     locations = [(10, 20), (30, 40), (50, 60)]
 
-    assert nearest_location(locations, 8) == 0
-    assert nearest_location(locations, 15) == 0
-    assert nearest_location(locations, 22) == 0
+    assert _nearest_location(locations, 8) == 0
+    assert _nearest_location(locations, 15) == 0
+    assert _nearest_location(locations, 22) == 0
 
-    assert nearest_location(locations, 28) == 1
-    assert nearest_location(locations, 35) == 1
-    assert nearest_location(locations, 42) == 1
+    assert _nearest_location(locations, 28) == 1
+    assert _nearest_location(locations, 35) == 1
+    assert _nearest_location(locations, 42) == 1
 
-    assert nearest_location(locations, 48) == 2
-    assert nearest_location(locations, 55) == 2
-    assert nearest_location(locations, 62) == 2
+    assert _nearest_location(locations, 48) == 2
+    assert _nearest_location(locations, 55) == 2
+    assert _nearest_location(locations, 62) == 2
 
 
 def test_nearest_location_even():
     """Index of the nearest location, preference is irrelevant."""
-    assert nearest_location([(3, 6), (8, 13)], 6, 0) == 0
-    assert nearest_location([(3, 6), (8, 13)], 6, 1) == 0
-    assert nearest_location([(3, 6), (8, 13)], 7, 0) == 1
-    assert nearest_location([(3, 6), (8, 13)], 7, 1) == 1
+    assert _nearest_location([(3, 6), (8, 13)], 6, 0) == 0
+    assert _nearest_location([(3, 6), (8, 13)], 6, 1) == 0
+    assert _nearest_location([(3, 6), (8, 13)], 7, 0) == 1
+    assert _nearest_location([(3, 6), (8, 13)], 7, 1) == 1
 
 
 def test_nearest_location_odd():
     """Index of the nearest location, preference is relevant."""
-    assert nearest_location([(3, 6), (9, 13)], 7) == 0
-    assert nearest_location([(3, 6), (9, 13)], 7, 1) == 1
+    assert _nearest_location([(3, 6), (9, 13)], 7) == 0
+    assert _nearest_location([(3, 6), (9, 13)], 7, 1) == 1
 
 
 def test_nearest_location_adjacent():
     """Adjacent locations have no overlap."""
     locations = [(1, 3), (3, 5)]
 
-    assert nearest_location(locations, 2) == 0
-    assert nearest_location(locations, 3) == 1
+    assert _nearest_location(locations, 2) == 0
+    assert _nearest_location(locations, 3) == 1

@@ -19,7 +19,7 @@ def _nearest_boundary(lb: int, rb: int, c: int, p: int) -> int:
     return p
 
 
-def nearest_location(ls: list[tuple[int, int]], c: int, p: int = 0) -> int:
+def _nearest_location(ls: list[tuple[int, int]], c: int, p: int = 0) -> int:
     """Find the location nearest to `c`. In case of a draw, the parameter `p`
     decides which index is chosen.
 
