@@ -98,9 +98,7 @@ class MultiLocus(object):
             if position != 0:
                 raise ValueError(f"Position {position} is not at upstream boundary.")
             if offset >= 0:
-                raise ValueError(
-                    f"Offset {offset} at upstream boundary should be negative."
-                )
+                raise ValueError(f"Offset {offset} at upstream region should be negative.")
             if self._inverted:
                 if (
                     self._length is not None
@@ -116,9 +114,7 @@ class MultiLocus(object):
             if position != self._end - 1:
                 raise ValueError(f"Position {position} is not at downstream boundary.")
             if offset <= 0:
-                raise ValueError(
-                    f"Offset {offset} at downstream boundary should be positive."
-                )
+                raise ValueError(f"Offset {offset} at downstream region should be positive.")
             if not self._inverted:
                 if (
                     self._length is not None
@@ -136,9 +132,7 @@ class MultiLocus(object):
         if region == "":
             if offset < 0:
                 if index == 0 and position == 0:
-                    raise ValueError(
-                        f"Offset {offset} at the first locus should be in the upstream region."
-                    )
+                    raise ValueError(f"Offset {offset} at the first locus should be in the upstream region.")
                 if self._inverted:
                     if (
                         self._direction(index) != len(self._loci) - 1
@@ -157,9 +151,7 @@ class MultiLocus(object):
                         raise IndexError(f"Offset {offset} exceeds intron length.")
             if offset > 0:
                 if index == len(self._loci) - 1 and position == self._end - 1:
-                    raise ValueError(
-                        f"Offset {offset} at the last locus should be in the downstream region."
-                    )
+                    raise ValueError(f"Offset {offset} at the last locus should be in the downstream region.")
                 if self._inverted:
                     if (
                         self._direction(index) != 0
