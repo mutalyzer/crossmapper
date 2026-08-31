@@ -1407,7 +1407,7 @@ def test_Coding_invalid_offset_inverted():
     assert str(e.value) == "Offset 10 exceeds downstream region."
 
 
-def test_Coding_protein_point_invalid_intialization():
+def test_Coding_protein_point_invalid_initialization():
     """Raise error if protein point is initialized with invalid values."""
     with pytest.raises(ValueError) as e:
         ProteinPoint(position=0, offset=0, region='u', position_in_codon=1)
