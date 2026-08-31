@@ -62,7 +62,7 @@ class Locus(object):
         self._end = location[1] - location[0]  # one-based length of the locus
 
     def _validate_point(self, position: int, offset: int) -> None:
-        """Validate a locus Point dataclass according to HGVS rules."""
+        """Validate a locus point dataclass according to HGVS rules."""
         if offset != 0 and position not in (0, self._end - 1):
             raise ValueError(f'Position {position} is not at a locus boundary.')
         if offset < 0 and position != 0:
@@ -93,7 +93,7 @@ class Locus(object):
         return Point(position=coord.coordinate - self.boundary[0], offset=0)
 
     def to_coordinate(self, point: Point) -> Coord:
-        """Convert a locus dataclass point model to a coordinate dataclass.
+        """Convert a locus point dataclass to a coordinate dataclass.
 
         :arg Point point: Locus point dataclass.
 
