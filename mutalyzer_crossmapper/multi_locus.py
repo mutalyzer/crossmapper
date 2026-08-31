@@ -117,8 +117,7 @@ class MultiLocus(object):
                                 f"Offset {offset} at the first exon on the reverse complement should be in the upstream region."
                             )
                     else:
-                        intron_length = abs(self._loci[self._direction(index-1)].boundary[0] - self._loci[self._direction(index)].boundary[1])
-                        if abs(offset) >= intron_length:
+                        if -offset >= self._loci[self._direction(index-1)].boundary[0] - self._loci[self._direction(index)].boundary[1]:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:
                     if self._direction(index) == 0:
@@ -127,11 +126,7 @@ class MultiLocus(object):
                                 f"Offset {offset} at the first exon on the reverse complement should be in the downstream region."
                             )
                     else:
-                        intron_length = abs(
-                            self._loci[self._direction(index)].boundary[0]
-                            - self._loci[self._direction(index+1)].boundary[1]
-                        )
-                        if abs(offset) >= self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index+1)].boundary[1]:
+                        if offset >= self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index+1)].boundary[1]:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
 
 
@@ -143,11 +138,7 @@ class MultiLocus(object):
                                 f"Offset {offset} at the first exon should be in the upstream region."
                             )
                     else:
-                        intron_length = abs(
-                            self._loci[self._direction(index)].boundary[0]
-                            - self._loci[self._direction(index-1)].boundary[1]
-                        )
-                        if abs(offset) >= intron_length:
+                        if -offset >= self._loci[self._direction(index)].boundary[0] - self._loci[self._direction(index-1)].boundary[1]:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
                 if offset > 0:
                     if self._direction(index) == len(self._loci) - 1:
@@ -156,11 +147,7 @@ class MultiLocus(object):
                                 f"Offset {offset} at the last exon should be in the downstream region."
                             )
                     else:
-                        intron_length = abs(
-                            self._loci[self._direction(index+1)].boundary[0]
-                            - self._loci[self._direction(index)].boundary[1]
-                        )
-                        if abs(offset) >= intron_length:
+                        if offset >= self._loci[self._direction(index+1)].boundary[0] - self._loci[self._direction(index)].boundary[1]:
                             raise IndexError(f"Offset {offset} exceeds intron length.")
 
 
