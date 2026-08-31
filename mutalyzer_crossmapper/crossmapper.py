@@ -189,7 +189,7 @@ class Coding(NonCoding):
             if coord < locations[index][0] or coord > locations[index][1]:
                 raise ValueError(f"Coordinate {coord} of CDS {cds} is not within any exon.")
 
-    def _validate_point(self, position, region) -> None:
+    def _validate_point(self, position: int, region: str) -> None:
         """Validate a coding point model under HGVS rules.
 
         :arg CodingPoint point: Coding point model.
