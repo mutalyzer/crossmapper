@@ -1407,6 +1407,19 @@ def test_Coding_invalid_offset_inverted():
     assert str(e.value) == "Offset 10 exceeds downstream region."
 
 
+def test_Coding_protein_point_invalid_intialization():
+    """Raise error if protein point is initialized with invalid values."""
+    with pytest.raises(ValueError) as e:
+        ProteinPoint(position=0, offset=0, region='u', position_in_codon=1)
+    assert str(e.value) == "Position 0 must be a positive integer."
+    with pytest.raises(ValueError) as e:
+        ProteinPoint(position=1, offset=0, region='', position_in_codon=4)
+    assert str(e.value) == "Position_in_codon must be 1, 2, or 3."
+    with pytest.raises(ValueError) as e:
+        ProteinPoint(position=1, offset=0, region='', position_in_codon=0)
+    assert str(e.value) == "Position_in_codon must be 1, 2, or 3."
+
+
 def test_Coding_protein():
     """Protein positions."""
     crossmap = Coding(_exons, _cds)

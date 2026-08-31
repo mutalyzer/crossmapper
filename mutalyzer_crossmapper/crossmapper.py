@@ -131,7 +131,7 @@ class ProteinPoint(CodingPoint):
         CodingPoint.__post_init__(self)
 
         if not isinstance(self.position_in_codon, int) or self.position_in_codon not in (1, 2, 3):
-            raise ValueError('Position_in_codon must be 1, 2, or 3')
+            raise ValueError('Position_in_codon must be 1, 2, or 3.')
 
     def __str__(self) -> str:
         if self.offset == 0 and self.region == '':
@@ -258,12 +258,12 @@ class Coding(NonCoding):
         if not degenerate:
             return point
 
-        offset = abs(point.offset)
+        offset = point.offset
         if point.region == 'u':
             if self._coding[0] == 0:
-                position = offset
+                position = -offset
             else:
-                position = point.position + offset
+                position = point.position - offset
             return CodingPoint(position=position, offset=0, region='-')
         if point.region == 'd':
             if self._exons[1] == self._coding[1]:
@@ -350,7 +350,7 @@ class Coding(NonCoding):
         position = point.position
         if point.region in ('-', 'u'):
             return ProteinPoint(
-                position=abs(-position // 3),
+                position=-(-position // 3),
                 position_in_codon=-position % 3 + 1,
                 region=point.region,
                 offset=point.offset
