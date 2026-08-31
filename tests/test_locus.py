@@ -74,6 +74,7 @@ def test_invalid_Coord_initialization():
 def test_invalid_Locus_point():
     """Forward orientent Locus with invalid point."""
     locus = Locus((30, 35))
+
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=-5, offset=0))
     assert str(e.value) == 'Value must be non-negative.'
@@ -95,6 +96,7 @@ def test_invalid_Locus_point():
 def test_invalid_Locus_inverted_point():
     """Reverse orientent Locus with invalid point."""
     locus = Locus((30, 35), True)
+
     with pytest.raises(ValueError) as e:
         locus.to_coordinate(Point(position=-5, offset=0))
     assert str(e.value) == 'Value must be non-negative.'
