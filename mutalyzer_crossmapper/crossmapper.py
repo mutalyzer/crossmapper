@@ -21,21 +21,23 @@ class GenomicPoint:
 class Genomic(object):
     """Genomic crossmap object."""
     def coordinate_to_genomic(self, coord: Coord, length: int | None = None) -> GenomicPoint:
-        """Convert a coordinate to a genomic point model (g./m./o.).
+        """Convert a coordinate dataclass to a genomic point dataclass (g./m./o.).
 
-        :arg Coord coordinate: Coordinate model
+        :arg Coord coordinate: Coordinate dataclass.
+        :arg int|None length: Length of the sequence.
 
-        :returns GenomicPoint: Genomic point model.
+        :returns GenomicPoint: Genomic point dataclass.
         """
-        _check_in_range(coord.coordinate, length)
+        if length is not None:
+            _check_in_range(coord.coordinate, length)
         return GenomicPoint(coord.coordinate + 1)
 
     def genomic_to_coordinate(self, point: GenomicPoint) -> Coord:
-        """Convert a genomic point (g./m./o.) to a coordinate.
+        """Convert a genomic point dataclass (g./m./o.) to a coordinate dataclass.
 
-        :arg GenomicPoint point: Genomic point model.
+        :arg GenomicPoint point: Genomic point dataclass.
 
-        :returns Coord: Coordinate model.
+        :returns Coord: Coordinate dataclass.
         """
         return Coord(point.position - 1)
 
@@ -54,7 +56,9 @@ class NonCodingPoint(GenomicPoint):
 
         _check_int(self.offset)
         if self.region not in self.allowed_regions:
-            raise ValueError(f'Region must be a string in {self.allowed_regions}.')
+            raise ValueError(
+                f'Region {self.region} is invalid, it must be a string from {self.allowed_regions}.'
+            )
 
     def __str__(self) -> str:
         if self.offset == 0:
@@ -67,9 +71,15 @@ class NonCodingPoint(GenomicPoint):
 class NonCoding(Genomic):
     """NonCoding crossmap object."""
 
-    def __init__(self, locations: list[tuple[int, int]], length: int | None = None, inverted: bool = False) -> None:
+    def __init__(
+        self,
+        locations: list[tuple[int, int]],
+        length: int | None = None,
+        inverted: bool = False,
+    ) -> None:
         """
         :arg list locations: List of locus locations.
+        :arg int|None length: Length of the reference sequence.
         :arg bool inverted: Orientation.
         """
         _check_multi_locus(locations, length)
@@ -77,11 +87,11 @@ class NonCoding(Genomic):
         self._noncoding = MultiLocus(locations, length, inverted)
 
     def coordinate_to_noncoding(self, coord: Coord) -> NonCodingPoint:
-        """Convert a coordinate to a noncoding point model (n./r.).
+        """Convert a coordinate dataclass to a noncoding point dataclass (n./r.).
 
-        :arg Coord coord: Coordinate model.
+        :arg Coord coord: Coordinate dataclass.
 
-        :returns NonCodingPoint: Noncoding point model.
+        :returns NonCodingPoint: Noncoding point dataclass.
         """
         point = self._noncoding.to_position(coord)
         return NonCodingPoint(
@@ -91,13 +101,12 @@ class NonCoding(Genomic):
         )
 
     def noncoding_to_coordinate(self, point: NonCodingPoint) -> Coord:
-        """Convert a noncoding point (n./r.) to a coordinate model.
+        """Convert a noncoding point dataclass (n./r.) to a coordinate dataclass.
 
-        :arg NonCodingPoint point: Noncoding point model.
+        :arg NonCodingPoint point: Noncoding point dataclass.
 
-        :returns Coord: Coordinate model.
+        :returns Coord: Coordinate dataclass.
         """
-        # Catch errors from multi_locus module
         try:
             return self._noncoding.to_coordinate(
                 Point(
@@ -106,14 +115,14 @@ class NonCoding(Genomic):
                     region=point.region
                 )
             )
-        except ValueError as e:
-            if 'Position' in str(e):
-                raise ValueError(str(e).replace(str(point.position - 1), str(point.position)))
-            raise e
-        except IndexError as e:
-            if 'Position' in str(e):
-                raise IndexError(str(e).replace(str(point.position - 1), str(point.position)))
-            raise e
+        except ValueError as error:
+            if 'Position' in str(error):
+                raise ValueError(str(error).replace(str(point.position - 1), str(point.position)))
+            raise error
+        except IndexError as error:
+            if 'Position' in str(error):
+                raise IndexError(str(error).replace(str(point.position - 1), str(point.position)))
+            raise error
 
 
 @dataclass(slots=True)
@@ -151,6 +160,7 @@ class Coding(NonCoding):
         """
         :arg list locations: List of locus locations.
         :arg tuple cds: Locus location.
+        :arg int|None length: Length of the reference sequence.
         :arg bool inverted: Orientation.
         """
         NonCoding.__init__(self, locations, length, inverted)
@@ -180,10 +190,16 @@ class Coding(NonCoding):
                 exon_end.position + exon_end.offset + 1
             )
 
-    def _check_cds(self, cds: tuple[int, int], locations: list[tuple[int, int]], length: int|None = None) -> None:
+    def _check_cds(
+        self,
+        cds: tuple[int, int],
+        locations: list[tuple[int, int]],
+        length: int | None = None,
+    ) -> None:
         """Check if the CDS is valid."""
         _check_locus(cds)
-        _check_in_range(cds[1], length)
+        if length is not None:
+            _check_in_range(cds[1], length)
         for coord in cds:
             index = _nearest_location(locations, coord)
             if coord < locations[index][0] or coord > locations[index][1]:
@@ -192,7 +208,8 @@ class Coding(NonCoding):
     def _validate_point(self, position: int, region: str) -> None:
         """Validate a coding point model under HGVS rules.
 
-        :arg CodingPoint point: Coding point model.
+        :arg int position: Position.
+        :arg str region: Region.
         """
         if region == 'u':
             if position not in (1, self._coding[0]):
@@ -212,11 +229,11 @@ class Coding(NonCoding):
 
 
     def _coordinate_to_coding(self, coord: Coord) -> CodingPoint:
-        """Convert a coordinate to a coding point model (c./r.).
+        """Convert a coordinate dataclass to a coding point dataclass (c./r.).
 
-        :arg Coord coord: Coordinate model.
+        :arg Coord coord: Coordinate dataclass.
 
-        :returns CodingPoint: Coding position model (c./r.).
+        :returns CodingPoint: Coding point dataclass (c./r.).
         """
         noncoding_point = self._noncoding.to_position(coord)
 
@@ -246,12 +263,12 @@ class Coding(NonCoding):
         return CodingPoint(position=position, offset=offset, region=region)
 
     def coordinate_to_coding(self, coord: Coord, degenerate: bool = False) -> CodingPoint:
-        """Convert a coordinate to a coding point model (c./r.).
+        """Convert a coordinate dataclass to a coding point dataclass (c./r.).
 
-        :arg Coord coord: Coordinate model.
-        :arg bool degenerate: Return a degenerate position.
+        :arg Coord coord: Coordinate dataclass.
+        :arg bool degenerate: Return a degenerate coding point dataclass.
 
-        :returns CodingPoint: Coding point model (c./r.).
+        :returns CodingPoint: Coding point dataclass (c./r.).
         """
         point = self._coordinate_to_coding(coord)
 
@@ -274,11 +291,11 @@ class Coding(NonCoding):
         return point
 
     def _coding_to_coordinate(self, point: CodingPoint) -> Coord:
-        """Convert a coding position (c./r.) to a coordinate.
+        """Convert a coding point dataclass (c./r.) to a coordinate dataclass.
 
-        :arg CodingPoint point: Coding point model (c./r.).
+        :arg CodingPoint point: Coding point dataclass (c./r.).
 
-        :returns int: Coordinate.
+        :returns Coord: Coordinate dataclass.
         """
         region = point.region
         position = point.position
@@ -309,41 +326,52 @@ class Coding(NonCoding):
             return self._noncoding.to_coordinate(
                 Point(position=position, region='', offset=point.offset)
             )
-        except ValueError as e:
-            if 'Position' in str(e):
-                raise ValueError(str(e).replace(str(position), str(point.position)))
-            raise e
-        except IndexError as e:
-            if 'Position' in str(e):
-                raise IndexError(str(e).replace(str(position), str(point.position)))
-            raise e
+        except ValueError as error:
+            if 'Position' in str(error):
+                raise ValueError(str(error).replace(str(position), str(point.position)))
 
     def coding_to_coordinate(self, point: CodingPoint) -> Coord:
-        """Convert a coding position (c./r.) to a coordinate.
+        """Convert a coding point dataclass (c./r.) to a coordinate dataclass.
 
-        :arg CodingPoint point: Coding point model (c./r.).
+        :arg CodingPoint point: Coding point dataclass (c./r.).
 
-        :returns Coord: Coordinate module.
+        :returns Coord: Coordinate dataclass.
         """
         # Silently correct for degenerate points
         if point.offset == 0:
             if point.region == '-' and point.position > self._coding[0]:
                 if self._coding[0] == 0:
-                    return self._coding_to_coordinate(CodingPoint(position=1, offset=self._coding[0] - point.position, region='u'))
-                return self._coding_to_coordinate(CodingPoint(position=self._coding[0], offset=self._coding[0] - point.position, region='u'))
+                    return self._coding_to_coordinate(CodingPoint(
+                        position=1,
+                        offset=self._coding[0] - point.position,
+                        region='u',
+                    ))
+                return self._coding_to_coordinate(CodingPoint(
+                    position=self._coding[0],
+                    offset=self._coding[0] - point.position,
+                    region='u',
+                ))
             if point.region == '*' and point.position > self._exons[1] - self._coding[1]:
                 if self._exons[1] == self._coding[1]:
-                    return self._coding_to_coordinate(CodingPoint(position=1, offset=point.position - (self._exons[1] - self._coding[1]), region='d'))
-                return self._coding_to_coordinate(CodingPoint(position=self._exons[1] - self._coding[1], offset=point.position - (self._exons[1] - self._coding[1]), region='d'))
+                    return self._coding_to_coordinate(CodingPoint(
+                        position=1,
+                        offset=point.position - (self._exons[1] - self._coding[1]),
+                        region='d',
+                    ))
+                return self._coding_to_coordinate(CodingPoint(
+                    position=self._exons[1] - self._coding[1],
+                    offset=point.position - (self._exons[1] - self._coding[1]),
+                    region='d',
+                ))
 
         return self._coding_to_coordinate(point)
 
     def coordinate_to_protein(self, coord: Coord) -> ProteinPoint:
-        """Convert a coordinate to a protein point model (p.).
+        """Convert a coordinate dataclass to a protein point dataclass (p.).
 
-        :arg Coord coord: Coordinate model.
+        :arg Coord coord: Coordinate dataclass.
 
-        :returns ProteinPoint: Protein point model(p.).
+        :returns ProteinPoint: Protein point dataclass (p.).
         """
         point = self.coordinate_to_coding(coord)
 
@@ -363,21 +391,21 @@ class Coding(NonCoding):
         )
 
     def protein_to_coordinate(self, point: ProteinPoint) -> Coord:
-        """Convert a protein position (p.) to a coordinate.
+        """Convert a protein point dataclass (p.) to a coordinate dataclass.
 
-        :arg ProteinPoint point: Protein point model(p.).
+        :arg ProteinPoint point: Protein point dataclass (p.).
 
-        :returns Coord: Coordinate module.
+        :returns Coord: Coordinate dataclass.
         """
         if point.region in ('-', 'u'):
-            return self.coding_to_coordinate(
+            return self._coding_to_coordinate(
                 CodingPoint(
                     position=3 * point.position - point.position_in_codon + 1,
                     offset=point.offset,
                     region=point.region
                 )
             )
-        return self.coding_to_coordinate(
+        return self._coding_to_coordinate(
             CodingPoint(
                 position=3 * point.position + point.position_in_codon - 3,
                 offset=point.offset,
