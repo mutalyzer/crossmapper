@@ -242,6 +242,7 @@ class MultiLocus(object):
                         str(point.position - self._offsets[index]), str(point.position)
                     )
                 ) from error
+            raise
         except IndexError as error:
             if "Position" in str(error):
                 raise IndexError(

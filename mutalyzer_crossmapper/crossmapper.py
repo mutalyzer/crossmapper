@@ -329,6 +329,7 @@ class Coding(NonCoding):
         except ValueError as error:
             if 'Position' in str(error):
                 raise ValueError(str(error).replace(str(position), str(point.position)))
+            raise
 
     def coding_to_coordinate(self, point: CodingPoint) -> Coord:
         """Convert a coding point dataclass (c./r.) to a coordinate dataclass.
