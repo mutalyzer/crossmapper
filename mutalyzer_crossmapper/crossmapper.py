@@ -18,7 +18,7 @@ class GenomicPoint:
         return f'{self.position}'
 
 
-class Genomic(object):
+class Genomic():
     """Genomic crossmap object."""
     def coordinate_to_genomic(self, coord: Coord, length: int | None = None) -> GenomicPoint:
         """Convert a coordinate dataclass to a genomic point dataclass (g./m./o.).

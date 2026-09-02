@@ -46,7 +46,7 @@ def _check_locus(locus: tuple[int, int]) -> None:
         raise ValueError(f'Locus start {locus[0]} must be smaller than locus end {locus[1]}.')
 
 
-class Locus(object):
+class Locus():
     """Locus object."""
 
     def __init__(self, location: tuple[int, int], inverted: bool = False) -> None:

@@ -56,7 +56,7 @@ def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
     return [0] + list(accumulate(map(lambda x: x[1] - x[0], locations[::orientation][:-1])))
 
 
-class MultiLocus(object):
+class MultiLocus():
     """MultiLocus object."""
 
     def __init__(
