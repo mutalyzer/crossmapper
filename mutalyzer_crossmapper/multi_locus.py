@@ -11,13 +11,13 @@ from .locus import Point as LocusPoint
 class Point(LocusPoint):
     """Point dataclass"""
 
-    region: str = ""
+    region: str = ''
 
     def __post_init__(self) -> None:
         LocusPoint.__post_init__(self)
-        if self.region not in ("", "u", "d"):
+        if self.region not in ('', 'u', 'd'):
             raise ValueError(
-                f"Region {self.region} is invalid, it must be a string from '', 'u' or 'd'."
+                f'Region {self.region} is invalid, it must be a string from "", "u" or "d".'
             )
 
 
@@ -25,21 +25,21 @@ def _check_in_range(value: int, length: int) -> None:
     """Check if the value no larger than length."""
     if value >= length:
         raise ValueError(
-            f"Location {value} must be within the bounds of the reference length {length}."
+            f'Location {value} must be within the bounds of the reference length {length}.'
         )
 
 
 def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = None) -> None:
     """Check if the locations list is valid."""
     if not locations or not isinstance(locations, list):
-        raise ValueError("Locations must be a non-empty list of tuples.")
+        raise ValueError('Locations must be a non-empty list of tuples.')
 
     for locus in locations:
         _check_locus(locus)
 
     for l1, l2 in zip(locations, locations[1:]):
         if l2[0] < l1[1]:
-            raise ValueError(f"Locus {l2} and locus {l1} are overlapping.")
+            raise ValueError(f'Locus {l2} and locus {l1} are overlapping.')
 
     if length is not None:
         _check_in_range(locations[-1][1], length)
@@ -94,45 +94,45 @@ class MultiLocus(object):
         :arg int offset: Offset.
         :arg str region: Region.
         """
-        if region == "u":
+        if region == 'u':
             if position != 0:
-                raise ValueError(f"Position {position} is not at upstream boundary.")
+                raise ValueError(f'Position {position} is not at upstream boundary.')
             if offset >= 0:
-                raise ValueError(f"Offset {offset} at upstream region should be negative.")
+                raise ValueError(f'Offset {offset} at upstream region should be negative.')
             if self._inverted:
                 if (
                     self._length is not None
                     and -offset
                     >= self._length - self._loci[self._direction(0)].boundary[1]
                 ):
-                    raise ValueError(f"Offset {offset} exceeds upstream region.")
+                    raise ValueError(f'Offset {offset} exceeds upstream region.')
             else:
                 if -offset > self._loci[self._direction(0)].boundary[0]:
-                    raise ValueError(f"Offset {offset} exceeds upstream region.")
+                    raise ValueError(f'Offset {offset} exceeds upstream region.')
 
-        if region == "d":
+        if region == 'd':
             if position != self._end - 1:
-                raise ValueError(f"Position {position} is not at downstream boundary.")
+                raise ValueError(f'Position {position} is not at downstream boundary.')
             if offset <= 0:
-                raise ValueError(f"Offset {offset} at downstream region should be positive.")
+                raise ValueError(f'Offset {offset} at downstream region should be positive.')
             if not self._inverted:
                 if (
                     self._length is not None
                     and offset
                     >= self._length - self._loci[self._direction(-1)].boundary[1]
                 ):
-                    raise ValueError(f"Offset {offset} exceeds downstream region.")
+                    raise ValueError(f'Offset {offset} exceeds downstream region.')
             else:
                 if (
                     offset
                     > self._loci[self._direction(len(self._locations) - 1)].boundary[0]
                 ):
-                    raise ValueError(f"Offset {offset} exceeds downstream region.")
+                    raise ValueError(f'Offset {offset} exceeds downstream region.')
 
-        if region == "":
+        if region == '':
             if offset < 0:
                 if index == 0 and position == 0:
-                    raise ValueError(f"Offset {offset} at the first locus should be in the upstream region.")
+                    raise ValueError(f'Offset {offset} at the first locus should be in the upstream region.')
                 if self._inverted:
                     if (
                         self._direction(index) != len(self._loci) - 1
@@ -140,7 +140,7 @@ class MultiLocus(object):
                         >= self._loci[self._direction(index - 1)].boundary[0]
                         - self._loci[self._direction(index)].boundary[1]
                     ):
-                        raise IndexError(f"Offset {offset} exceeds intron length.")
+                        raise IndexError(f'Offset {offset} exceeds intron length.')
                 else:
                     if (
                         self._direction(index) != 0
@@ -148,10 +148,10 @@ class MultiLocus(object):
                         >= self._loci[self._direction(index)].boundary[0]
                         - self._loci[self._direction(index - 1)].boundary[1]
                     ):
-                        raise IndexError(f"Offset {offset} exceeds intron length.")
+                        raise IndexError(f'Offset {offset} exceeds intron length.')
             if offset > 0:
                 if index == len(self._loci) - 1 and position == self._end - 1:
-                    raise ValueError(f"Offset {offset} at the last locus should be in the downstream region.")
+                    raise ValueError(f'Offset {offset} at the last locus should be in the downstream region.')
                 if self._inverted:
                     if (
                         self._direction(index) != 0
@@ -159,7 +159,7 @@ class MultiLocus(object):
                         >= self._loci[self._direction(index)].boundary[0]
                         - self._loci[self._direction(index + 1)].boundary[1]
                     ):
-                        raise IndexError(f"Offset {offset} exceeds intron length.")
+                        raise IndexError(f'Offset {offset} exceeds intron length.')
                 else:
                     if (
                         self._direction(index) != len(self._loci) - 1
@@ -167,7 +167,7 @@ class MultiLocus(object):
                         >= self._loci[self._direction(index + 1)].boundary[0]
                         - self._loci[self._direction(index)].boundary[1]
                     ):
-                        raise IndexError(f"Offset {offset} exceeds intron length.")
+                        raise IndexError(f'Offset {offset} exceeds intron length.')
 
     def _direction(self, index: int) -> int:
         if self._inverted:
@@ -197,7 +197,7 @@ class MultiLocus(object):
         self._validate_coord(coord.coordinate)
         index = _nearest_location(self._locations, coord.coordinate, self._inverted)
         outside = self._orientation * self._outside(coord.coordinate)
-        region = "u" if outside < 0 else "d" if outside > 0 else ""
+        region = 'u' if outside < 0 else 'd' if outside > 0 else ''
         point = self._loci[index].to_position(coord)
 
         return Point(
@@ -218,11 +218,11 @@ class MultiLocus(object):
         )
         self._validate_point(index, point.position, point.offset, point.region)
 
-        if point.region == "u":
+        if point.region == 'u':
             if self._inverted:
                 return Coord(self._locations[-1][1] - point.offset - 1)
             return Coord(self._locations[0][0] + point.offset)
-        if point.region == "d":
+        if point.region == 'd':
             if self._inverted:
                 return Coord(self._locations[0][0] - point.offset)
             return Coord(self._locations[-1][1] + point.offset - 1)
@@ -236,7 +236,7 @@ class MultiLocus(object):
             )
 
         except ValueError as error:
-            if "Position" in str(error):
+            if 'Position' in str(error):
                 raise ValueError(
                     str(error).replace(
                         str(point.position - self._offsets[index]), str(point.position)
@@ -244,8 +244,8 @@ class MultiLocus(object):
                 ) from error
             raise
         except IndexError as error:
-            if "Position" in str(error):
+            if 'Position' in str(error):
                 raise IndexError(
-                    f"Position {point.position} exceeds multi locus length."
+                    f'Position {point.position} exceeds multi locus length.'
                 ) from error
             raise
