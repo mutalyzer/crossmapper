@@ -103,10 +103,10 @@ def test_invalid_Point_initialization():
     assert str(error.value) == 'Value must be non-negative.'
     with pytest.raises(ValueError) as error:
         Point(position=0, offset=0, region='*')
-    assert str(error.value) == "Region * is invalid, it must be a string from '', 'u' or 'd'."
+    assert str(error.value) == 'Region * is invalid, it must be a string from "", "u" or "d".'
     with pytest.raises(ValueError) as error:
         Point(position=0, offset=0, region=None)
-    assert str(error.value) == "Region None is invalid, it must be a string from '', 'u' or 'd'."
+    assert str(error.value) == 'Region None is invalid, it must be a string from "", "u" or "d".'
     with pytest.raises(ValueError) as error:
         Point(position='11', offset=0, region='u')
     assert str(error.value) == 'Value must be an integer.'
