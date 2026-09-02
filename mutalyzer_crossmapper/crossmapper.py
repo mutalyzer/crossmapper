@@ -117,11 +117,11 @@ class NonCoding(Genomic):
             )
         except ValueError as error:
             if 'Position' in str(error):
-                raise ValueError(str(error).replace(str(point.position - 1), str(point.position)))
+                raise ValueError(str(error).replace(str(point.position - 1), str(point.position))) from error
             raise error
         except IndexError as error:
             if 'Position' in str(error):
-                raise IndexError(str(error).replace(str(point.position - 1), str(point.position)))
+                raise IndexError(str(error).replace(str(point.position - 1), str(point.position))) from error
             raise error
 
 
@@ -328,7 +328,7 @@ class Coding(NonCoding):
             )
         except ValueError as error:
             if 'Position' in str(error):
-                raise ValueError(str(error).replace(str(position), str(point.position)))
+                raise ValueError(str(error).replace(str(position), str(point.position))) from error
             raise
 
     def coding_to_coordinate(self, point: CodingPoint) -> Coord:
