@@ -231,7 +231,13 @@ class Coding(NonCoding):
             if position not in range(1, self._exons[1] - self._coding[1] + 1):
                 raise ValueError(f'Position {position} exceeds * region.')
         if region == 'd':
-            if position not in (1, self._coding[0], self._exons[1] - self._coding[1]):
+            # Downstream positions anchor at the 3' UTR boundary, or at the
+            # last coding position when the 3' UTR is absent.
+            if self._exons[1] == self._coding[1]:
+                downstream_boundary = self._coding[1] - self._coding[0]
+            else:
+                downstream_boundary = self._exons[1] - self._coding[1]
+            if position not in (1, downstream_boundary):
                 raise ValueError(f'Position {position} is not in downstream boundary.')
 
 

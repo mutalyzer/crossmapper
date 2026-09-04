@@ -923,6 +923,24 @@ def test_Coding_no_utr3():
     )
 
 
+def test_Coding_no_utr3_unequal_utr5():
+    """Without a 3' UTR the downstream anchor is the last coding position."""
+    crossmap = Coding([(10, 20)], (12, 20))
+    # Direct transition from CDS to downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(19),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=8, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(20),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=8, offset=1, region='d'),
+    )
+
+
 def test_Coding_no_utr3_inverted():
     """A 3' UTR may be missing."""
     crossmap = Coding([(10, 20)], (10, 15), inverted=True)
@@ -940,6 +958,26 @@ def test_Coding_no_utr3_inverted():
         crossmap.coding_to_coordinate,
         CodingPoint(position=5, offset=1, region='d'),
     )
+
+
+def test_Coding_no_utr3_inverted_unequal_utr5():
+    """Without a 3' UTR the downstream anchor is the last coding position."""
+    crossmap = Coding([(10, 20)], (10, 18), inverted=True)
+
+    # Direct transition from CDS to downstream.
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(10),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=8, offset=0, region=''),
+    )
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(9),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=8, offset=1, region='d'),
+    )
+
 
 def test_Coding_small_utr5():
     """A 5' UTR may be of length one."""
