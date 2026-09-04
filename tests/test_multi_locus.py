@@ -54,6 +54,16 @@ def test_invalid_MultiLocus_initialization():
     with pytest.raises(ValueError) as error:
         MultiLocus([(10, 12), (15, 25)], 24)
     assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
+    with pytest.raises(ValueError) as error:
+        MultiLocus([(10, 12), (15, 25)], 0)
+    assert str(error.value) == 'Value 0 is not positive.'
+    with pytest.raises(ValueError) as error:
+        MultiLocus([(10, 12), (15, 25)], '25')
+    assert str(error.value) == 'Value must be an integer.'
+    # A bool would otherwise pass as a length, since bool subclasses int.
+    with pytest.raises(ValueError) as error:
+        MultiLocus([(10, 12), (15, 25)], True)
+    assert str(error.value) == 'Value must be an integer.'
 
     # Inverted MultiLocus initialization
     with pytest.raises(ValueError) as error:

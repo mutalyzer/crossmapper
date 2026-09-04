@@ -23,7 +23,7 @@ class Coord:
 
 def _check_int(value: int) -> None:
     """Check if the input value type is integer."""
-    if not isinstance(value, int):
+    if not isinstance(value, int) or isinstance(value, bool):
         raise ValueError('Value must be an integer.')
 
 
@@ -32,6 +32,13 @@ def _check_non_negative_int(value: int) -> None:
     _check_int(value)
     if value < 0:
         raise ValueError('Value must be non-negative.')
+
+
+def _check_positive_int(value: int) -> None:
+    """Check if the value is a positive integer."""
+    _check_int(value)
+    if value < 1:
+        raise ValueError(f'Value {value} is not positive.')
 
 
 def _check_locus(locus: tuple[int, int]) -> None:

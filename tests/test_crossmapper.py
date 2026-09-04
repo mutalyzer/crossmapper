@@ -47,6 +47,15 @@ def test_Genomic_invalid_with_length():
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_genomic(Coord(99), 99)
     assert str(error.value) == 'Coordinate 99 is not within the bounds of the reference length 99.'
+    with pytest.raises(ValueError) as error:
+        crossmap.coordinate_to_genomic(Coord(0), 0)
+    assert str(error.value) == 'Value 0 is not positive.'
+    with pytest.raises(ValueError) as error:
+        crossmap.coordinate_to_genomic(Coord(0), -1)
+    assert str(error.value) == 'Value -1 is not positive.'
+    with pytest.raises(ValueError) as error:
+        crossmap.coordinate_to_genomic(Coord(0), '99')
+    assert str(error.value) == 'Value must be an integer.'
 
 
 def test_Genomic_with_length():
@@ -138,6 +147,10 @@ def test_NonCoding_invalid_with_length():
     with pytest.raises(ValueError) as error:
         NonCoding(_exons, length=70, inverted=True)
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
+
+    with pytest.raises(ValueError) as error:
+        NonCoding(_exons, length=0)
+    assert str(error.value) == 'Value 0 is not positive.'
 
 
 def test_NonCoding():
@@ -512,6 +525,10 @@ def test_Coding_invalid_with_length():
     with pytest.raises(ValueError) as error:
         Coding(_exons, _cds, length=70, inverted=True)
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
+
+    with pytest.raises(ValueError) as error:
+        Coding(_exons, _cds, length=0)
+    assert str(error.value) == 'Value 0 is not positive.'
 
 
 def test_Coding():

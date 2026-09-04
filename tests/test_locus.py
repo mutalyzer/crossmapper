@@ -25,6 +25,9 @@ def test_invalid_locus_initialization():
         Locus(('10', '20'))
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
+        Locus((10, True))
+    assert str(error.value) == 'Value must be an integer.'
+    with pytest.raises(ValueError) as error:
         Locus((10, 10))
     assert str(error.value) == 'Locus start 10 must be smaller than locus end 10.'
 
@@ -68,6 +71,9 @@ def test_invalid_coord_initialization():
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
         Coord([10])
+    assert str(error.value) == 'Value must be an integer.'
+    with pytest.raises(ValueError) as error:
+        Coord(True)
     assert str(error.value) == 'Value must be an integer.'
 
 

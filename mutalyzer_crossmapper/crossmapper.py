@@ -7,7 +7,7 @@ from .multi_locus import (
     _check_location_end_within_length,
     _check_multi_locus,
 )
-from .locus import Coord, _check_locus, _check_int
+from .locus import Coord, _check_locus, _check_int, _check_positive_int
 from .location import _nearest_location
 
 @dataclass(slots=True)
@@ -35,6 +35,7 @@ class Genomic():
         :returns GenomicPoint: Genomic point dataclass.
         """
         if length is not None:
+            _check_positive_int(length)
             _check_coordinate_within_length(coord.coordinate, length)
         return GenomicPoint(coord.coordinate + 1)
 

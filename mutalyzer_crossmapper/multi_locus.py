@@ -3,7 +3,7 @@ from itertools import accumulate
 from dataclasses import dataclass
 
 from .location import _nearest_location
-from .locus import Locus, Coord, _check_locus
+from .locus import Locus, Coord, _check_locus, _check_positive_int
 from .locus import Point as LocusPoint
 
 
@@ -50,6 +50,7 @@ def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = No
             raise ValueError(f'Locus {l2} and locus {l1} are overlapping.')
 
     if length is not None:
+        _check_positive_int(length)
         _check_location_end_within_length(locations[-1][1], length)
 
 
