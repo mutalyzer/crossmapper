@@ -133,7 +133,7 @@ def test_NonCoding_invalid():
         NonCoding([(None, 20), (30, None)], inverted=True)
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        NonCoding(_exons, length=70, inverted=True)
+        NonCoding(_exons, inverted=True, length=70)
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
 
@@ -145,7 +145,7 @@ def test_NonCoding_invalid_with_length():
 
     # Reverse orientation
     with pytest.raises(ValueError) as error:
-        NonCoding(_exons, length=70, inverted=True)
+        NonCoding(_exons, inverted=True, length=70)
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
     with pytest.raises(ValueError) as error:
@@ -247,7 +247,7 @@ def test_NonCoding_with_length():
 
 def test_NonCoding_inverted():
     """Reverse oriented noncoding transcript."""
-    crossmap = NonCoding(_exons, inverted=True)
+    crossmap = NonCoding(_exons, True)
 
     # Boundary between upstream and transcript.
     invariant(
@@ -280,7 +280,7 @@ def test_NonCoding_inverted():
 
 def test_NonCoding_inverted_with_length():
     """Reverse oriented noncoding transcript."""
-    crossmap = NonCoding(_exons, length=75, inverted=True)
+    crossmap = NonCoding(_exons, True, 75)
 
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as error:
@@ -347,7 +347,7 @@ def test_NonCoding_invalid_position():
 
 def test_NonCoding_invalid_position_inverted():
     """Raise error if position is not valid under HGVS rules."""
-    crossmap = NonCoding(_exons, length=75, inverted=True)
+    crossmap = NonCoding(_exons, inverted=True, length=75)
     with pytest.raises(ValueError) as error:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=0, offset=1, region='u'))
     assert str(error.value) == 'Position 0 must be a positive integer.'
@@ -405,7 +405,7 @@ def test_NonCoding_invalid_offset():
 
 def test_NonCoding_invalid_offset_inverted():
     """Raise error if offset is not valid under HGVS rules."""
-    crossmap = NonCoding(_exons, length=75, inverted=True)
+    crossmap = NonCoding(_exons, inverted=True, length=75)
     with pytest.raises(ValueError) as error:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=0, region='u'))
         assert error.value.args[0] == 'Offset 0 at upstream boundary should be negative.'
@@ -523,7 +523,7 @@ def test_Coding_invalid_with_length():
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
     # Reverse orientation
     with pytest.raises(ValueError) as error:
-        Coding(_exons, _cds, length=70, inverted=True)
+        Coding(_exons, _cds, inverted=True, length=70)
     assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
     with pytest.raises(ValueError) as error:
@@ -667,7 +667,7 @@ def test_Coding_with_length():
 
 def test_Coding_inverted():
     """Reverse oriented coding transcript."""
-    crossmap = Coding(_exons, _cds, inverted=True)
+    crossmap = Coding(_exons, _cds, True)
 
     # Boundary between upstream and 5' UTR.
     invariant(
@@ -728,7 +728,7 @@ def test_Coding_inverted():
 
 def test_Coding_inverted_with_length():
     """Reverse oriented coding transcript."""
-    crossmap = Coding(_exons, _cds, length=75, inverted=True)
+    crossmap = Coding(_exons, _cds, True, 75)
 
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as error:
@@ -1452,7 +1452,7 @@ def test_Coding_invalid_offset():
 
 def test_Coding_invalid_offset_inverted():
     """Raise error if offset in coding point is invalid."""
-    crossmap = Coding(_exons, _cds, length=75, inverted=True)
+    crossmap = Coding(_exons, _cds, inverted=True, length=75)
 
     with pytest.raises(ValueError) as error:
         crossmap.coding_to_coordinate(CodingPoint(position=1, offset=-6, region='u'))

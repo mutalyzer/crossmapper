@@ -52,18 +52,21 @@ def test_invalid_MultiLocus_initialization():
         MultiLocus([(10, 20), (15, 25)])
     assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], 24)
+        MultiLocus([(10, 12), (15, 25)], length=24)
     assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], 0)
+        MultiLocus([(10, 12), (15, 25)], length=0)
     assert str(error.value) == 'Value 0 is not positive.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], '25')
+        MultiLocus([(10, 12), (15, 25)], length='25')
     assert str(error.value) == 'Value must be an integer.'
     # A bool would otherwise pass as a length, since bool subclasses int.
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], True)
+        MultiLocus([(10, 12), (15, 25)], length=True)
     assert str(error.value) == 'Value must be an integer.'
+    with pytest.raises(ValueError) as error:
+        MultiLocus([(10, 12), (15, 25)], 100)
+    assert str(error.value) == 'Value 100 is not a boolean.'
 
     # Inverted MultiLocus initialization
     with pytest.raises(ValueError) as error:
@@ -85,10 +88,10 @@ def test_invalid_MultiLocus_initialization():
         MultiLocus([('10', '20'), (30, 40)], inverted=True)
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 20), (15, 25)], 25, inverted=True)
+        MultiLocus([(10, 20), (15, 25)], inverted=True, length=25)
     assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], 24, inverted=True)
+        MultiLocus([(10, 12), (15, 25)], inverted=True, length=24)
     assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
 
 
@@ -196,7 +199,7 @@ def test_MultiLocus():
 
 def test_MultiLocus_inverted():
     """Reverse oriented MultiLocus."""
-    multi_locus = MultiLocus(_locations, None, True)
+    multi_locus = MultiLocus(_locations, True)
 
     # Boundary between upstream and the first locus.
     invariant(
@@ -297,7 +300,7 @@ def test_MultiLocus_with_length():
 
 def test_MultiLocus_inverted_with_length():
     """Inverted MultiLocus with length."""
-    multi_locus = MultiLocus(_locations, length=74, inverted=True)
+    multi_locus = MultiLocus(_locations, True, 74)
 
     # Boundary between the first locus and upstream.
     invariant(
@@ -345,7 +348,7 @@ def test_MultiLocus_adjacent_loci():
 
 def test_MultiLocus_adjacent_loci_inverted():
     """Positions are continuous when loci are adjacent."""
-    multi_locus = MultiLocus([(1, 3), (3, 5)], None, True)
+    multi_locus = MultiLocus([(1, 3), (3, 5)], inverted=True)
 
     invariant(
         multi_locus.to_position,
@@ -381,7 +384,7 @@ def test_MultiLocus_offsets_odd():
 
 def test_MultiLocus_offsets_odd_inverted():
     """Offets exacly between two loci are assigned to the upstream locus."""
-    multi_locus = MultiLocus([(1, 3), (6, 8)], None, True)
+    multi_locus = MultiLocus([(1, 3), (6, 8)], inverted=True)
     invariant(
         multi_locus.to_position,
         Coord(4),
@@ -416,7 +419,7 @@ def test_MultiLocus_offsets_even():
 
 def test_MultiLocus_offsets_even_inverted():
     """Offsets are assigned to the nearest locus."""
-    multi_locus = MultiLocus([(1, 3), (7, 9)], None, True)
+    multi_locus = MultiLocus([(1, 3), (7, 9)], inverted=True)
 
     invariant(
         multi_locus.to_position,
@@ -475,7 +478,7 @@ def test_one_base_exon():
 
 def test_one_base_exon_inverted():
     """One base exons."""
-    multi_locus = MultiLocus([(1, 2), (4, 5)], None, True)
+    multi_locus = MultiLocus([(1, 2), (4, 5)], inverted=True)
     invariant(
         multi_locus.to_position,
         Coord(0),
@@ -528,7 +531,7 @@ def test_upstream_invalid_position():
 
 
 def test_upstream_invalid_position_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=1, offset=-1, region='u'))
     assert str(error.value) == 'Position 1 is not at upstream boundary.'
@@ -554,7 +557,7 @@ def test_upstream_invalid_offset():
 
 
 def test_upstream_invalid_offset_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=0, offset=1, region='u'))
     assert str(error.value) == 'Offset 1 at upstream region should be negative.'
@@ -580,7 +583,7 @@ def test_transcribed_invalid_position():
 
 
 def test_transcribed_invalid_position_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=-1, offset=0, region=''))
     assert str(error.value) == 'Value must be non-negative.'
@@ -621,7 +624,7 @@ def test_transcribed_invalid_offset():
 
 
 def test_transcribed_invalid_offset_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=9, offset=5, region=''))
     assert str(error.value) == 'Offset 5 at the last locus should be in the downstream region.'
@@ -665,7 +668,7 @@ def test_downstream_invalid_position():
 
 
 def test_downstream_invalid_position_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=0, offset=1, region='d'))
     assert str(error.value) == 'Position 0 is not at downstream boundary.'
@@ -697,7 +700,7 @@ def test_downstream_invalid_offset():
 
 
 def test_downstream_invalid_offset_inverted():
-    multi_locus = MultiLocus([(5, 10), (15, 20)], length=25, inverted=True)
+    multi_locus = MultiLocus([(5, 10), (15, 20)], inverted=True, length=25)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=9, offset=-1, region='d'))
     assert str(error.value) == 'Offset -1 at downstream region should be positive.'

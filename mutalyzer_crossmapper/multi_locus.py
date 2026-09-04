@@ -71,15 +71,17 @@ class MultiLocus():
     def __init__(
         self,
         locations: list[tuple[int, int]],
-        length: int | None = None,
         inverted: bool = False,
+        length: int | None = None,
     ) -> None:
         """
         :arg list locations: List of locus locations.
-        :arg int|None length: Length of the reference sequence, None if unknown.
         :arg bool inverted: Orientation.
+        :arg int|None length: Length of the reference sequence, None if unknown.
         """
         _check_multi_locus(locations, length)
+        if not isinstance(inverted, bool):
+            raise ValueError(f'Value {inverted} is not a boolean.')
         self._locations = locations
         self._inverted = inverted
         self._length = length

@@ -81,17 +81,17 @@ class NonCoding(Genomic):
     def __init__(
         self,
         locations: list[tuple[int, int]],
-        length: int | None = None,
         inverted: bool = False,
+        length: int | None = None,
     ) -> None:
         """
         :arg list locations: List of locus locations.
-        :arg int|None length: Length of the reference sequence.
         :arg bool inverted: Orientation.
+        :arg int|None length: Length of the reference sequence.
         """
         _check_multi_locus(locations, length)
         self._inverted = inverted
-        self._noncoding = MultiLocus(locations, length, inverted)
+        self._noncoding = MultiLocus(locations, inverted=inverted, length=length)
 
     def coordinate_to_noncoding(self, coord: Coord) -> NonCodingPoint:
         """Convert a coordinate dataclass to a noncoding point dataclass (n./r.).
@@ -161,16 +161,16 @@ class Coding(NonCoding):
             self,
             locations: list[tuple[int, int]],
             cds: tuple[int, int],
-            length: int|None = None,
-            inverted: bool = False
+            inverted: bool = False,
+            length: int|None = None
     ) -> None:
         """
         :arg list locations: List of locus locations.
         :arg tuple cds: Locus location.
-        :arg int|None length: Length of the reference sequence.
         :arg bool inverted: Orientation.
+        :arg int|None length: Length of the reference sequence.
         """
-        NonCoding.__init__(self, locations, length, inverted)
+        NonCoding.__init__(self, locations, inverted=inverted, length=length)
         self._check_cds(cds, locations, length)
 
         cds_start = self._noncoding.to_position(Coord(cds[0]))
