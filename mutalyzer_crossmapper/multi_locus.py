@@ -21,11 +21,19 @@ class Point(LocusPoint):
             )
 
 
-def _check_in_range(value: int, length: int) -> None:
-    """Check if the value no larger than length."""
+def _check_coordinate_within_length(value: int, length: int) -> None:
+    """Check if a zero-based coordinate is within reference length."""
     if value >= length:
         raise ValueError(
-            f'Location {value} must be within the bounds of the reference length {length}.'
+            f'Coordinate {value} is not within the bounds of the reference length {length}.'
+        )
+
+
+def _check_location_end_within_length(value: int, length: int) -> None:
+    """Check if a half-open interval end is within reference length."""
+    if value > length:
+        raise ValueError(
+            f'Location end {value} is inconsistent with reference length {length}.'
         )
 
 
@@ -42,7 +50,7 @@ def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = No
             raise ValueError(f'Locus {l2} and locus {l1} are overlapping.')
 
     if length is not None:
-        _check_in_range(locations[-1][1], length)
+        _check_location_end_within_length(locations[-1][1], length)
 
 
 def _offsets(locations: list[tuple[int, int]], orientation: int) -> list[int]:
@@ -84,7 +92,7 @@ class MultiLocus():
     def _validate_coord(self, coordinate: int) -> None:
         """Check if the coordinate is valid."""
         if self._length is not None:
-            _check_in_range(coordinate, self._length)
+            _check_coordinate_within_length(coordinate, self._length)
 
     def _validate_point(self, index: int, position: int, offset: int, region: str) -> None:
         """Validate if a multi locus Point is valid under HGVS rules.

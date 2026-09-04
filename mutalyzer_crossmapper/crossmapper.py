@@ -1,6 +1,12 @@
 from dataclasses import dataclass
 
-from .multi_locus import MultiLocus, Point, _check_in_range, _check_multi_locus
+from .multi_locus import (
+    MultiLocus,
+    Point,
+    _check_coordinate_within_length,
+    _check_location_end_within_length,
+    _check_multi_locus,
+)
 from .locus import Coord, _check_locus, _check_int
 from .location import _nearest_location
 
@@ -29,7 +35,7 @@ class Genomic():
         :returns GenomicPoint: Genomic point dataclass.
         """
         if length is not None:
-            _check_in_range(coord.coordinate, length)
+            _check_coordinate_within_length(coord.coordinate, length)
         return GenomicPoint(coord.coordinate + 1)
 
     def genomic_to_coordinate(self, point: GenomicPoint) -> Coord:
@@ -199,7 +205,7 @@ class Coding(NonCoding):
         """Check if the CDS is valid."""
         _check_locus(cds)
         if length is not None:
-            _check_in_range(cds[1], length)
+            _check_location_end_within_length(cds[1], length)
         for coord in cds:
             index = _nearest_location(locations, coord)
             if coord < locations[index][0] or coord > locations[index][1]:

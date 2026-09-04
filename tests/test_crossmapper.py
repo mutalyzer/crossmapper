@@ -46,7 +46,7 @@ def test_Genomic_invalid_with_length():
     assert str(error.value) == 'Value must be non-negative.'
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_genomic(Coord(99), 99)
-    assert str(error.value) == 'Location 99 must be within the bounds of the reference length 99.'
+    assert str(error.value) == 'Coordinate 99 is not within the bounds of the reference length 99.'
 
 
 def test_Genomic_with_length():
@@ -108,7 +108,7 @@ def test_NonCoding_invalid():
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
         NonCoding(_exons, length=70)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
     # Reverse orientation
     with pytest.raises(ValueError) as error:
@@ -125,19 +125,19 @@ def test_NonCoding_invalid():
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
         NonCoding(_exons, length=70, inverted=True)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
 
 def test_NonCoding_invalid_with_length():
     """Raise ValueError if coordinate is out of bounds."""
     with pytest.raises(ValueError) as error:
         NonCoding(_exons, length=70)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
     # Reverse orientation
     with pytest.raises(ValueError) as error:
         NonCoding(_exons, length=70, inverted=True)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
 
 def test_NonCoding():
@@ -226,7 +226,7 @@ def test_NonCoding_with_length():
     )
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_noncoding(Coord(75))
-    assert str(error.value) == 'Location 75 must be within the bounds of the reference length 75.'
+    assert str(error.value) == 'Coordinate 75 is not within the bounds of the reference length 75.'
     with pytest.raises(ValueError) as error:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=22, offset=4, region='d'))
     assert str(error.value) == 'Offset 4 exceeds downstream region.'
@@ -272,7 +272,7 @@ def test_NonCoding_inverted_with_length():
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_noncoding(Coord(75))
-    assert str(error.value) == 'Location 75 must be within the bounds of the reference length 75.'
+    assert str(error.value) == 'Coordinate 75 is not within the bounds of the reference length 75.'
     with pytest.raises(ValueError) as error:
         crossmap.noncoding_to_coordinate(NonCodingPoint(position=1, offset=-4, region='u'))
     assert str(error.value) == 'Offset -4 exceeds upstream region.'
@@ -428,6 +428,22 @@ def test_NonCoding_invalid_offset_inverted():
         assert error.value.args[0] == 'Offset -1 at downstream boundary should be positive.'
 
 
+def test_NonCoding_location_end_equal_reference_length():
+    """Half-open exon end may equal reference length."""
+    crossmap = NonCoding([(0, 10)], length=10)
+
+    invariant(
+        crossmap.coordinate_to_noncoding,
+        Coord(9),
+        crossmap.noncoding_to_coordinate,
+        NonCodingPoint(position=10, offset=0, region=''),
+    )
+
+    with pytest.raises(ValueError) as error:
+        crossmap.coordinate_to_noncoding(Coord(10))
+    assert str(error.value) == 'Coordinate 10 is not within the bounds of the reference length 10.'
+
+
 def test_CodingPoint_invalid_initialization():
     """Raise error with invalid initialization."""
     with pytest.raises(ValueError) as error:
@@ -491,11 +507,11 @@ def test_Coding_invalid_with_length():
     """Raise ValueError if coordinate is out of bounds."""
     with pytest.raises(ValueError) as error:
         Coding(_exons, _cds, length=70)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
     # Reverse orientation
     with pytest.raises(ValueError) as error:
         Coding(_exons, _cds, length=70, inverted=True)
-    assert str(error.value) == 'Location 72 must be within the bounds of the reference length 70.'
+    assert str(error.value) == 'Location end 72 is inconsistent with reference length 70.'
 
 
 def test_Coding():
@@ -627,6 +643,7 @@ def test_Coding_with_length():
     )
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_coding(Coord(75))
+    assert str(error.value) == 'Coordinate 75 is not within the bounds of the reference length 75.'
     with pytest.raises(ValueError) as error:
         crossmap.coding_to_coordinate(CodingPoint(position=5, offset=4, region='d'))
 
@@ -699,7 +716,7 @@ def test_Coding_inverted_with_length():
     # Boundary between upstream and sequence end.
     with pytest.raises(ValueError) as error:
         crossmap.coordinate_to_coding(Coord(75))
-    assert str(error.value) == 'Location 75 must be within the bounds of the reference length 75.'
+    assert str(error.value) == 'Coordinate 75 is not within the bounds of the reference length 75.'
     with pytest.raises(ValueError) as error:
         crossmap.coding_to_coordinate(CodingPoint(position=5, offset=-4, region='u'))
     assert str(error.value) == 'Offset -4 exceeds upstream region.'
@@ -1569,3 +1586,19 @@ def test_Coding_inverted_protein():
         crossmap.protein_to_coordinate,
         ProteinPoint(position=2, offset=-1, region='u', position_in_codon=2)
     )
+
+
+def test_Coding_cds_end_equal_reference_length():
+    """Half-open exon/CDS end may equal reference length."""
+    crossmap = Coding([(0, 10)], (0, 10), length=10)
+
+    invariant(
+        crossmap.coordinate_to_coding,
+        Coord(9),
+        crossmap.coding_to_coordinate,
+        CodingPoint(position=10, offset=0, region=''),
+    )
+
+    with pytest.raises(ValueError) as error:
+        crossmap.coordinate_to_coding(Coord(10))
+    assert str(error.value) == 'Coordinate 10 is not within the bounds of the reference length 10.'

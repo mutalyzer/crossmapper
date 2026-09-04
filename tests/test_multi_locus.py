@@ -52,8 +52,8 @@ def test_invalid_MultiLocus_initialization():
         MultiLocus([(10, 20), (15, 25)])
     assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], 25)
-    assert str(error.value) == 'Location 25 must be within the bounds of the reference length 25.'
+        MultiLocus([(10, 12), (15, 25)], 24)
+    assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
 
     # Inverted MultiLocus initialization
     with pytest.raises(ValueError) as error:
@@ -78,8 +78,8 @@ def test_invalid_MultiLocus_initialization():
         MultiLocus([(10, 20), (15, 25)], 25, inverted=True)
     assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
     with pytest.raises(ValueError) as error:
-        MultiLocus([(10, 12), (15, 25)], 25, inverted=True)
-    assert str(error.value) == 'Location 25 must be within the bounds of the reference length 25.'
+        MultiLocus([(10, 12), (15, 25)], 24, inverted=True)
+    assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
 
 
 def test_MultiLocus_invalid_coordinate():
@@ -700,3 +700,19 @@ def test_downstream_invalid_offset_inverted():
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=9, offset=6, region='d'))
     assert str(error.value) == 'Offset 6 exceeds downstream region.'
+
+
+def test_MultiLocus_location_end_equal_reference_length():
+    """Half-open location end may equal reference length."""
+    multi_locus = MultiLocus([(0, 10)], length=10)
+
+    invariant(
+        multi_locus.to_position,
+        Coord(9),
+        multi_locus.to_coordinate,
+        Point(position=9, offset=0, region=''),
+    )
+
+    with pytest.raises(ValueError) as error:
+        multi_locus.to_position(Coord(10))
+    assert str(error.value) == 'Coordinate 10 is not within the bounds of the reference length 10.'
