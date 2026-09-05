@@ -1643,6 +1643,54 @@ def test_Coding_inverted_protein():
     )
 
 
+def test_Coding_protein_degenerate():
+    """Degenerate upstream and downstream protein positions are corrected."""
+    crossmap = Coding([(10, 20)], (12, 18))
+
+    # Degenerate position in upstream.
+    degenerate_equal(
+        crossmap.protein_to_coordinate,
+        Coord(9),
+        [
+            ProteinPoint(position=1, offset=-1, region='u', position_in_codon=2),
+            ProteinPoint(position=1, offset=0, region='-', position_in_codon=1),
+        ],
+    )
+    # Degenerate position in downstream.
+    degenerate_equal(
+        crossmap.protein_to_coordinate,
+        Coord(20),
+        [
+            ProteinPoint(position=1, offset=1, region='d', position_in_codon=2),
+            ProteinPoint(position=1, offset=0, region='*', position_in_codon=3),
+        ],
+    )
+
+
+def test_Coding_inverted_protein_degenerate():
+    """Degenerate upstream and downstream protein positions are corrected."""
+    crossmap = Coding([(10, 20)], (12, 18), inverted=True)
+
+    # Degenerate position in upstream.
+    degenerate_equal(
+        crossmap.protein_to_coordinate,
+        Coord(20),
+        [
+            ProteinPoint(position=1, offset=-1, region='u', position_in_codon=2),
+            ProteinPoint(position=1, offset=0, region='-', position_in_codon=1),
+        ],
+    )
+    # Degenerate position in downstream.
+    degenerate_equal(
+        crossmap.protein_to_coordinate,
+        Coord(9),
+        [
+            ProteinPoint(position=1, offset=1, region='d', position_in_codon=2),
+            ProteinPoint(position=1, offset=0, region='*', position_in_codon=3),
+        ],
+    )
+
+
 def test_Coding_cds_end_equal_reference_length():
     """Half-open exon/CDS end may equal reference length."""
     crossmap = Coding([(0, 10)], (0, 10), length=10)

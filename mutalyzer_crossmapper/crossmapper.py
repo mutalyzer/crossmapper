@@ -412,17 +412,10 @@ class Coding(NonCoding):
         :returns Coord: Coordinate dataclass.
         """
         if point.region in ('-', 'u'):
-            return self._coding_to_coordinate(
-                CodingPoint(
-                    position=3 * point.position - point.position_in_codon + 1,
-                    offset=point.offset,
-                    region=point.region
-                )
-            )
-        return self._coding_to_coordinate(
-            CodingPoint(
-                position=3 * point.position + point.position_in_codon - 3,
-                offset=point.offset,
-                region=point.region
-            )
+            position = 3 * point.position - point.position_in_codon + 1
+        else:
+            position = 3 * point.position + point.position_in_codon - 3
+
+        return self.coding_to_coordinate(
+            CodingPoint(position=position, offset=point.offset, region=point.region)
         )
