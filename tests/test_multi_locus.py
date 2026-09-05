@@ -50,7 +50,11 @@ def test_invalid_MultiLocus_initialization():
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
         MultiLocus([(10, 20), (15, 25)])
-    assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
+    assert str(error.value) == 'Locus (10, 20) and locus (15, 25) are overlapping.'
+    # Disjoint, so out of order rather than overlapping.
+    with pytest.raises(ValueError) as error:
+        MultiLocus([(30, 40), (10, 20)])
+    assert str(error.value) == 'Locus (30, 40) and locus (10, 20) are not in ascending order.'
     with pytest.raises(ValueError) as error:
         MultiLocus([(10, 12), (15, 25)], length=24)
     assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'
@@ -89,7 +93,7 @@ def test_invalid_MultiLocus_initialization():
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
         MultiLocus([(10, 20), (15, 25)], inverted=True, length=25)
-    assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
+    assert str(error.value) == 'Locus (10, 20) and locus (15, 25) are overlapping.'
     with pytest.raises(ValueError) as error:
         MultiLocus([(10, 12), (15, 25)], inverted=True, length=24)
     assert str(error.value) == 'Location end 25 is inconsistent with reference length 24.'

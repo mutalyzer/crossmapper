@@ -46,8 +46,10 @@ def _check_multi_locus(locations: list[tuple[int, int]], length: int | None = No
         _check_locus(locus)
 
     for l1, l2 in zip(locations, locations[1:]):
+        if l2[0] < l1[0]:
+            raise ValueError(f'Locus {l1} and locus {l2} are not in ascending order.')
         if l2[0] < l1[1]:
-            raise ValueError(f'Locus {l2} and locus {l1} are overlapping.')
+            raise ValueError(f'Locus {l1} and locus {l2} are overlapping.')
 
     if length is not None:
         _check_positive_int(length)

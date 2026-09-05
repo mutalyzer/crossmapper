@@ -111,7 +111,7 @@ def test_NonCoding_invalid():
     assert str(error.value) == 'Locus must be a tuple of two values.'
     with pytest.raises(ValueError) as error:
         NonCoding([(10, 20), (15, 25)])
-    assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
+    assert str(error.value) == 'Locus (10, 20) and locus (15, 25) are overlapping.'
     with pytest.raises(ValueError) as error:
         NonCoding([(None, 20), (30, None)])
     assert str(error.value) == 'Value must be an integer.'
@@ -128,7 +128,7 @@ def test_NonCoding_invalid():
     assert str(error.value) == 'Locus must be a tuple of two values.'
     with pytest.raises(ValueError) as error:
         NonCoding([(10, 20), (15, 25)], inverted=True)
-    assert str(error.value) == 'Locus (15, 25) and locus (10, 20) are overlapping.'
+    assert str(error.value) == 'Locus (10, 20) and locus (15, 25) are overlapping.'
     with pytest.raises(ValueError) as error:
         NonCoding([(None, 20), (30, None)], inverted=True)
     assert str(error.value) == 'Value must be an integer.'
