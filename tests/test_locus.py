@@ -79,6 +79,17 @@ def test_invalid_locus_coordinate():
     assert str(error.value) == 'Value must be an integer.'
 
 
+def test_locus_negative_coordinate():
+    """An offset may not convert to a coordinate before the reference start."""
+    with pytest.raises(ValueError) as error:
+        Locus((0, 10)).to_coordinate(Point(position=0, offset=-1))
+    assert str(error.value) == 'Position 0 with offset -1 converts to negative coordinate -1.'
+
+    with pytest.raises(ValueError) as error:
+        Locus((0, 10), True).to_coordinate(Point(position=9, offset=1))
+    assert str(error.value) == 'Position 9 with offset 1 converts to negative coordinate -1.'
+
+
 def test_invalid_locus_point():
     """Forward orientent Locus with invalid point."""
     locus = Locus((30, 35))
