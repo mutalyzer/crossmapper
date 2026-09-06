@@ -1,7 +1,7 @@
 import pytest
 
 from helper import invariant
-from mutalyzer_crossmapper.locus import Coord, Locus, Point
+from mutalyzer_crossmapper.locus import Locus, Point
 
 
 def test_invalid_locus_initialization():
@@ -55,25 +55,27 @@ def test_invalid_locus_initialization():
     assert str(error.value) == 'Locus start 10 must be smaller than locus end 10.'
 
 
-def test_invalid_coord_initialization():
-    """Test Coord initialization."""
+def test_invalid_locus_coordinate():
+    """Forward orientent Locus with invalid coordinate."""
+    locus = Locus((30, 35))
+
     with pytest.raises(ValueError) as error:
-        Coord(-1)
+        locus.to_position(-1)
     assert str(error.value) == 'Value must be non-negative.'
     with pytest.raises(ValueError) as error:
-        Coord(3.5)
+        locus.to_position(3.5)
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        Coord('10')
+        locus.to_position('10')
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        Coord(None)
+        locus.to_position(None)
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        Coord([10])
+        locus.to_position([10])
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        Coord(True)
+        locus.to_position(True)
     assert str(error.value) == 'Value must be an integer.'
 
 
@@ -124,21 +126,21 @@ def test_locus():
     """Forward orientent Locus."""
     locus = Locus((30, 35))
 
-    invariant(locus.to_position, Coord(29), locus.to_coordinate, Point(position=0, offset=-1))
-    invariant(locus.to_position, Coord(30), locus.to_coordinate, Point(position=0, offset=0))
-    invariant(locus.to_position, Coord(31), locus.to_coordinate, Point(position=1, offset=0))
-    invariant(locus.to_position, Coord(33), locus.to_coordinate, Point(position=3, offset=0))
-    invariant(locus.to_position, Coord(34), locus.to_coordinate, Point(position=4, offset=0))
-    invariant(locus.to_position, Coord(35), locus.to_coordinate, Point(position=4, offset=1))
+    invariant(locus.to_position, 29, locus.to_coordinate, Point(position=0, offset=-1))
+    invariant(locus.to_position, 30, locus.to_coordinate, Point(position=0, offset=0))
+    invariant(locus.to_position, 31, locus.to_coordinate, Point(position=1, offset=0))
+    invariant(locus.to_position, 33, locus.to_coordinate, Point(position=3, offset=0))
+    invariant(locus.to_position, 34, locus.to_coordinate, Point(position=4, offset=0))
+    invariant(locus.to_position, 35, locus.to_coordinate, Point(position=4, offset=1))
 
 
 def test_locus_inverted():
     """Reverse orientent Locus."""
     locus = Locus((30, 35), True)
 
-    invariant(locus.to_position, Coord(35), locus.to_coordinate, Point(position=0, offset=-1))
-    invariant(locus.to_position, Coord(34), locus.to_coordinate, Point(position=0, offset=0))
-    invariant(locus.to_position, Coord(33), locus.to_coordinate, Point(position=1, offset=0))
-    invariant(locus.to_position, Coord(31), locus.to_coordinate, Point(position=3, offset=0))
-    invariant(locus.to_position, Coord(30), locus.to_coordinate, Point(position=4, offset=0))
-    invariant(locus.to_position, Coord(29), locus.to_coordinate, Point(position=4, offset=1))
+    invariant(locus.to_position, 35, locus.to_coordinate, Point(position=0, offset=-1))
+    invariant(locus.to_position, 34, locus.to_coordinate, Point(position=0, offset=0))
+    invariant(locus.to_position, 33, locus.to_coordinate, Point(position=1, offset=0))
+    invariant(locus.to_position, 31, locus.to_coordinate, Point(position=3, offset=0))
+    invariant(locus.to_position, 30, locus.to_coordinate, Point(position=4, offset=0))
+    invariant(locus.to_position, 29, locus.to_coordinate, Point(position=4, offset=1))

@@ -239,7 +239,7 @@ The ``Locus`` Class
 
 .. code-block:: python
 
-    >>> from mutalyzer_crossmapper.locus import Locus, Point, Coord
+    >>> from mutalyzer_crossmapper.locus import Locus, Point
     >>> locus = Locus((10, 20))
     >>> locus.to_position(9)
     Point(position=0, offset=-1)

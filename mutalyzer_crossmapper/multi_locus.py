@@ -3,7 +3,7 @@ from itertools import accumulate
 from dataclasses import dataclass
 
 from .location import _nearest_location
-from .locus import Locus, Coord, _check_locus, _check_positive_int
+from .locus import Locus, _check_locus, _check_non_negative_int, _check_positive_int
 from .locus import Point as LocusPoint
 
 
@@ -200,18 +200,19 @@ class MultiLocus():
             return coordinate - self._loci[-1].boundary[1]
         return 0
 
-    def to_position(self, coord: Coord) -> Point:
-        """Convert a coordinate dataclass to a multi locus point dataclass.
+    def to_position(self, coordinate: int) -> Point:
+        """Convert a coordinate to a multi locus point dataclass.
 
-        :arg Coord coord: Coordinate dataclass.
+        :arg int coordinate: Coordinate.
 
         :returns Point: Multi locus point dataclass.
         """
-        self._validate_coord(coord.coordinate)
-        index = _nearest_location(self._locations, coord.coordinate, self._inverted)
-        outside = self._orientation * self._outside(coord.coordinate)
+        _check_non_negative_int(coordinate)
+        self._validate_coord(coordinate)
+        index = _nearest_location(self._locations, coordinate, self._inverted)
+        outside = self._orientation * self._outside(coordinate)
         region = 'u' if outside < 0 else 'd' if outside > 0 else ''
-        point = self._loci[index].to_position(coord)
+        point = self._loci[index].to_position(coordinate)
 
         return Point(
             position=point.position + self._offsets[self._direction(index)],
@@ -219,12 +220,12 @@ class MultiLocus():
             region=region,
         )
 
-    def to_coordinate(self, point: Point) -> Coord:
-        """Convert a multi locus point dataclass to a coordinate dataclass.
+    def to_coordinate(self, point: Point) -> int:
+        """Convert a multi locus point dataclass to a coordinate.
 
         :arg Point point: Multi locus point dataclass.
 
-        :returns Coord: Coordinate dataclass.
+        :returns int: Coordinate.
         """
         index = min(
             len(self._offsets), max(0, bisect_right(self._offsets, point.position) - 1)
@@ -233,12 +234,12 @@ class MultiLocus():
 
         if point.region == 'u':
             if self._inverted:
-                return Coord(self._locations[-1][1] - point.offset - 1)
-            return Coord(self._locations[0][0] + point.offset)
+                return self._locations[-1][1] - point.offset - 1
+            return self._locations[0][0] + point.offset
         if point.region == 'd':
             if self._inverted:
-                return Coord(self._locations[0][0] - point.offset)
-            return Coord(self._locations[-1][1] + point.offset - 1)
+                return self._locations[0][0] - point.offset
+            return self._locations[-1][1] + point.offset - 1
 
         try:
             return self._loci[self._direction(index)].to_coordinate(

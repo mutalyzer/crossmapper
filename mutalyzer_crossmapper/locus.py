@@ -12,15 +12,6 @@ class Point:
         _check_int(self.offset)
 
 
-@dataclass(slots=True)
-class Coord:
-    """Coordinate dataclass."""
-    coordinate: int
-
-    def __post_init__(self) -> None:
-        _check_non_negative_int(self.coordinate)
-
-
 def _check_int(value: int) -> None:
     """Check if the input value type is integer."""
     if not isinstance(value, int) or isinstance(value, bool):
@@ -79,35 +70,37 @@ class Locus():
         if position > self._end - 1:
             raise IndexError(f'Position {position} exceeds locus length.')
 
-    def to_position(self, coord: Coord) -> Point:
-        """Convert a coordinate dataclass to a locus point dataclass.
+    def to_position(self, coordinate: int) -> Point:
+        """Convert a coordinate to a locus point dataclass.
 
-        :arg Coord coord: Coordinate dataclass.
+        :arg int coordinate: Coordinate.
 
         :returns Point: Locus point dataclass.
         """
+        _check_non_negative_int(coordinate)
+
         if self._inverted:
-            if coord.coordinate > self.boundary[1]:
-                return Point(position=0, offset=self.boundary[1] - coord.coordinate)
-            if coord.coordinate < self.boundary[0]:
-                return Point(position=self._end - 1, offset=self.boundary[0] - coord.coordinate)
-            return Point(position=self.boundary[1] - coord.coordinate, offset=0)
+            if coordinate > self.boundary[1]:
+                return Point(position=0, offset=self.boundary[1] - coordinate)
+            if coordinate < self.boundary[0]:
+                return Point(position=self._end - 1, offset=self.boundary[0] - coordinate)
+            return Point(position=self.boundary[1] - coordinate, offset=0)
 
-        if coord.coordinate < self.boundary[0]:
-            return Point(position=0, offset=coord.coordinate - self.boundary[0])
-        if coord.coordinate > self.boundary[1]:
-            return Point(position=self._end - 1, offset=coord.coordinate - self.boundary[1])
-        return Point(position=coord.coordinate - self.boundary[0], offset=0)
+        if coordinate < self.boundary[0]:
+            return Point(position=0, offset=coordinate - self.boundary[0])
+        if coordinate > self.boundary[1]:
+            return Point(position=self._end - 1, offset=coordinate - self.boundary[1])
+        return Point(position=coordinate - self.boundary[0], offset=0)
 
-    def to_coordinate(self, point: Point) -> Coord:
-        """Convert a locus point dataclass to a coordinate dataclass.
+    def to_coordinate(self, point: Point) -> int:
+        """Convert a locus point dataclass to a coordinate.
 
         :arg Point point: Locus point dataclass.
 
-        :returns Coord: Coordinate dataclass.
+        :returns int: Coordinate.
         """
         self._validate_point(point.position, point.offset)
 
         if self._inverted:
-            return Coord(self.boundary[1] - point.position - point.offset)
-        return Coord(self.boundary[0] + point.position + point.offset)
+            return self.boundary[1] - point.position - point.offset
+        return self.boundary[0] + point.position + point.offset

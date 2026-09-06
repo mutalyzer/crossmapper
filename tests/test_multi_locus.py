@@ -1,5 +1,5 @@
 from mutalyzer_crossmapper import multi_locus
-from mutalyzer_crossmapper.multi_locus import _offsets, Coord, MultiLocus, Point
+from mutalyzer_crossmapper.multi_locus import _offsets, MultiLocus, Point
 from helper import invariant
 
 import pytest
@@ -103,13 +103,13 @@ def test_MultiLocus_invalid_coordinate():
     """Forward orientent MultiLocus with invalid coordinate."""
     multi_locus = MultiLocus([(30, 35), (40, 45)])
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord(-1))
+        multi_locus.to_position(-1)
     assert str(error.value) == 'Value must be non-negative.'
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord(46.7))
+        multi_locus.to_position(46.7)
     assert str(error.value) == 'Value must be an integer.'
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord('31'))
+        multi_locus.to_position('31')
     assert str(error.value) == 'Value must be an integer.'
 
 
@@ -136,14 +136,14 @@ def test_MultiLocus():
     # Boundary between upstream and the first locus.
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
 
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
@@ -151,37 +151,37 @@ def test_MultiLocus():
     # Internal locus.
     invariant(
         multi_locus.to_position,
-        Coord(29),
+        29,
         multi_locus.to_coordinate,
         Point(position=9, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(30),
+        30,
         multi_locus.to_coordinate,
         Point(position=9, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(31),
+        31,
         multi_locus.to_coordinate,
         Point(position=10, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(33),
+        33,
         multi_locus.to_coordinate,
         Point(position=12, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(34),
+        34,
         multi_locus.to_coordinate,
         Point(position=13, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(35),
+        35,
         multi_locus.to_coordinate,
         Point(position=13, offset=1, region=''),
     )
@@ -189,13 +189,13 @@ def test_MultiLocus():
     # Boundary between the last locus and downstream.
     invariant(
         multi_locus.to_position,
-        Coord(71),
+        71,
         multi_locus.to_coordinate,
         Point(position=21, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(72),
+        72,
         multi_locus.to_coordinate,
         Point(position=21, offset=1, region='d'),
     )
@@ -208,13 +208,13 @@ def test_MultiLocus_inverted():
     # Boundary between upstream and the first locus.
     invariant(
         multi_locus.to_position,
-        Coord(72),
+        72,
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
     invariant(
         multi_locus.to_position,
-        Coord(71),
+        71,
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
@@ -222,37 +222,37 @@ def test_MultiLocus_inverted():
     # Internal locus.
     invariant(
         multi_locus.to_position,
-        Coord(35),
+        35,
         multi_locus.to_coordinate,
         Point(position=8, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(34),
+        34,
         multi_locus.to_coordinate,
         Point(position=8, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(33),
+        33,
         multi_locus.to_coordinate,
         Point(position=9, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(31),
+        31,
         multi_locus.to_coordinate,
         Point(position=11, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(30),
+        30,
         multi_locus.to_coordinate,
         Point(position=12, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(29),
+        29,
         multi_locus.to_coordinate,
         Point(position=12, offset=1, region=''),
     )
@@ -260,13 +260,13 @@ def test_MultiLocus_inverted():
     # Boundary between the last locus and downstream.
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=21, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=21, offset=1, region='d'),
     )
@@ -279,25 +279,25 @@ def test_MultiLocus_with_length():
     # Boundary between the last locus and downstream.
     invariant(
         multi_locus.to_position,
-        Coord(71),
+        71,
         multi_locus.to_coordinate,
         Point(position=21, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(72),
+        72,
         multi_locus.to_coordinate,
         Point(position=21, offset=1, region='d'),
     )
     invariant(
         multi_locus.to_position,
-        Coord(73),
+        73,
         multi_locus.to_coordinate,
         Point(position=21, offset=2, region='d'),
     )
     # Boundary between the last base and beyond the last base.
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord(74))
+        multi_locus.to_position(74)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=21, offset=3, region='d'))
 
@@ -309,25 +309,25 @@ def test_MultiLocus_inverted_with_length():
     # Boundary between the first locus and upstream.
     invariant(
         multi_locus.to_position,
-        Coord(71),
+        71,
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(72),
+        72,
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
     # Boundary between the first base beyond the first base.
     invariant(
         multi_locus.to_position,
-        Coord(73),
+        73,
         multi_locus.to_coordinate,
         Point(position=0, offset=-2, region='u'),
     )
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord(74))
+        multi_locus.to_position(74)
     with pytest.raises(ValueError) as error:
         multi_locus.to_coordinate(Point(position=0, offset=-3, region='u'))
 
@@ -338,13 +338,13 @@ def test_MultiLocus_adjacent_loci():
 
     invariant(
         multi_locus.to_position,
-        Coord(2),
+        2,
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(3),
+        3,
         multi_locus.to_coordinate,
         Point(position=2, offset=0, region=''),
     )
@@ -356,13 +356,13 @@ def test_MultiLocus_adjacent_loci_inverted():
 
     invariant(
         multi_locus.to_position,
-        Coord(3),
+        3,
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(2),
+        2,
         multi_locus.to_coordinate,
         Point(position=2, offset=0, region=''),
     )
@@ -374,13 +374,13 @@ def test_MultiLocus_offsets_odd():
 
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=2, offset=-1, region=''),
     )
@@ -391,13 +391,13 @@ def test_MultiLocus_offsets_odd_inverted():
     multi_locus = MultiLocus([(1, 3), (6, 8)], inverted=True)
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(3),
+        3,
         multi_locus.to_coordinate,
         Point(position=2, offset=-1, region=''),
     )
@@ -409,13 +409,13 @@ def test_MultiLocus_offsets_even():
 
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=2, offset=-2, region=''),
     )
@@ -427,13 +427,13 @@ def test_MultiLocus_offsets_even_inverted():
 
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=1, offset=2, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=2, offset=-2, region=''),
     )
@@ -444,37 +444,37 @@ def test_one_base_exon():
     multi_locus = MultiLocus([(1, 2), (4, 5)])
     invariant(
         multi_locus.to_position,
-        Coord(0),
+        0,
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
     invariant(
         multi_locus.to_position,
-        Coord(1),
+        1,
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(2),
+        2,
         multi_locus.to_coordinate,
         Point(position=0, offset=1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(3),
+        3,
         multi_locus.to_coordinate,
         Point(position=1, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=1, offset=1, region='d'),
     )
@@ -485,37 +485,37 @@ def test_one_base_exon_inverted():
     multi_locus = MultiLocus([(1, 2), (4, 5)], inverted=True)
     invariant(
         multi_locus.to_position,
-        Coord(0),
+        0,
         multi_locus.to_coordinate,
         Point(position=1, offset=1, region='d'),
     )
     invariant(
         multi_locus.to_position,
-        Coord(1),
+        1,
         multi_locus.to_coordinate,
         Point(position=1, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(2),
+        2,
         multi_locus.to_coordinate,
         Point(position=1, offset=-1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(3),
+        3,
         multi_locus.to_coordinate,
         Point(position=0, offset=1, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(4),
+        4,
         multi_locus.to_coordinate,
         Point(position=0, offset=0, region=''),
     )
     invariant(
         multi_locus.to_position,
-        Coord(5),
+        5,
         multi_locus.to_coordinate,
         Point(position=0, offset=-1, region='u'),
     )
@@ -725,11 +725,11 @@ def test_MultiLocus_location_end_equal_reference_length():
 
     invariant(
         multi_locus.to_position,
-        Coord(9),
+        9,
         multi_locus.to_coordinate,
         Point(position=9, offset=0, region=''),
     )
 
     with pytest.raises(ValueError) as error:
-        multi_locus.to_position(Coord(10))
+        multi_locus.to_position(10)
     assert str(error.value) == 'Coordinate 10 is not within the bounds of the reference length 10.'
