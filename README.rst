@@ -27,20 +27,20 @@ HGVS position crossmapper
 This library provides an interface to convert (cross map) between different
 HGVS numbering_ systems.
 
-Converting between the transcript oriented c. or n. and the genomic oriented g.
+Converting between the transcript oriented ``c.`` or ``n.`` and the genomic oriented ``g.``
 numbering systems can be difficult, especially when the transcript in question
-resides on the complement strand.
+resides on the complement strand. This library provides functions to convert between any HGVS
+numbering system to standard (0-based) coordinates and vice versa.
 
 **Features:**
 
-- Support for genomic positions to standard coordinates and vice versa.
-- Support for noncoding positions to standard coordinates and vice versa.
-- Support for coding positions to standard coordinates and vice versa.
-- Support for protein positions to standard coordinates and vice versa.
-- Basic classes for loci that can be used for genomic loci other than genes.
+- Support for genomic (``g.``, ``m.``, ``o.``) positions to standard coordinates and vice versa.
+- Support for noncoding (``n.``, ``r.``) positions to standard coordinates and vice versa.
+- Support for coding (``c.``, ``r.``) positions to standard coordinates and vice versa.
+- Support for protein (``p.``) positions to standard coordinates and vice versa.
+- Basic classes that can be used for loci other than genes or transcripts.
 
 Please see ReadTheDocs_ for the latest documentation.
-
 
 Quick start
 -----------
@@ -53,8 +53,8 @@ positions and coordinates.
     >>> from mutalyzer_crossmapper import Genomic
     >>> crossmap = Genomic()
     >>> crossmap.coordinate_to_genomic(0)
-    1
-    >>> crossmap.genomic_to_coordinate(1)
+    {'position': 1}
+    >>> crossmap.genomic_to_coordinate({'position': 1})
     0
 
 On top of the functionality provided by the ``Genomic`` class, the
@@ -67,8 +67,8 @@ positions and coordinates.
     >>> exons = [(5, 8), (14, 20), (30, 35), (40, 44), (50, 52), (70, 72)]
     >>> crossmap = NonCoding(exons)
     >>> crossmap.coordinate_to_noncoding(35)
-    (14, 1, 0)
-    >>> crossmap.noncoding_to_coordinate((14, 1))
+    {'position': 14, 'offset': 1, 'region': ''}
+    >>> crossmap.noncoding_to_coordinate({'position': 14, 'offset': 1, 'region': ''})
     35
 
 Add the flag ``inverted=True`` to the constructor when the transcript resides
@@ -84,8 +84,8 @@ coordinates as well as conversions between protein positions and coordinates.
     >>> cds = (32, 43)
     >>> crossmap = Coding(exons, cds)
     >>> crossmap.coordinate_to_coding(31)
-    (-1, 0, -1, 0)
-    >>> crossmap.coding_to_coordinate((-1, 0, -1))
+    {'position': 1, 'offset': 0, 'region': '-'}
+    >>> crossmap.coding_to_coordinate({'position':1, 'offset':0, 'region':'-'})
     31
 
 Again, the flag ``inverted=True`` can be used for transcripts that reside on
@@ -96,9 +96,10 @@ Conversions between protein positions and coordinates are done as follows.
 .. code:: python
 
     >>> crossmap.coordinate_to_protein(41)
-    (2, 2, 0, 0, 0)
-    >>> crossmap.protein_to_coordinate((2, 2, 0, 0))
+    {'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''}
+    >>> crossmap.protein_to_coordinate({'position': 2, 'position_in_codon': 2, 'offset': 0, 'region': ''})
     41
+
 
 
 .. _numbering: http://varnomen.hgvs.org/bg-material/numbering/
